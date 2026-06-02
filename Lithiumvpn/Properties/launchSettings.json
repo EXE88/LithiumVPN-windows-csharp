@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Lithiumvpn (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Lithiumvpn (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

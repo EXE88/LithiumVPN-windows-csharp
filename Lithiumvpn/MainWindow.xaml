@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="Lithiumvpn.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Lithiumvpn"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:dev="using:DevWinUI"
+    mc:Ignorable="d"
+    Title="Lithiumvpn">
+
+    <Grid>
+        <Grid.Resources>
+            <Style x:Key="GlassPanelStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                <Setter Property="CornerRadius" Value="15"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="15"/>
+            </Style>
+
+            <Style x:Key="MainConnectionButtonStyle" TargetType="Button">
+                <Setter Property="Width" Value="200"/>
+                <Setter Property="Height" Value="200"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="UseSystemFocusVisuals" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid x:Name="RootGrid" Background="Transparent" UseSystemFocusVisuals="False">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="PointerOver"/>
+                                        <VisualState x:Name="Pressed"/>
+                                    </VisualStateGroup>
+
+                                    <VisualStateGroup x:Name="VPNConnectionStates">
+                                        <VisualState x:Name="Disconnected">
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetName="PowerIcon" Storyboard.TargetProperty="(FontIcon.Foreground).(SolidColorBrush.Color)" To="#FF888888" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="OrangeSphere" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="CyanSphere" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="ExternalGlow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="InnerGlow" Storyboard.TargetProperty="Opacity" To="0.35" Duration="0:0:0.5"/>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Connecting">
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetName="PowerIcon" Storyboard.TargetProperty="(FontIcon.Foreground).(SolidColorBrush.Color)" To="#FFFF9800" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="CyanSphere" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="OrangeSphere" Storyboard.TargetProperty="Opacity" From="0.2" To="1" Duration="0:0:1" RepeatBehavior="Forever" AutoReverse="True"/>
+                                                <DoubleAnimation Storyboard.TargetName="ExternalGlow" Storyboard.TargetProperty="Opacity" To="0.4" Duration="0:0:0.5"/>
+                                                <ColorAnimation Storyboard.TargetName="GlowColorStop" Storyboard.TargetProperty="Color" To="#FF9800" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="InnerGlow" Storyboard.TargetProperty="Opacity" To="0.5" Duration="0:0:0.5"/>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Connected">
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetName="PowerIcon" Storyboard.TargetProperty="(FontIcon.Foreground).(SolidColorBrush.Color)" To="#FF00C853" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="OrangeSphere" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="CyanSphere" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="ExternalGlow" Storyboard.TargetProperty="Opacity" To="0.8" Duration="0:0:0.5"/>
+                                                <ColorAnimation Storyboard.TargetName="GlowColorStop" Storyboard.TargetProperty="Color" To="#00C853" Duration="0:0:0.5"/>
+                                                <DoubleAnimation Storyboard.TargetName="InnerGlow" Storyboard.TargetProperty="Opacity" To="0.7" Duration="0:0:0.5"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <Ellipse x:Name="ExternalGlow" Width="260" Height="260" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Ellipse.Fill>
+                                        <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                            <GradientStop x:Name="GlowColorStop" Color="#888" Offset="0.0"/>
+                                            <GradientStop Color="#00000000" Offset="0.75"/>
+                                        </RadialGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+
+                                <Ellipse x:Name="BaseSphere" Width="180" Height="180" Opacity="1">
+                                    <Ellipse.Fill>
+                                        <RadialGradientBrush Center="0.5,0.5" RadiusX="0.7" RadiusY="0.7">
+                                            <GradientStop Color="#D0FFFFFF" Offset="0.0"/>
+                                            <GradientStop Color="#40FFFFFF" Offset="0.35"/>
+                                            <GradientStop Color="#18000000" Offset="0.75"/>
+                                            <GradientStop Color="#35000000" Offset="1.0"/>
+                                        </RadialGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+
+                                <Ellipse x:Name="InnerGlow" Width="130" Height="130" Opacity="0.35" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Ellipse.Fill>
+                                        <RadialGradientBrush Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                            <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+                                        </RadialGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                
+                                <Ellipse x:Name="OrangeSphere" Width="180" Height="180" Opacity="0">
+                                    <Ellipse.Fill>
+                                        <RadialGradientBrush Center="0.5,0.5" RadiusX="0.7" RadiusY="0.7">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                            <GradientStop Color="#80FF9800" Offset="0.4"/>
+                                            <GradientStop Color="#20000000" Offset="0.9"/>
+                                        </RadialGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+
+                                <Ellipse x:Name="CyanSphere" Width="180" Height="180" Opacity="0">
+                                    <Ellipse.Fill>
+                                        <RadialGradientBrush Center="0.5,0.5" RadiusX="0.7" RadiusY="0.7">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                            <GradientStop Color="#8000C853" Offset="0.4"/>
+                                            <GradientStop Color="#20000000" Offset="0.9"/>
+                                        </RadialGradientBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+
+                                <Ellipse Width="180" Height="180" Stroke="#40FFFFFF" StrokeThickness="1.5"/>
+
+                                <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" FontSize="48" Foreground="#FF888888" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="NavButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="Padding" Value="15,12"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="UseSystemFocusVisuals" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid x:Name="RootGrid" Background="Transparent" CornerRadius="10"
+                      RenderTransformOrigin="0.5,0.5">
+                                <Grid.RenderTransform>
+                                    <ScaleTransform x:Name="ScaleT" ScaleX="1" ScaleY="1"/>
+                                </Grid.RenderTransform>
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualStateGroup.Transitions>
+                                            <VisualTransition GeneratedDuration="0:0:0.15"/>
+                                        </VisualStateGroup.Transitions>
+
+                                        <VisualState x:Name="Normal">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleX"
+                                                     To="1" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleY"
+                                                     To="1" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid"
+                                                                   Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0"
+                                                                Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
+                                                                   Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0"
+                                                                Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleX"
+                                                     To="1.03" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleY"
+                                                     To="1.03" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid"
+                                                                   Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0"
+                                                                Value="{ThemeResource SubtleFillColorTertiaryBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
+                                                                   Storyboard.TargetProperty="Foreground">
+                                                    <DiscreteObjectKeyFrame KeyTime="0"
+                                                                Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <!-- press = کوچک‌تر از حالت عادی، حس کلیک فیزیکی -->
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleX"
+                                                     To="0.97" Duration="0:0:0.1">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleY"
+                                                     To="0.97" Duration="0:0:0.1">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <ContentPresenter x:Name="ContentPresenter"
+                                      Content="{TemplateBinding Content}"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      Padding="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SelectedNavButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="Padding" Value="15,12"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="UseSystemFocusVisuals" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid x:Name="RootGrid"
+                      Background="{TemplateBinding Background}"
+                      CornerRadius="10"
+                      RenderTransformOrigin="0.5,0.5">
+                                <Grid.RenderTransform>
+                                    <ScaleTransform x:Name="ScaleT" ScaleX="1" ScaleY="1"/>
+                                </Grid.RenderTransform>
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualStateGroup.Transitions>
+                                            <VisualTransition GeneratedDuration="0:0:0.15"/>
+                                        </VisualStateGroup.Transitions>
+
+                                        <VisualState x:Name="Normal">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleX"
+                                                     To="1" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleY"
+                                                     To="1" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid"
+                                                                   Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0"
+                                                                Value="{ThemeResource SubtleFillColorTertiaryBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleX"
+                                                     To="1.03" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleY"
+                                                     To="1.03" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </VisualState>
+
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid"
+                                                                   Storyboard.TargetProperty="Background">
+                                                    <DiscreteObjectKeyFrame KeyTime="0"
+                                                                Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleX"
+                                                     To="0.97" Duration="0:0:0.1">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ScaleT"
+                                                     Storyboard.TargetProperty="ScaleY"
+                                                     To="0.97" Duration="0:0:0.1">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
+                                <ContentPresenter x:Name="ContentPresenter"
+                                      Content="{TemplateBinding Content}"
+                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      Padding="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <dev:Particle x:Name="ParticleBg"
+              IsPointerEnable="True"
+              Density="5"
+              ParticleColor="White"
+              LineColor="White"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              IsHitTestVisible="False"
+              Opacity="0.2"
+              Grid.ColumnSpan="2"/>
+
+        <!-- ستون چپ: Navigation -->
+        <Grid Grid.Column="0" Margin="15,15,0,15">
+            <Border Style="{StaticResource GlassPanelStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- لوگو -->
+                    <Grid Grid.Row="0" Margin="0,20,0,30">
+                        <Ellipse Width="36" Height="36" Stroke="#FF00E5FF" StrokeThickness="4" HorizontalAlignment="Center"/>
+                        <Ellipse Width="18" Height="18" Fill="#FF00E5FF" HorizontalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- آیتم‌های ناوبری -->
+                    <StackPanel Grid.Row="1" Spacing="5">
+                        <Button Style="{StaticResource SelectedNavButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="15">
+                                <FontIcon Glyph="&#xE80F;" FontSize="16"/>
+                                <TextBlock Text="Dashboard" FontWeight="SemiBold" FontSize="15"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource NavButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="15">
+                                <FontIcon Glyph="&#xE838;" FontSize="16"/>
+                                <TextBlock Text="Servers" FontSize="15"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource NavButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="15">
+                                <FontIcon Glyph="&#xE713;" FontSize="16"/>
+                                <TextBlock Text="Settings" FontSize="15"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource NavButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="15">
+                                <FontIcon Glyph="&#xE77B;" FontSize="16"/>
+                                <TextBlock Text="Account" FontSize="15"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- ✅ ComboBox های تم و backdrop اینجا هستن، زیر آیتم‌های ناوبری -->
+                        <TextBlock Text="Theme" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Margin="15,15,0,5"/>
+                        <ComboBox HorizontalAlignment="Stretch" Margin="5,0"
+                                  dev:ThemeServiceAttach.ThemeService="{x:Bind local:App.GetThemeService}">
+                            <ComboBoxItem Content="Light"  Tag="Light"/>
+                            <ComboBoxItem Content="Dark"   Tag="Dark"/>
+                            <ComboBoxItem Content="System" Tag="Default"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Backdrop" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Margin="15,10,0,5"/>
+                        <ComboBox HorizontalAlignment="Stretch" Margin="5,0"
+                                  dev:ThemeServiceAttach.ThemeService="{x:Bind local:App.GetThemeService}">
+                            <ComboBoxItem Tag="None"        Content="None"/>
+                            <ComboBoxItem Tag="Mica"        Content="Mica"/>
+                            <ComboBoxItem Tag="MicaAlt"     Content="Mica Alt"/>
+                            <ComboBoxItem Tag="Acrylic"     Content="Acrylic"/>
+                            <ComboBoxItem Tag="AcrylicThin" Content="Acrylic Thin"/>
+                            <ComboBoxItem Tag="Transparent" Content="Transparent"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <Button Grid.Row="2" Background="Transparent" BorderThickness="0"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            HorizontalAlignment="Left" Margin="5,0,0,5">
+                        <FontIcon Glyph="&#xEA8F;" FontSize="18"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ستون راست: محتوای اصلی -->
+        <Grid Grid.Column="1" Margin="20,35,20,15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- هدر: سرور انتخابی -->
+            <Border Grid.Row="0" Style="{StaticResource GlassPanelStyle}"
+                    Padding="15,10" BorderThickness="0,0,0,1" CornerRadius="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Ellipse Grid.Column="0" Width="24" Height="24" VerticalAlignment="Center" Margin="0,0,15,0">
+                        <Ellipse.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="Black" Offset="0.3"/>
+                                <GradientStop Color="Red"   Offset="0.6"/>
+                                <GradientStop Color="Gold"  Offset="1"/>
+                            </LinearGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Germany (DE)"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock Text="dl5huq"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   FontSize="12"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="10" Width="36" Height="36" Padding="0">
+                        <FontIcon Glyph="&#xE70D;" FontSize="12"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- دکمه اتصال -->
+            <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button x:Name="MainConnectButton"
+                        Style="{StaticResource MainConnectionButtonStyle}"
+                        Click="MainConnectButton_Click"/>
+            </Grid>
+
+            <!-- کارت‌های اطلاعاتی پایین -->
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,5">
+                    <StackPanel>
+                        <TextBlock Text="Plan Usage"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   FontSize="13" Margin="0,0,0,10"/>
+                        <Grid HorizontalAlignment="Center">
+                            <ProgressRing IsIndeterminate="False" Value="70"
+                                          Foreground="#FF9800"
+                                          Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"
+                                          Width="60" Height="60"/>
+                            <TextBlock Text="70%"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       FontWeight="Bold" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,5,5">
+                    <StackPanel>
+                        <TextBlock Text="Expiry Time"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   FontSize="13" Margin="0,0,0,10"/>
+                        <TextBlock Text="47"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   FontWeight="Bold" FontSize="26" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Days Left"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   FontSize="11" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,5">
+                    <StackPanel>
+                        <TextBlock Text="Ping"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                   FontSize="13" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom" Margin="0,5,0,0">
+                            <TextBlock Text="24"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       FontWeight="Bold" FontSize="26"/>
+                            <TextBlock Text=" ms"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,0">
+                        <StackPanel>
+                            <TextBlock Text="Upload"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       FontSize="13" Margin="0,0,0,5"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="12.4"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                           FontWeight="Bold" FontSize="22"/>
+                                <TextBlock Text=" MB/s"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Download"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                       FontSize="13" Margin="0,0,0,5"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="45.8"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                           FontWeight="Bold" FontSize="22"/>
+                                <TextBlock Text=" MB/s"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
