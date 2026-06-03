@@ -7,10 +7,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:dev="using:DevWinUI"
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     mc:Ignorable="d"
     Title="Lithiumvpn">
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.Resources>
             <Style x:Key="GlassPanelStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
@@ -131,6 +132,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <!-- Small animations for bottom icons -->
             <Style x:Key="NavButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -387,222 +389,72 @@
 
                     <!-- آیتم‌های ناوبری -->
                     <StackPanel Grid.Row="1" Spacing="5">
-                        <Button Style="{StaticResource SelectedNavButtonStyle}">
+                        <Button x:Name="NavDashboardButton" Tag="Dashboard" Style="{StaticResource SelectedNavButtonStyle}"  Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE80F;" FontSize="16"/>
                                 <TextBlock Text="Dashboard" FontWeight="SemiBold" FontSize="15"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource NavButtonStyle}">
+                        <Button Tag="Configs" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE838;" FontSize="16"/>
-                                <TextBlock Text="Servers" FontSize="15"/>
+                                <TextBlock Text="Configs" FontSize="15"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource NavButtonStyle}">
-                            <StackPanel Orientation="Horizontal" Spacing="15">
-                                <FontIcon Glyph="&#xE713;" FontSize="16"/>
-                                <TextBlock Text="Settings" FontSize="15"/>
-                            </StackPanel>
-                        </Button>
+                        <!-- Settings moved to bottom as a single AnimatedIcon button -->
 
-                        <Button Style="{StaticResource NavButtonStyle}">
+                        <Button Tag="Account" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE77B;" FontSize="16"/>
                                 <TextBlock Text="Account" FontSize="15"/>
                             </StackPanel>
                         </Button>
+                        
+                        <Button Tag="Coins" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="15">
+                                <FontIcon Glyph="&#xE8C7;" FontSize="16"/>
+                                <TextBlock Text="Coins" FontSize="15"/>
+                            </StackPanel>
+                        </Button>
 
-                        <!-- ✅ ComboBox های تم و backdrop اینجا هستن، زیر آیتم‌های ناوبری -->
-                        <TextBlock Text="Theme" FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   Margin="15,15,0,5"/>
-                        <ComboBox HorizontalAlignment="Stretch" Margin="5,0"
-                                  dev:ThemeServiceAttach.ThemeService="{x:Bind local:App.GetThemeService}">
-                            <ComboBoxItem Content="Light"  Tag="Light"/>
-                            <ComboBoxItem Content="Dark"   Tag="Dark"/>
-                            <ComboBoxItem Content="System" Tag="Default"/>
-                        </ComboBox>
-
-                        <TextBlock Text="Backdrop" FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   Margin="15,10,0,5"/>
-                        <ComboBox HorizontalAlignment="Stretch" Margin="5,0"
-                                  dev:ThemeServiceAttach.ThemeService="{x:Bind local:App.GetThemeService}">
-                            <ComboBoxItem Tag="None"        Content="None"/>
-                            <ComboBoxItem Tag="Mica"        Content="Mica"/>
-                            <ComboBoxItem Tag="MicaAlt"     Content="Mica Alt"/>
-                            <ComboBoxItem Tag="Acrylic"     Content="Acrylic"/>
-                            <ComboBoxItem Tag="AcrylicThin" Content="Acrylic Thin"/>
-                            <ComboBoxItem Tag="Transparent" Content="Transparent"/>
-                        </ComboBox>
+                        <Button Tag="Plans" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="15">
+                                <FontIcon Glyph="&#xE787;" FontSize="16"/>
+                                <TextBlock Text="Plans" FontSize="15"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
 
-                    <Button Grid.Row="2" Background="Transparent" BorderThickness="0"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            HorizontalAlignment="Left" Margin="5,0,0,5">
-                        <FontIcon Glyph="&#xEA8F;" FontSize="18"/>
-                    </Button>
+                    <!-- Bottom controls: Settings icon (animated) above bell icon -->
+                    <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Left" Margin="5,0,0,5">
+                        <Button x:Name="SettingsIconButton" Background="Transparent" BorderThickness="0"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" Click="NavButton_Click" Tag="Settings"
+                                HorizontalAlignment="Left" Margin="0,0,0,6"
+                                PointerEntered="SettingsIconButton_PointerEntered" PointerExited="SettingsIconButton_PointerExited">
+                            <AnimatedIcon x:Name="SettingsAnimatedIcon" Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <AnimatedIcon.Source>
+                                    <animatedvisuals:AnimatedSettingsVisualSource/>
+                                </AnimatedIcon.Source>
+                                <AnimatedIcon.FallbackIconSource>
+                                    <SymbolIconSource Symbol="Setting"/>
+                                </AnimatedIcon.FallbackIconSource>
+                            </AnimatedIcon>
+                        </Button>
+
+                        <Button x:Name="BellIconButton" Background="Transparent" BorderThickness="0"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                HorizontalAlignment="Left"
+                                Tag="Notifications" Click="NavButton_Click">
+                            <FontIcon x:Name="BellFontIcon" Glyph="&#xEA8F;" FontSize="18"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
         </Grid>
 
         <!-- ستون راست: محتوای اصلی -->
-        <Grid Grid.Column="1" Margin="20,35,20,15">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- هدر: سرور انتخابی -->
-            <Border Grid.Row="0" Style="{StaticResource GlassPanelStyle}"
-                    Padding="15,10" BorderThickness="0,0,0,1" CornerRadius="10">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Ellipse Grid.Column="0" Width="24" Height="24" VerticalAlignment="Center" Margin="0,0,15,0">
-                        <Ellipse.Fill>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop Color="Black" Offset="0.3"/>
-                                <GradientStop Color="Red"   Offset="0.6"/>
-                                <GradientStop Color="Gold"  Offset="1"/>
-                            </LinearGradientBrush>
-                        </Ellipse.Fill>
-                    </Ellipse>
-
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Germany (DE)"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock Text="dl5huq"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   FontSize="12"/>
-                    </StackPanel>
-
-                    <Button Grid.Column="2"
-                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1" CornerRadius="10" Width="36" Height="36" Padding="0">
-                        <FontIcon Glyph="&#xE70D;" FontSize="12"
-                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                    </Button>
-                </Grid>
-            </Border>
-
-            <!-- دکمه اتصال -->
-            <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button x:Name="MainConnectButton"
-                        Style="{StaticResource MainConnectionButtonStyle}"
-                        Click="MainConnectButton_Click"/>
-            </Grid>
-
-            <!-- کارت‌های اطلاعاتی پایین -->
-            <Grid Grid.Row="2" Margin="0,10,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,5">
-                    <StackPanel>
-                        <TextBlock Text="Plan Usage"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontSize="13" Margin="0,0,0,10"/>
-                        <Grid HorizontalAlignment="Center">
-                            <ProgressRing IsIndeterminate="False" Value="70"
-                                          Foreground="#FF9800"
-                                          Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"
-                                          Width="60" Height="60"/>
-                            <TextBlock Text="70%"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                       FontWeight="Bold" FontSize="14"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,5,5">
-                    <StackPanel>
-                        <TextBlock Text="Expiry Time"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontSize="13" Margin="0,0,0,10"/>
-                        <TextBlock Text="47"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontWeight="Bold" FontSize="26" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Days Left"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   FontSize="11" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,5">
-                    <StackPanel>
-                        <TextBlock Text="Ping"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontSize="13" Margin="0,0,0,10"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
-                                    VerticalAlignment="Bottom" Margin="0,5,0,0">
-                            <TextBlock Text="24"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                       FontWeight="Bold" FontSize="26"/>
-                            <TextBlock Text=" ms"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                       FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,0">
-                        <StackPanel>
-                            <TextBlock Text="Upload"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                       FontSize="13" Margin="0,0,0,5"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="12.4"
-                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                           FontWeight="Bold" FontSize="22"/>
-                                <TextBlock Text=" MB/s"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                           FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,0">
-                        <StackPanel>
-                            <TextBlock Text="Download"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                       FontSize="13" Margin="0,0,0,5"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="45.8"
-                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                           FontWeight="Bold" FontSize="22"/>
-                                <TextBlock Text=" MB/s"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                           FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Grid>
-        </Grid>
+        <Frame x:Name="MainFrame" Grid.Column="1" Margin="20,15,20,15"/>
     </Grid>
 </Window>

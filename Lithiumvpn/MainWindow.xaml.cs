@@ -19,54 +19,100 @@ namespace Lithiumvpn
 {
     public sealed partial class MainWindow : Window
     {
-        private enum ConnectionState { Disconnected, Connecting, Connected }
-        private ConnectionState currentState = ConnectionState.Disconnected;
-        private DispatcherTimer connectionTimer;
+        // Connection logic moved to DashboardPage; MainWindow should not directly manipulate Dashboard visual states.
 
         public MainWindow()
         {
             this.InitializeComponent();
             this.ExtendsContentIntoTitleBar = true;
+            MainFrame.Navigate(typeof(Pages.DashboardPage));
+            // Navigate to dashboard; DashboardPage handles its own connection UI state.
 
-            connectionTimer = new DispatcherTimer();
-            connectionTimer.Interval = TimeSpan.FromSeconds(2.5);
-            connectionTimer.Tick += ConnectionTimer_Tick;
+            // Initialize active nav button to the dashboard button that is selected by default
+            _activeNavButton = NavDashboardButton;
 
-            UpdateVisualState();
-        }
-
-        private void MainConnectButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (currentState == ConnectionState.Disconnected)
+            // Start bell icon animation (settings uses AnimatedIcon states on pointer events)
+            try
             {
-                currentState = ConnectionState.Connecting;
-                connectionTimer.Start();
-                UpdateVisualState();
+                var bellStoryboard = (Microsoft.UI.Xaml.Media.Animation.Storyboard)RootGrid.Resources["BellPulseStoryboard"];
+                bellStoryboard?.Begin();
             }
-            else if (currentState == ConnectionState.Connected)
+            catch { }
+
+            // Make the window fixed size (disable resizing/maximizing)
+            try
             {
-                currentState = ConnectionState.Disconnected;
-                UpdateVisualState();
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                if (appWindow?.Presenter is Microsoft.UI.Windowing.OverlappedPresenter presenter)
+                {
+                    presenter.IsResizable = false;
+                    presenter.IsMaximizable = false;
+                }
             }
+            catch { }
         }
 
-        private void ConnectionTimer_Tick(object? sender, object e)
+        // Removed duplicate connection state code (DashboardPage implements this behavior).
+
+        private Button? _activeNavButton;
+        private void SettingsIconButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            connectionTimer.Stop();
-            currentState = ConnectionState.Connected;
-            UpdateVisualState();
+            try { AnimatedIcon.SetState(SettingsAnimatedIcon, "PointerOver"); } catch { }
         }
 
-        private void UpdateVisualState()
+        private void SettingsIconButton_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            string stateName = currentState switch
+            try { AnimatedIcon.SetState(SettingsAnimatedIcon, "Normal"); } catch { }
+        }
+        private void NavButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button clickedButton) return;
+            // If settings or bell icon was clicked, don't apply the selected style (they use compact layout)
+            if (clickedButton == SettingsIconButton || clickedButton == BellIconButton)
             {
-                ConnectionState.Disconnected => "Disconnected",
-                ConnectionState.Connecting => "Connecting",
-                ConnectionState.Connected => "Connected",
-                _ => "Disconnected"
+                if (clickedButton == SettingsIconButton)
+                {
+                    // Play AnimatedIcon 'PointerOver' state briefly to simulate click animation
+                    try { AnimatedIcon.SetState(SettingsAnimatedIcon, "PointerOver"); } catch { }
+                    var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+                    timer.Tick += (s, ev) =>
+                    {
+                        try { AnimatedIcon.SetState(SettingsAnimatedIcon, "Normal"); } catch { }
+                        ((DispatcherTimer)s).Stop();
+                    };
+                    timer.Start();
+                    MainFrame.Navigate(typeof(Pages.SettingsPage));
+                    return;
+                }
+
+                if (clickedButton == BellIconButton)
+                {
+                    MainFrame.Navigate(typeof(Pages.NotificationsPage));
+                    return;
+                }
+            }
+
+            if (_activeNavButton != null && _activeNavButton != SettingsIconButton && _activeNavButton != BellIconButton)
+                _activeNavButton.Style = (Style)RootGrid.Resources["NavButtonStyle"];
+
+            clickedButton.Style = (Style)RootGrid.Resources["SelectedNavButtonStyle"];
+            _activeNavButton = clickedButton;
+            Type? pageType = clickedButton.Tag?.ToString() switch
+            {
+                "Dashboard" => typeof(Pages.DashboardPage),
+                "Configs" => typeof(Pages.ServersPage),
+                "Coins" => typeof(Pages.CoinsPage),
+                "Plans" => typeof(Pages.PlansPage),
+                "Settings" => typeof(Pages.SettingsPage),
+                "Account" => typeof(Pages.AccountPage),
+                "Notifications" => typeof(Pages.NotificationsPage),
+                _ => null
             };
-            VisualStateManager.GoToState(MainConnectButton, stateName, true);
+
+            if (pageType is not null)
+                MainFrame.Navigate(pageType);
         }
     }
 }
