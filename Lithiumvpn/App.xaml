@@ -6,6 +6,11 @@
     xmlns:local="using:Lithiumvpn">
     <Application.Resources>
         <ResourceDictionary>
+            <!-- Global dialog acrylic used by ContentDialogs to provide consistent blurred background -->
+            <AcrylicBrush x:Key="DialogAcrylic"
+                          TintColor="{ThemeResource SystemBaseHighColor}"
+                          TintOpacity="0.1"
+                          FallbackColor="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="ms-appx:///DevWinUI.Controls/Themes/Generic.xaml" />

@@ -175,9 +175,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- هدر: سرور انتخابی -->
+        <!-- هدر: config selection bar -->
         <Border Grid.Row="0" Style="{StaticResource GlassPanelStyle}"
-                Padding="15,10" BorderThickness="0,0,0,1" CornerRadius="10">
+        Padding="15,10" BorderThickness="0,0,0,1" CornerRadius="10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -185,33 +185,38 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Ellipse Grid.Column="0" Width="24" Height="24"
-                         VerticalAlignment="Center" Margin="0,0,15,0">
-                    <Ellipse.Fill>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="Black" Offset="0.3"/>
-                            <GradientStop Color="Red"   Offset="0.6"/>
-                            <GradientStop Color="Gold"  Offset="1"/>
-                        </LinearGradientBrush>
-                    </Ellipse.Fill>
-                </Ellipse>
+                <!-- ✅ پرچم — از Ellipse با ImageBrush برای پرچم SVG به‌صورت دایره‌ای استفاده می‌کنیم؛ TextBlock اموجی به‌عنوان fallback -->
+                <Grid Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <Ellipse x:Name="ConfigFlagEllipse" Width="28" Height="28" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.Fill>
+                            <SolidColorBrush Color="Transparent" />
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <TextBlock x:Name="ConfigFlag" Text="🇩🇪" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid>
 
+                <!-- ✅ اطلاعات کانفیگ -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="Germany (DE)"
-                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                               FontWeight="SemiBold" FontSize="14"/>
-                    <TextBlock Text="dl5huq"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               FontSize="12"/>
+                    <TextBlock x:Name="ConfigCountry"
+                       Text="Germany (DE)"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                       FontWeight="SemiBold" FontSize="14"/>
+                    <!-- Config name (shown after selecting a config) -->
+                    <TextBlock x:Name="ConfigName"
+                       Text="cnokvtb2"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       FontSize="12"/>
                 </StackPanel>
 
+                <!-- ✅ دکمه باز کردن مودال -->
                 <Button Grid.Column="2"
-                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="10"
-                        Width="36" Height="36" Padding="0">
+                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1" CornerRadius="10"
+                Width="36" Height="36" Padding="0"
+                Click="ConfigSelector_Click">
                     <FontIcon Glyph="&#xE70D;" FontSize="12"
-                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                 </Button>
             </Grid>
         </Border>
@@ -237,49 +242,28 @@
 
             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,5">
                 <StackPanel>
-                    <TextBlock Text="GB Left"
-                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                               FontSize="13" Margin="0,0,0,10"/>
+                    <TextBlock Text="GB Left" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
                     <Grid HorizontalAlignment="Center">
-                        <ProgressRing IsIndeterminate="False" Value="70"
-                                      Foreground="#8ca84c"
-                                      Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"
-                                      Width="60" Height="60"/>
-                        <TextBlock Text="6.75"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontWeight="Bold" FontSize="16"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ProgressRing x:Name="DataProgressRing" IsIndeterminate="False" Value="70" Foreground="#8ca84c" Background="{ThemeResource ControlAltFillColorQuarternaryBrush}" Width="60" Height="60"/>
+                        <TextBlock x:Name="DataValue" Text="6.75" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,5,5">
                 <StackPanel>
-                    <TextBlock Text="Expiry"
-                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                               FontSize="13" Margin="0,0,0,10"/>
-                    <TextBlock Text="47"
-                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                               FontWeight="Bold" FontSize="26" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Days Left"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               FontSize="11" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Expiry" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
+                    <TextBlock x:Name="ExpiryValue" Text="47" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontWeight="Bold" FontSize="26" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Days Left" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="11" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,5">
                 <StackPanel>
-                    <TextBlock Text="Ping"
-                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                               FontSize="13" Margin="0,0,0,10"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
-                                VerticalAlignment="Bottom" Margin="0,5,0,0">
-                        <TextBlock Text="24"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontWeight="Bold" FontSize="26"/>
-                        <TextBlock Text=" ms"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                    <TextBlock Text="Ping" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,5,0,0">
+                        <TextBlock x:Name="PingValue" Text="24" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontWeight="Bold" FontSize="26"/>
+                        <TextBlock Text=" ms" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

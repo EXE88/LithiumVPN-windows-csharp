@@ -16,6 +16,7 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Dialogs\ConfigSelectionDialog.xaml" />
     <None Remove="Pages\AccountPage.xaml" />
     <None Remove="Pages\CoinsPage.xaml" />
     <None Remove="Pages\DashboardPage.xaml" />
@@ -87,6 +88,20 @@
     <Page Update="Pages\DashboardPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Dialogs\ConfigSelectionDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Flags\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Flags\**\*.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!--
