@@ -237,17 +237,17 @@
 
             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,5">
                 <StackPanel>
-                    <TextBlock Text="Usage"
+                    <TextBlock Text="GB Left"
                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                FontSize="13" Margin="0,0,0,10"/>
                     <Grid HorizontalAlignment="Center">
                         <ProgressRing IsIndeterminate="False" Value="70"
-                                      Foreground="#FF9800"
+                                      Foreground="#8ca84c"
                                       Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"
                                       Width="60" Height="60"/>
-                        <TextBlock Text="70%"
+                        <TextBlock Text="6.75"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                   FontWeight="Bold" FontSize="14"
+                                   FontWeight="Bold" FontSize="16"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
