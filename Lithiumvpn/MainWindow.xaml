@@ -382,9 +382,11 @@
                     </Grid.RowDefinitions>
 
                     <!-- لوگو -->
-                    <Grid Grid.Row="0" Margin="0,20,0,30">
-                        <Ellipse Width="36" Height="36" Stroke="#FF00E5FF" StrokeThickness="4" HorizontalAlignment="Center"/>
-                        <Ellipse Width="18" Height="18" Fill="#FF00E5FF" HorizontalAlignment="Center"/>
+                    <Grid Grid.Row="0" Margin="0,20,0,30" HorizontalAlignment="Center" Width="48" Height="48">
+                        <Image x:Name="AppLogo"
+                            Width="58" Height="58"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
                     </Grid>
 
                     <!-- آیتم‌های ناوبری -->

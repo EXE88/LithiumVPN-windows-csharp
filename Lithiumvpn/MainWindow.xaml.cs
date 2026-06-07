@@ -25,6 +25,9 @@ namespace Lithiumvpn
         {
             this.InitializeComponent();
             this.ExtendsContentIntoTitleBar = true;
+
+            this.Activated += MainWindow_Activated;
+
             MainFrame.Navigate(typeof(Pages.DashboardPage));
             // Navigate to dashboard; DashboardPage handles its own connection UI state.
 
@@ -52,6 +55,20 @@ namespace Lithiumvpn
                 }
             }
             catch { }
+        }
+
+        private bool _logoInitialized = false;
+
+        private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+        {
+            // فقط یه بار اجرا بشه
+            if (_logoInitialized) return;
+            _logoInitialized = true;
+
+            UpdateLogo();
+
+            if (App.GetThemeService is not null)
+                App.GetThemeService.ThemeChanged += (s, e) => UpdateLogo();
         }
 
         // Removed duplicate connection state code (DashboardPage implements this behavior).
@@ -113,6 +130,20 @@ namespace Lithiumvpn
 
             if (pageType is not null)
                 MainFrame.Navigate(pageType);
+        }
+        private void UpdateLogo()
+        {
+            // ✅ double null-safe
+            if (App.GetThemeService is null) return;
+            if (AppLogo is null) return;
+
+            bool isDark = App.GetThemeService.IsDark;
+
+            var logoPath = isDark
+                ? "ms-appx:///Assets/LogoWhite.svg"
+                : "ms-appx:///Assets/LogoBlack.svg";
+
+            AppLogo.Source = new Microsoft.UI.Xaml.Media.Imaging.SvgImageSource(new Uri(logoPath));
         }
     }
 }
