@@ -24,6 +24,7 @@
     <None Remove="Pages\PlansPage.xaml" />
     <None Remove="Pages\ServersPage.xaml" />
     <None Remove="Pages\SettingsPage.xaml" />
+    <None Remove="SplashScreenWindow.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -102,6 +103,12 @@
     <Content Include="Assets\Flags\**\*.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="SplashScreenWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--

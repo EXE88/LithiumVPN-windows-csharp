@@ -382,11 +382,12 @@
                     </Grid.RowDefinitions>
 
                     <!-- لوگو -->
-                    <Grid Grid.Row="0" Margin="0,20,0,30" HorizontalAlignment="Center" Width="48" Height="48">
+                    <Grid Grid.Row="0" Margin="0,20,0,30" HorizontalAlignment="Center" Width="64" Height="66">
                         <Image x:Name="AppLogo"
                             Width="58" Height="58"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"/>
+                        <TextBlock Text="Lithiumvpn" FontSize="10" FontWeight="Bold" Margin="5.6,54,0,0" VerticalAlignment="Center"/>
                     </Grid>
 
                     <!-- آیتم‌های ناوبری -->
