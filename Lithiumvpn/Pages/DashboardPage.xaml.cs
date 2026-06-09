@@ -35,7 +35,7 @@ namespace Lithiumvpn.Pages
         {
             // header
             ConfigFlagEllipse.Visibility = Visibility.Collapsed;
-            ConfigFlag.Text = "🌐";
+            ConfigFlag.Text = "";
             ConfigFlag.Visibility = Visibility.Visible;
             ConfigCountry.Text = "Choose your configuration";
             ConfigName.Text = "No config selected";

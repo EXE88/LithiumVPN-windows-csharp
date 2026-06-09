@@ -59,7 +59,7 @@ namespace Lithiumvpn.Dialogs
                 {
                     new() { PurchaseId="P2", Tag="P2_NL", FlagEmoji="🇳🇱", Country="Netherlands", CountryCode="NL", ConfigName="cn_nl_b1", PingMs=27, GbLeft=78.0, DaysLeft=93,  ExpiryDate=new DateOnly(2025,8,15)  },
                     new() { PurchaseId="P2", Tag="P2_DE", FlagEmoji="🇩🇪", Country="Germany",     CountryCode="DE", ConfigName="cn_de_f2", PingMs=41, GbLeft=15.3, DaysLeft=93,  ExpiryDate=new DateOnly(2025,8,15)  },
-                    new() { PurchaseId="P2", Tag="P2_PL", FlagEmoji="🇵🇱", Country="Poland",      CountryCode="PL", ConfigName="cn_pl_w2", PingMs=0,  GbLeft=0,    DaysLeft=93,  ExpiryDate=new DateOnly(2025,8,15), IsAvailable=false },
+                    new() { PurchaseId="P2", Tag="P2_PL", FlagEmoji="🇵🇱", Country="Poland",      CountryCode="PL", ConfigName="cn_pl_w2", PingMs=0,  GbLeft=0,    DaysLeft=93,  ExpiryDate=new DateOnly(2025,8,15)  },
                 }
             ),
             (
