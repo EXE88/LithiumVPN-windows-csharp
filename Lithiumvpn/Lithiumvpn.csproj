@@ -106,6 +106,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Pages\LoginPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Pages\SplashPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="SplashScreenWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

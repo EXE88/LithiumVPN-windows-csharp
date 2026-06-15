@@ -28,8 +28,9 @@ namespace Lithiumvpn
 
             this.Activated += MainWindow_Activated;
 
-            MainFrame.Navigate(typeof(Pages.DashboardPage));
-            // Navigate to dashboard; DashboardPage handles its own connection UI state.
+            // Start with the SplashPage which will navigate to the dashboard when complete
+            MainFrame.Navigated += MainFrame_Navigated;
+            MainFrame.Navigate(typeof(Pages.SplashPage));
 
             // Initialize active nav button to the dashboard button that is selected by default
             _activeNavButton = NavDashboardButton;
@@ -130,6 +131,45 @@ namespace Lithiumvpn
 
             if (pageType is not null)
                 MainFrame.Navigate(pageType);
+        }
+        private void MainFrame_Navigated(object? sender, Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+        {
+            // If navigated to SplashPage: hide left navigation and expand Frame to full window
+            if (e?.SourcePageType == typeof(Pages.SplashPage))
+            {
+                // Hide left nav
+                try { LeftNavGrid.Visibility = Visibility.Collapsed; } catch { }
+
+                // Expand MainFrame to cover both columns
+                try
+                {
+                    Grid.SetColumn(MainFrame, 0);
+                    Grid.SetColumnSpan(MainFrame, 2);
+                    MainFrame.Margin = new Thickness(0);
+                }
+                catch { }
+
+                if (e.Content is Pages.SplashPage splash)
+                {
+                    // When splash completes, navigate to dashboard and restore layout
+                    splash.SplashCompleted += () =>
+                    {
+                        // Restore nav and frame layout after navigating away
+                        MainFrame.Navigate(typeof(Pages.DashboardPage));
+                    };
+                }
+                return;
+            }
+
+            // For other pages: ensure left nav visible and frame uses right column only
+            try
+            {
+                LeftNavGrid.Visibility = Visibility.Visible;
+                Grid.SetColumn(MainFrame, 1);
+                Grid.SetColumnSpan(MainFrame, 1);
+                MainFrame.Margin = new Thickness(20,15,20,15);
+            }
+            catch { }
         }
         private void UpdateLogo()
         {

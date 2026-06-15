@@ -372,7 +372,7 @@
               Grid.ColumnSpan="2"/>
 
         <!-- ستون چپ: Navigation -->
-        <Grid Grid.Column="0" Margin="15,15,0,15">
+        <Grid x:Name="LeftNavGrid" Grid.Column="0" Margin="15,15,0,15">
             <Border Style="{StaticResource GlassPanelStyle}">
                 <Grid>
                     <Grid.RowDefinitions>

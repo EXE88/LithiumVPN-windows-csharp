@@ -10,7 +10,6 @@ namespace Lithiumvpn
     public partial class App : Application
     {
         private Window? _window;
-        private SplashScreenWindow? _splash;
 
         private static ThemeService? _themeService;
         public static ThemeService GetThemeService => _themeService!;
@@ -24,34 +23,19 @@ namespace Lithiumvpn
         {
             _themeService = new ThemeService();
 
-            _splash = new SplashScreenWindow();
-            _splash.SplashCompleted += OnSplashCompleted;
+            // Create single main window and start with pages inside its Frame (SplashPage -> DashboardPage)
+            _window = new MainWindow();
 
             _themeService
                 .ConfigureAutoSave(true)
                 .ConfigureBackdrop(BackdropType.AcrylicThin)
                 .ConfigureElementTheme(ElementTheme.Light)
-                .Initialize(_splash);
+                .Initialize(_window);
 
-            // ✅ اندازه و مرکز splash
-            SetWindowSizeAndCenter(_splash, 480, 320);
-
-            _splash.Activate();
-        }
-
-        private void OnSplashCompleted()
-        {
-            _window = new MainWindow();
-
-            // ✅ اندازه و مرکز main window
+            // اندازه و مرکز main window (splash page will be inside this window and share same size)
             SetWindowSizeAndCenter(_window, 635, 700);
 
-            _themeService?.Initialize(_window);
             _window.Activate();
-
-            var splashRef = _splash;
-            _splash = null;
-            splashRef?.Close();
         }
 
         // ─── Helper: اندازه + مرکز صفحه ─────────────────────────────
