@@ -108,11 +108,33 @@
                     <TextBox x:Name="RegEmail" Header="Email"
                              PlaceholderText="your@email.com" CornerRadius="10"/>
                     <PasswordBox x:Name="RegPassword" Header="Password"
-                                 PlaceholderText="Create a strong password" CornerRadius="10"/>
+                                 PlaceholderText="Create a strong password" CornerRadius="10"
+                                 PasswordRevealMode="Peek"
+                                 PasswordChanged="RegPassword_PasswordChanged"
+                                 GotFocus="RegPassword_GotFocus"
+                                 LostFocus="RegPassword_LostFocus"/>
                     <PasswordBox x:Name="RegConfirmPassword" Header="Confirm Password"
-                                 PlaceholderText="Repeat your password" CornerRadius="10"/>
-                    <TextBlock x:Name="Step1Error" Foreground="#FFE53935" FontSize="12"
-                               HorizontalAlignment="Center" Visibility="Collapsed"/>
+                                 PlaceholderText="Repeat your password" CornerRadius="10"
+                                 PasswordRevealMode="Peek"/>
+                    <!-- removed Step1Error in favor of toast notifications -->
+                    <!-- Password rules popup -->
+                    <Border x:Name="PasswordRulesBox" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                            CornerRadius="8" Padding="10" Visibility="Collapsed" Width="320"
+                            HorizontalAlignment="Center">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Password must:" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock x:Name="RuleLenIcon" Text="○" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Be at least 8 characters" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock x:Name="RuleDigitIcon" Text="○" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Contain at least one digit" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                     <Button Content="Continue →" HorizontalAlignment="Stretch"
                             CornerRadius="10" Height="42" Margin="0,4,0,0"
                             Style="{StaticResource AccentButtonStyle}"
@@ -136,8 +158,7 @@
                     <dev:PinBox x:Name="OtpPinBox" PasswordLength="6"
                                 HorizontalAlignment="Center" Margin="0,8,0,8"/>
 
-                    <TextBlock x:Name="Step2Error" Foreground="#FFE53935" FontSize="12"
-                               HorizontalAlignment="Center" Visibility="Collapsed"/>
+                    <!-- Step2 errors shown via toast notifications -->
 
                     <!-- Back + Resend controls -->
                     <Grid HorizontalAlignment="Stretch">

@@ -12,6 +12,7 @@ namespace Lithiumvpn.Pages
 {
     public sealed partial class LoginPage : Page
     {
+        private enum ToastType { Success, Info, Warning, Error }
         // ── Default credentials (demo only) ──────────────────
         private const string DefaultUsername = "lithium";
         private const string DefaultPassword = "Lithium@2025";
@@ -42,12 +43,11 @@ namespace Lithiumvpn.Pages
             ShowToast("A new verification code has been sent to your email.");
         }
 
-        private async void ShowToast(string message)
+        private async void ShowToast(string message, ToastType type = ToastType.Success)
         {
             // Create visual toast container
             var toast = new Border
             {
-                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 230, 250, 230)),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(12, 8, 12, 8),
                 Opacity = 0,
@@ -56,6 +56,33 @@ namespace Lithiumvpn.Pages
                 Margin = new Thickness(0, 35, 0, 0)
             };
 
+            // choose colors by type
+            var bgColor = Microsoft.UI.ColorHelper.FromArgb(255, 230, 250, 230);
+            var iconColor = Microsoft.UI.ColorHelper.FromArgb(255, 76, 175, 80);
+            switch (type)
+            {
+                case ToastType.Info:
+                    bgColor = Microsoft.UI.ColorHelper.FromArgb(255, 230, 240, 255);
+                    iconColor = Microsoft.UI.ColorHelper.FromArgb(255, 33, 150, 243);
+                    break;
+                case ToastType.Warning:
+                    bgColor = Microsoft.UI.ColorHelper.FromArgb(255, 255, 249, 230);
+                    iconColor = Microsoft.UI.ColorHelper.FromArgb(255, 255, 193, 7);
+                    break;
+                case ToastType.Error:
+                    bgColor = Microsoft.UI.ColorHelper.FromArgb(255, 255, 235, 238);
+                    iconColor = Microsoft.UI.ColorHelper.FromArgb(255, 244, 67, 54);
+                    break;
+            }
+
+            toast.Background = new SolidColorBrush(bgColor);
+            toast.CornerRadius = new CornerRadius(8);
+            toast.Padding = new Thickness(12, 8, 12, 8);
+            toast.Opacity = 0;
+            toast.HorizontalAlignment = HorizontalAlignment.Center;
+            toast.VerticalAlignment = VerticalAlignment.Top;
+            toast.Margin = new Thickness(0, 35, 0, 0);
+
             var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
 
             // simple icon (circle)
@@ -63,7 +90,7 @@ namespace Lithiumvpn.Pages
             {
                 Width = 20,
                 Height = 20,
-                Fill = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 76, 175, 80)),
+                Fill = new SolidColorBrush(iconColor),
                 VerticalAlignment = VerticalAlignment.Center
             };
 
@@ -169,7 +196,10 @@ namespace Lithiumvpn.Pages
             }
             else
             {
-                ShowError(LoginError, "Invalid username or password.");
+                // use toast for login errors
+                ShowToast("Invalid username or password.", ToastType.Error);
+                // visually mark username field
+                AnimateFieldError(LoginUsername);
             }
         }
 
@@ -237,21 +267,20 @@ namespace Lithiumvpn.Pages
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(email) ||
                 string.IsNullOrEmpty(pass))
             {
-                ShowError(Step1Error, "Please fill in all fields.");
+                ShowToast("Please fill in all fields.", ToastType.Error);
                 return;
             }
             if (!email.Contains('@'))
             {
-                ShowError(Step1Error, "Invalid email address.");
+                ShowToast("Invalid email address.", ToastType.Error);
                 return;
             }
             if (pass != confirm)
             {
-                ShowError(Step1Error, "Passwords do not match.");
+                ShowToast("Passwords do not match.", ToastType.Error);
                 return;
             }
-
-            Step1Error.Visibility = Visibility.Collapsed;
+            // proceed
             _pendingUsername      = user;
             OtpEmailHint.Text     = $"We sent a 6-digit code to {MaskEmail(email)}";
 
@@ -264,7 +293,6 @@ namespace Lithiumvpn.Pages
 
             if (entered == DefaultOtp)
             {
-                Step2Error.Visibility = Visibility.Collapsed;
                 // show success state on pinbox
                 TryShowPinBoxSuccess();
 
@@ -278,7 +306,8 @@ namespace Lithiumvpn.Pages
             }
             else
             {
-                ShowError(Step2Error, $"Invalid code. (hint: {DefaultOtp})");
+                // show error as toast and animate pinbox
+                ShowToast($"Invalid code. (hint: {DefaultOtp})", ToastType.Error);
                 TryShowPinBoxError();
             }
         }
@@ -325,6 +354,68 @@ namespace Lithiumvpn.Pages
             {
                 return false;
             }
+        }
+
+        // field-level helpers removed — register uses Step1Error textbox again
+
+        private async void AnimateFieldError(Control field)
+        {
+            try
+            {
+                var tt = new TranslateTransform { X = 0 };
+                field.RenderTransform = tt;
+                field.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+
+                var sb = new Storyboard();
+                var d1 = new DoubleAnimationUsingKeyFrames();
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = -8, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = 8, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(80)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = -4, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(160)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = 4, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(240)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = 0, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(320)) });
+                Storyboard.SetTarget(d1, tt);
+                Storyboard.SetTargetProperty(d1, "X");
+                sb.Children.Add(d1);
+                sb.Begin();
+                await Task.Delay(360);
+            }
+            catch { }
+        }
+
+        private void RegPassword_GotFocus(object sender, RoutedEventArgs e)
+        {
+            PasswordRulesBox.Visibility = Visibility.Visible;
+            var sb = new Storyboard();
+            var op = new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(180) };
+            Storyboard.SetTarget(op, PasswordRulesBox);
+            Storyboard.SetTargetProperty(op, "Opacity");
+            sb.Children.Add(op);
+            sb.Begin();
+        }
+
+        private async void RegPassword_LostFocus(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(200);
+            var sb = new Storyboard();
+            var op = new DoubleAnimation { To = 0, Duration = TimeSpan.FromMilliseconds(160) };
+            Storyboard.SetTarget(op, PasswordRulesBox);
+            Storyboard.SetTargetProperty(op, "Opacity");
+            sb.Children.Add(op);
+            sb.Begin();
+            await Task.Delay(160);
+            PasswordRulesBox.Visibility = Visibility.Collapsed;
+        }
+
+        private void RegPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            var pass = RegPassword.Password ?? "";
+            bool lenOk = pass.Length >= 8;
+            bool digitOk = System.Text.RegularExpressions.Regex.IsMatch(pass, "\\d");
+            RuleLenIcon.Text = lenOk ? "✔" : "○";
+            RuleLenIcon.Foreground = new SolidColorBrush(lenOk ? Microsoft.UI.Colors.Green : Microsoft.UI.Colors.Gray);
+            RuleDigitIcon.Text = digitOk ? "✔" : "○";
+            RuleDigitIcon.Foreground = new SolidColorBrush(digitOk ? Microsoft.UI.Colors.Green : Microsoft.UI.Colors.Gray);
+            // no border manipulation here — Step1Error will display validation messages
         }
 
         private bool TrySetPinBoxRevealVisible()
