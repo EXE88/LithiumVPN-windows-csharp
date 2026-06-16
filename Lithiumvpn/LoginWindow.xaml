@@ -134,7 +134,7 @@
 
                     <!-- PinBox از DevWinUI.Controls — اگر Count کار نکرد PinLength امتحان کن -->
                     <dev:PinBox x:Name="OtpPinBox" PasswordLength="6"
-                                HorizontalAlignment="Center" Margin="0,8,0,8"/>
+                                HorizontalAlignment="Center" Margin="0,8,0,8" PasswordRevealMode="Visible"/>
 
                     <TextBlock x:Name="Step2Error" Foreground="#FFE53935" FontSize="12"
                                HorizontalAlignment="Center" Visibility="Collapsed"/>

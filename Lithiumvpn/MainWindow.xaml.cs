@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -134,8 +135,8 @@ namespace Lithiumvpn
         }
         private void MainFrame_Navigated(object? sender, Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-            // If navigated to SplashPage: hide left navigation and expand Frame to full window
-            if (e?.SourcePageType == typeof(Pages.SplashPage))
+            // If navigated to SplashPage or LoginPage: hide left navigation and expand Frame to full window
+            if (e?.SourcePageType == typeof(Pages.SplashPage) || e?.SourcePageType == typeof(Pages.LoginPage))
             {
                 // Hide left nav
                 try { LeftNavGrid.Visibility = Visibility.Collapsed; } catch { }
@@ -149,15 +150,24 @@ namespace Lithiumvpn
                 }
                 catch { }
 
+                // If it's SplashPage, navigate to LoginPage when finished
                 if (e.Content is Pages.SplashPage splash)
                 {
-                    // When splash completes, navigate to dashboard and restore layout
                     splash.SplashCompleted += () =>
                     {
-                        // Restore nav and frame layout after navigating away
-                        MainFrame.Navigate(typeof(Pages.DashboardPage));
+                        // Navigate to login when splash finished
+                        MainFrame.Navigate(typeof(Pages.LoginPage));
                     };
                 }
+
+                // If it's LoginPage, navigate to Dashboard when login completes
+                if (e.Content is Pages.LoginPage login)
+                {
+                    // avoid multiple subscriptions
+                    login.LoginCompleted -= OnLoginCompleted;
+                    login.LoginCompleted += OnLoginCompleted;
+                }
+
                 return;
             }
 
@@ -168,6 +178,64 @@ namespace Lithiumvpn
                 Grid.SetColumn(MainFrame, 1);
                 Grid.SetColumnSpan(MainFrame, 1);
                 MainFrame.Margin = new Thickness(20,15,20,15);
+            }
+            catch { }
+        }
+
+        private void OnLoginCompleted()
+        {
+            // Fade out current content, navigate to dashboard and fade in
+            DispatcherQueue.TryEnqueue(() => { _ = FadeThenNavigateAsync(); });
+        }
+
+        private async Task FadeThenNavigateAsync()
+        {
+            try
+            {
+                // Fade out MainFrame
+                var tcs = new TaskCompletionSource<bool>();
+                var sb = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    From = MainFrame.Opacity,
+                    To = 0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, MainFrame);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                sb.Children.Add(fadeOut);
+                sb.Completed += (_, _) => tcs.TrySetResult(true);
+                sb.Begin();
+                await tcs.Task;
+
+                // Restore layout
+                try
+                {
+                    LeftNavGrid.Visibility = Visibility.Visible;
+                    Grid.SetColumn(MainFrame, 1);
+                    Grid.SetColumnSpan(MainFrame, 1);
+                    MainFrame.Margin = new Thickness(20, 15, 20, 15);
+                }
+                catch { }
+
+                // Navigate to dashboard with MainFrame starting at 0 opacity
+                MainFrame.Opacity = 0;
+                MainFrame.Navigate(typeof(Pages.DashboardPage));
+
+                // Fade in
+                var sbIn = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    From = 0,
+                    To = 1,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, MainFrame);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                sbIn.Children.Add(fadeIn);
+                sbIn.Begin();
             }
             catch { }
         }

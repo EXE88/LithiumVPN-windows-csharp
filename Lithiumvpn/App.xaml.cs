@@ -33,7 +33,7 @@ namespace Lithiumvpn
                 .Initialize(_window);
 
             // اندازه و مرکز main window (splash page will be inside this window and share same size)
-            SetWindowSizeAndCenter(_window, 635, 700);
+            SetWindowSizeAndCenter(_window, 635, 650);
 
             _window.Activate();
         }

@@ -167,7 +167,7 @@ namespace Lithiumvpn.Pages
             ConfettiLeft.FireBasic();
             ConfettiRight.FireBasic();
 
-            _countdownSeconds = 4;
+            _countdownSeconds = 5;
             CountdownText.Text = $"Opening app in {_countdownSeconds}s...";
 
             _countdownTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
