@@ -4,6 +4,9 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Threading.Tasks;
+using System.Reflection;
+using Microsoft.UI.Xaml.Shapes;
 
 namespace Lithiumvpn.Pages
 {
@@ -26,12 +29,124 @@ namespace Lithiumvpn.Pages
             this.Loaded += OnLoaded;
         }
 
+        private void OtpBack_Click(object sender, RoutedEventArgs e)
+        {
+            // navigate back to step 1
+            GoToStep(Step2Panel, Step1Panel, stepIndex: 0);
+        }
+
+        private async void OtpResend_Click(object sender, RoutedEventArgs e)
+        {
+            // In a real app you'd re-request the verification code here.
+            // Show an in-app toast notification instead of a modal dialog.
+            ShowToast("A new verification code has been sent to your email.");
+        }
+
+        private async void ShowToast(string message)
+        {
+            // Create visual toast container
+            var toast = new Border
+            {
+                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 230, 250, 230)),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(12, 8, 12, 8),
+                Opacity = 0,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 35, 0, 0)
+            };
+
+            var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+
+            // simple icon (circle)
+            var icon = new Ellipse
+            {
+                Width = 20,
+                Height = 20,
+                Fill = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 76, 175, 80)),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var text = new TextBlock
+            {
+                Text = message,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Black),
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 380
+            };
+
+            var closeBtn = new Button
+            {
+                Content = "×",
+                Background = null,
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(6, 0, 6, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+
+            panel.Children.Add(icon);
+            panel.Children.Add(text);
+            panel.Children.Add(closeBtn);
+            toast.Child = panel;
+
+            // place toast into page root
+            RootGrid.Children.Add(toast);
+
+            // entrance animation
+            var tt = new TranslateTransform { Y = -12 };
+            toast.RenderTransform = tt;
+
+            var sbIn = new Storyboard();
+            var opIn = new DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(240) };
+            Storyboard.SetTarget(opIn, toast);
+            Storyboard.SetTargetProperty(opIn, "Opacity");
+
+            var txIn = new DoubleAnimation { From = -12, To = 0, Duration = TimeSpan.FromMilliseconds(240) };
+            Storyboard.SetTarget(txIn, tt);
+            Storyboard.SetTargetProperty(txIn, "Y");
+
+            sbIn.Children.Add(opIn);
+            sbIn.Children.Add(txIn);
+            sbIn.Begin();
+
+            // removal helpers
+            var removeToast = new Action(async () =>
+            {
+                var sbOut = new Storyboard();
+                var opOut = new DoubleAnimation { To = 0, Duration = TimeSpan.FromMilliseconds(200) };
+                Storyboard.SetTarget(opOut, toast);
+                Storyboard.SetTargetProperty(opOut, "Opacity");
+
+                var txOut = new DoubleAnimation { To = -12, Duration = TimeSpan.FromMilliseconds(200) };
+                Storyboard.SetTarget(txOut, tt);
+                Storyboard.SetTargetProperty(txOut, "Y");
+
+                sbOut.Children.Add(opOut);
+                sbOut.Children.Add(txOut);
+                sbOut.Begin();
+
+                await Task.Delay(220);
+                RootGrid.Children.Remove(toast);
+            });
+
+            // allow manual close
+            closeBtn.Click += (_, _) => removeToast();
+
+            // auto-dismiss after delay
+            await Task.Delay(3500);
+            removeToast();
+        }
+
         private bool _initialized;
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             if (_initialized) return;
             _initialized = true;
             UpdateLogo();
+            // ensure PinBox shows revealed characters if supported
+            TrySetPinBoxRevealVisible();
             if (App.GetThemeService is not null)
                 App.GetThemeService.ThemeChanged += (_, _) => UpdateLogo();
         }
@@ -150,13 +265,203 @@ namespace Lithiumvpn.Pages
             if (entered == DefaultOtp)
             {
                 Step2Error.Visibility = Visibility.Collapsed;
-                GoToStep(Step2Panel, Step3Panel, stepIndex: 2);
-                ShowWelcome();
+                // show success state on pinbox
+                TryShowPinBoxSuccess();
+
+                // small delay so the success state is visible before proceeding
+                var _ = DispatcherQueue.TryEnqueue(async () =>
+                {
+                    await Task.Delay(450);
+                    GoToStep(Step2Panel, Step3Panel, stepIndex: 2);
+                    ShowWelcome();
+                });
             }
             else
             {
                 ShowError(Step2Error, $"Invalid code. (hint: {DefaultOtp})");
+                TryShowPinBoxError();
             }
+        }
+
+        private bool TryShowPinBoxSuccess()
+        {
+            if (OtpPinBox is null) return false;
+
+            // Try common API names from DevWinUI PinBox
+            var names = new[] { "ShowSuccess", "PlaySuccess", "SetSuccess", "ShowCompleted" };
+            if (TryInvokePinBoxMethods(names)) return true;
+
+            // Fallback: pulse animation
+            try
+            {
+                var st = new ScaleTransform { ScaleX = 1, ScaleY = 1 };
+                OtpPinBox.RenderTransform = st;
+                OtpPinBox.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+
+                var sb = new Storyboard();
+                var a1 = new DoubleAnimation { From = 1, To = 1.06, Duration = TimeSpan.FromMilliseconds(140), EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+                var a2 = new DoubleAnimation { From = 1.06, To = 1, BeginTime = TimeSpan.FromMilliseconds(140), Duration = TimeSpan.FromMilliseconds(180), EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } };
+
+                Storyboard.SetTarget(a1, st);
+                Storyboard.SetTargetProperty(a1, "ScaleX");
+                Storyboard.SetTarget(a2, st);
+                Storyboard.SetTargetProperty(a2, "ScaleX");
+
+                var b1 = new DoubleAnimation { From = 1, To = 1.06, Duration = TimeSpan.FromMilliseconds(140), EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+                var b2 = new DoubleAnimation { From = 1.06, To = 1, BeginTime = TimeSpan.FromMilliseconds(140), Duration = TimeSpan.FromMilliseconds(180), EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } };
+                Storyboard.SetTarget(b1, st);
+                Storyboard.SetTargetProperty(b1, "ScaleY");
+                Storyboard.SetTarget(b2, st);
+                Storyboard.SetTargetProperty(b2, "ScaleY");
+
+                sb.Children.Add(a1);
+                sb.Children.Add(a2);
+                sb.Children.Add(b1);
+                sb.Children.Add(b2);
+                sb.Begin();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TrySetPinBoxRevealVisible()
+        {
+            if (OtpPinBox is null) return false;
+
+            var type = OtpPinBox.GetType();
+
+            // 1) Try PasswordRevealMode enum property (common pattern)
+            var p = type.GetProperty("PasswordRevealMode", BindingFlags.Public | BindingFlags.Instance);
+            if (p is not null && p.CanWrite)
+            {
+                try
+                {
+                    var enumType = p.PropertyType;
+                    var val = Enum.Parse(enumType, "Visible");
+                    p.SetValue(OtpPinBox, val);
+                    return true;
+                }
+                catch { }
+            }
+
+            // 2) Try alternative property names
+            foreach (var name in new[] { "RevealMode", "PasswordReveal", "IsPasswordRevealEnabled", "ShowReveal", "EnableReveal" })
+            {
+                var pi = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+                if (pi is not null && pi.CanWrite)
+                {
+                    try
+                    {
+                        if (pi.PropertyType == typeof(bool))
+                        {
+                            pi.SetValue(OtpPinBox, true);
+                            return true;
+                        }
+                        if (pi.PropertyType.IsEnum)
+                        {
+                            var enumVal = Enum.Parse(pi.PropertyType, "Visible");
+                            pi.SetValue(OtpPinBox, enumVal);
+                            return true;
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            // 3) Try to set PasswordChar to null/zero
+            var pc = type.GetProperty("PasswordChar", BindingFlags.Public | BindingFlags.Instance);
+            if (pc is not null && pc.CanWrite)
+            {
+                try
+                {
+                    if (pc.PropertyType == typeof(char)) pc.SetValue(OtpPinBox, '\0');
+                    return true;
+                }
+                catch { }
+            }
+
+            // 4) Try UseSystemPasswordChar or IsPassword boolean toggles
+            foreach (var name in new[] { "UseSystemPasswordChar", "IsPassword", "IsPasswordBox", "IsPasswordMasked" })
+            {
+                var pi2 = type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+                if (pi2 is not null && pi2.CanWrite && pi2.PropertyType == typeof(bool))
+                {
+                    try
+                    {
+                        pi2.SetValue(OtpPinBox, false);
+                        return true;
+                    }
+                    catch { }
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryShowPinBoxError()
+        {
+            if (OtpPinBox is null) return false;
+
+            var names = new[] { "ShowError", "PlayError", "SetError", "Shake" };
+            if (TryInvokePinBoxMethods(names)) return true;
+
+            // Fallback: shake animation
+            try
+            {
+                var tt = new TranslateTransform { X = 0 };
+                OtpPinBox.RenderTransform = tt;
+
+                var sb = new Storyboard();
+                var d1 = new DoubleAnimationUsingKeyFrames();
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = -10, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = 10, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(80)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = -6, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(160)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = 6, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(240)) });
+                d1.KeyFrames.Add(new EasingDoubleKeyFrame { Value = 0, KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(320)) });
+
+                Storyboard.SetTarget(d1, tt);
+                Storyboard.SetTargetProperty(d1, "X");
+                sb.Children.Add(d1);
+                sb.Begin();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool TryInvokePinBoxMethods(string[] names)
+        {
+            var type = OtpPinBox.GetType();
+            foreach (var n in names)
+            {
+                try
+                {
+                    var mi = type.GetMethod(n, BindingFlags.Public | BindingFlags.Instance);
+                    if (mi is not null)
+                    {
+                        mi.Invoke(OtpPinBox, null);
+                        return true;
+                    }
+                    // also try property setter boolean e.g. IsError = true
+                    var pi = type.GetProperty(n, BindingFlags.Public | BindingFlags.Instance);
+                    if (pi is not null && pi.CanWrite && pi.PropertyType == typeof(bool))
+                    {
+                        pi.SetValue(OtpPinBox, true);
+                        return true;
+                    }
+                }
+                catch
+                {
+                    // ignore and try next
+                }
+            }
+
+            return false;
         }
 
         private void ShowWelcome()

@@ -138,6 +138,34 @@
 
                     <TextBlock x:Name="Step2Error" Foreground="#FFE53935" FontSize="12"
                                HorizontalAlignment="Center" Visibility="Collapsed"/>
+
+                    <!-- Back + Resend controls -->
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="OtpBackBtn"
+                                Grid.Column="0"
+                                Content="← Back"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="6,4"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Click="OtpBack_Click" />
+
+                        <TextBlock Grid.Column="1" />
+
+                        <HyperlinkButton x:Name="OtpResendBtn"
+                                         Grid.Column="2"
+                                         Content="Resend code"
+                                         Padding="6,4"
+                                         Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                         Click="OtpResend_Click" />
+                    </Grid>
+
                     <Button Content="Verify Code" HorizontalAlignment="Stretch"
                             CornerRadius="10" Height="42"
                             Style="{StaticResource AccentButtonStyle}"
