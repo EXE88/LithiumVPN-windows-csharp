@@ -10,10 +10,16 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="Plans" 
+        <TextBlock Text="Plans"
                    FontSize="24" FontWeight="Bold"
                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                   HorizontalAlignment="Center" 
+                   HorizontalAlignment="Center"
                    VerticalAlignment="Center"/>
+
+        <TeachingTip x:Name="TourTip1"
+                     Title="Plans Page"
+                     Subtitle="Browse available subscription plans here. Choose a plan that fits your needs and purchase it using your coins or payment method."
+                     CloseButtonContent="Got it ✓"
+                     IsOpen="False"/>
     </Grid>
 </Page>

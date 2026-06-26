@@ -390,7 +390,7 @@
                     </Grid>
 
                     <!-- آیتم‌های ناوبری -->
-                    <StackPanel Grid.Row="1" Spacing="5">
+                    <StackPanel x:Name="NavItemsPanel" Grid.Row="1" Spacing="5">
                         <Button x:Name="NavDashboardButton" Tag="Dashboard" Style="{StaticResource SelectedNavButtonStyle}"  Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE80F;" FontSize="16"/>
@@ -429,8 +429,14 @@
                         </Button>
                     </StackPanel>
 
-                    <!-- Bottom controls: Settings icon (animated) above bell icon -->
+                    <!-- Bottom controls: Help, Settings, Bell -->
                     <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Left" Margin="5,0,0,5">
+                        <Button x:Name="HelpIconButton" Background="Transparent" BorderThickness="0"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" Click="NavButton_Click" Tag="Help"
+                                HorizontalAlignment="Left" Margin="0,0,0,6"
+                                ToolTipService.ToolTip="Help &amp; Tours">
+                            <FontIcon Glyph="&#xE11B;" FontSize="18"/>
+                        </Button>
                         <Button x:Name="SettingsIconButton" Background="Transparent" BorderThickness="0"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}" Click="NavButton_Click" Tag="Settings"
                                 HorizontalAlignment="Left" Margin="0,0,0,6"

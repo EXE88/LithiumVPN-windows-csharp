@@ -11,6 +11,32 @@ namespace Lithiumvpn.Pages
 {
     public sealed partial class DashboardPage : Page
     {
+        private bool _tourEventsAttached = false;
+
+        protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            if (TourManager.IsTourPending)
+            {
+                TourManager.IsTourPending = false;
+                DispatcherQueue.TryEnqueue(StartTour);
+            }
+        }
+
+        private void StartTour()
+        {
+            if (!_tourEventsAttached)
+            {
+                _tourEventsAttached = true;
+                TourTip1.ActionButtonClick += (s, e) => { TourTip1.IsOpen = false; TourTip2.IsOpen = true; };
+                TourTip1.CloseButtonClick  += (s, e) => TourTip1.IsOpen = false;
+                TourTip2.ActionButtonClick += (s, e) => { TourTip2.IsOpen = false; TourTip3.IsOpen = true; };
+                TourTip2.CloseButtonClick  += (s, e) => TourTip2.IsOpen = false;
+                TourTip3.CloseButtonClick  += (s, e) => TourTip3.IsOpen = false;
+            }
+            TourTip1.IsOpen = true;
+        }
+
         private enum ConnectionState { Disconnected, Connecting, Connected }
         private ConnectionState currentState = ConnectionState.Disconnected;
         private DispatcherTimer connectionTimer;

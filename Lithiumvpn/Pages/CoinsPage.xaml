@@ -10,10 +10,16 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="Coins" 
+        <TextBlock Text="Coins"
                    FontSize="24" FontWeight="Bold"
                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                   HorizontalAlignment="Center" 
+                   HorizontalAlignment="Center"
                    VerticalAlignment="Center"/>
+
+        <TeachingTip x:Name="TourTip1"
+                     Title="Coins Page"
+                     Subtitle="Check your coin balance here. You can earn coins by referring friends and use them to purchase plans."
+                     CloseButtonContent="Got it ✓"
+                     IsOpen="False"/>
     </Grid>
 </Page>

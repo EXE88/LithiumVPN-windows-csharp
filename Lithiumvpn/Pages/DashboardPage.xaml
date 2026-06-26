@@ -176,7 +176,7 @@
         </Grid.RowDefinitions>
 
         <!-- هدر: config selection bar -->
-        <Border Grid.Row="0" Style="{StaticResource GlassPanelStyle}"
+        <Border x:Name="ConfigHeaderBorder" Grid.Row="0" Style="{StaticResource GlassPanelStyle}"
         Padding="15,10" BorderThickness="0,0,0,1" CornerRadius="10">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -229,7 +229,7 @@
         </Grid>
 
         <!-- کارت‌های اطلاعاتی پایین -->
-        <Grid Grid.Row="2" Margin="0,10,0,0">
+        <Grid x:Name="StatsGrid" Grid.Row="2" Margin="0,10,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -318,5 +318,28 @@
                 </Border>
             </Grid>
         </Grid>
+        <TeachingTip x:Name="TourTip1"
+                     Target="{x:Bind ConfigHeaderBorder}"
+                     Title="Server Config"
+                     Subtitle="This shows your currently selected VPN server. Click the arrow button to change the server."
+                     ActionButtonContent="Next ›"
+                     CloseButtonContent="Skip Tour"
+                     PlacementMargin="8"
+                     IsOpen="False"/>
+
+        <TeachingTip x:Name="TourTip2"
+                     Target="{x:Bind MainConnectButton}"
+                     Title="Connect Button"
+                     Subtitle="Tap this button to connect or disconnect from your VPN. It turns green when connected."
+                     ActionButtonContent="Next ›"
+                     CloseButtonContent="Skip Tour"
+                     IsOpen="False"/>
+
+        <TeachingTip x:Name="TourTip3"
+                     Target="{x:Bind StatsGrid}"
+                     Title="Connection Stats"
+                     Subtitle="These cards show your remaining data, days until expiry, current ping, and upload/download speeds."
+                     CloseButtonContent="Done ✓"
+                     IsOpen="False"/>
     </Grid>
 </Page>

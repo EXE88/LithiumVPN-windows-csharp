@@ -36,6 +36,8 @@ namespace Lithiumvpn
             // Initialize active nav button to the dashboard button that is selected by default
             _activeNavButton = NavDashboardButton;
 
+            TourManager.TourRequested += OnTourRequested;
+
             // Start bell icon animation (settings uses AnimatedIcon states on pointer events)
             try
             {
@@ -75,6 +77,39 @@ namespace Lithiumvpn
 
         // Removed duplicate connection state code (DashboardPage implements this behavior).
 
+        private void OnTourRequested(Type pageType)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                // Update nav button selection
+                var tag = pageType switch
+                {
+                    _ when pageType == typeof(Pages.DashboardPage)  => "Dashboard",
+                    _ when pageType == typeof(Pages.ServersPage)    => "Configs",
+                    _ when pageType == typeof(Pages.AccountPage)    => "Account",
+                    _ when pageType == typeof(Pages.CoinsPage)      => "Coins",
+                    _ when pageType == typeof(Pages.PlansPage)      => "Plans",
+                    _ => ""
+                };
+
+                foreach (var child in NavItemsPanel.Children)
+                {
+                    if (child is Button btn)
+                    {
+                        if (btn.Tag?.ToString() == tag)
+                        {
+                            if (_activeNavButton != null && _activeNavButton != SettingsIconButton && _activeNavButton != BellIconButton)
+                                _activeNavButton.Style = (Style)RootGrid.Resources["NavButtonStyle"];
+                            btn.Style = (Style)RootGrid.Resources["SelectedNavButtonStyle"];
+                            _activeNavButton = btn;
+                        }
+                    }
+                }
+
+                MainFrame.Navigate(pageType);
+            });
+        }
+
         private Button? _activeNavButton;
         private void SettingsIconButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
@@ -89,8 +124,14 @@ namespace Lithiumvpn
         {
             if (sender is not Button clickedButton) return;
             // If settings or bell icon was clicked, don't apply the selected style (they use compact layout)
-            if (clickedButton == SettingsIconButton || clickedButton == BellIconButton)
+            if (clickedButton == HelpIconButton || clickedButton == SettingsIconButton || clickedButton == BellIconButton)
             {
+                if (clickedButton == HelpIconButton)
+                {
+                    MainFrame.Navigate(typeof(Pages.HelpPage));
+                    return;
+                }
+
                 if (clickedButton == SettingsIconButton)
                 {
                     // Play AnimatedIcon 'PointerOver' state briefly to simulate click animation

@@ -10,10 +10,16 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="Configs" 
+        <TextBlock Text="Configs"
                    FontSize="24" FontWeight="Bold"
                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                   HorizontalAlignment="Center" 
+                   HorizontalAlignment="Center"
                    VerticalAlignment="Center"/>
+
+        <TeachingTip x:Name="TourTip1"
+                     Title="Configs Page"
+                     Subtitle="Here you can browse all available VPN server configurations and select one to use on the Dashboard."
+                     CloseButtonContent="Got it ✓"
+                     IsOpen="False"/>
     </Grid>
 </Page>

@@ -8,12 +8,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    
+
     <Grid>
-        <TextBlock Text="Account" 
+        <TextBlock Text="Account"
                 FontSize="24" FontWeight="Bold"
                 Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                HorizontalAlignment="Center" 
+                HorizontalAlignment="Center"
                 VerticalAlignment="Center"/>
-     </Grid>
+
+        <TeachingTip x:Name="TourTip1"
+                     Title="Account Page"
+                     Subtitle="View your profile information, manage your subscription, and update your account settings here."
+                     CloseButtonContent="Got it ✓"
+                     IsOpen="False"/>
+    </Grid>
 </Page>
