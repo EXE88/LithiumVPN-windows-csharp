@@ -233,49 +233,82 @@ namespace Lithiumvpn
         {
             try
             {
-                // Fade out MainFrame
-                var tcs = new TaskCompletionSource<bool>();
-                var sb = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                // Step 1: fade out the login page
+                var tcs1 = new TaskCompletionSource<bool>();
+                var sbOut = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
                 var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
                 {
-                    From = MainFrame.Opacity,
-                    To = 0,
-                    Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                    From = 1, To = 0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(280)),
                     EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
                 };
                 Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, MainFrame);
                 Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
-                sb.Children.Add(fadeOut);
-                sb.Completed += (_, _) => tcs.TrySetResult(true);
-                sb.Begin();
-                await tcs.Task;
+                sbOut.Children.Add(fadeOut);
+                sbOut.Completed += (_, _) => tcs1.TrySetResult(true);
+                sbOut.Begin();
+                await tcs1.Task;
 
-                // Restore layout
-                try
-                {
-                    LeftNavGrid.Visibility = Visibility.Visible;
-                    Grid.SetColumn(MainFrame, 1);
-                    Grid.SetColumnSpan(MainFrame, 1);
-                    MainFrame.Margin = new Thickness(20, 15, 20, 15);
-                }
-                catch { }
+                // Step 2: prep layout while everything is invisible
+                // Prepare LeftNavGrid: visible but transparent, shifted left
+                var navTranslate = new Microsoft.UI.Xaml.Media.TranslateTransform { X = -30 };
+                LeftNavGrid.RenderTransform = navTranslate;
+                LeftNavGrid.Opacity = 0;
+                LeftNavGrid.Visibility = Visibility.Visible;
 
-                // Navigate to dashboard with MainFrame starting at 0 opacity
+                // Move MainFrame to right column (still opacity=0, so no visual jump)
+                Grid.SetColumn(MainFrame, 1);
+                Grid.SetColumnSpan(MainFrame, 1);
+                MainFrame.Margin = new Thickness(20, 15, 20, 15);
                 MainFrame.Opacity = 0;
+
+                // Step 3: navigate to dashboard
                 MainFrame.Navigate(typeof(Pages.DashboardPage));
 
-                // Fade in
+                // Step 4: simultaneously fade in dashboard + slide in nav
+                var easeOut = new Microsoft.UI.Xaml.Media.Animation.CubicEase
+                    { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut };
+
                 var sbIn = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+
+                // dashboard fade in
                 var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
                 {
-                    From = 0,
-                    To = 1,
-                    Duration = new Duration(TimeSpan.FromMilliseconds(300)),
-                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    From = 0, To = 1,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(380)),
+                    EasingFunction = easeOut
                 };
                 Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, MainFrame);
                 Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+
+                // nav fade in
+                var navFadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    From = 0, To = 1,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(380)),
+                    EasingFunction = easeOut
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(navFadeIn, LeftNavGrid);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(navFadeIn, "Opacity");
+
+                // nav slide in from left
+                var navSlideIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    From = -30, To = 0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(380)),
+                    EasingFunction = easeOut
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(navSlideIn, navTranslate);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(navSlideIn, "X");
+
                 sbIn.Children.Add(fadeIn);
+                sbIn.Children.Add(navFadeIn);
+                sbIn.Children.Add(navSlideIn);
+                sbIn.Completed += (_, _) =>
+                {
+                    // clean up transform after animation
+                    LeftNavGrid.RenderTransform = null;
+                };
                 sbIn.Begin();
             }
             catch { }

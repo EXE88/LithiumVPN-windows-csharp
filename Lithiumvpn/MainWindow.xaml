@@ -356,7 +356,7 @@
         </Grid.Resources>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="230"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 

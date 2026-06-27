@@ -4,22 +4,362 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Lithiumvpn"
-    xmlns:dev="using:DevWinUI"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    xmlns:dev="using:DevWinUI">
 
-    <Grid>
-        <TextBlock Text="Account"
-                FontSize="24" FontWeight="Bold"
-                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"/>
+    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="10">
 
-        <TeachingTip x:Name="TourTip1"
-                     Title="Account Page"
-                     Subtitle="View your profile information, manage your subscription, and update your account settings here."
-                     CloseButtonContent="Got it ✓"
-                     IsOpen="False"/>
-    </Grid>
+            <!-- ── Profile Card ── -->
+            <Border x:Name="ProfileCard" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="16,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <PersonPicture x:Name="ProfileAvatar"
+                                   Grid.Column="0"
+                                   DisplayName="Mrexe"
+                                   Width="52" Height="52"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,14,0"/>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock x:Name="ProfileName"
+                                   Text="Mrexe"
+                                   FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock x:Name="ProfileEmail"
+                                   Text="gogolk1388@gmail.com"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── Active Subscriptions ── -->
+            <TextBlock Text="Active Subscriptions"
+                       FontSize="13" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="2,6,0,0"/>
+
+            <!-- Plan Card 1 -->
+            <Border x:Name="PlanCard1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="16,14">
+                <StackPanel Spacing="12">
+
+                    <!-- Plan header -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                CornerRadius="6" Padding="8,3">
+                            <TextBlock Text="Pro — 10GB — 1 Month"
+                                       FontSize="12" FontWeight="SemiBold"
+                                       Foreground="White"/>
+                        </Border>
+                        <Border Grid.Column="2"
+                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="8,3">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xEC92;" FontSize="11"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center"/>
+                                <TextBlock Text="47 days left"
+                                           FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                    <!-- Stats -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="2">
+                            <FontIcon Glyph="&#xECAD;" FontSize="16"
+                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                      HorizontalAlignment="Center"/>
+                            <TextBlock Text="6.75 GB"
+                                       FontSize="13" FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Data Left"
+                                       FontSize="10" HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" Spacing="2">
+                            <FontIcon Glyph="&#xEC92;" FontSize="16"
+                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                      HorizontalAlignment="Center"/>
+                            <TextBlock Text="47 Days"
+                                       FontSize="13" FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Expiry"
+                                       FontSize="10" HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="2">
+                            <FontIcon Glyph="&#xE12B;" FontSize="16"
+                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                      HorizontalAlignment="Center"/>
+                            <TextBlock Text="12"
+                                       FontSize="13" FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Locations"
+                                       FontSize="10" HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Data usage bar -->
+                    <StackPanel Spacing="4">
+                        <Grid>
+                            <TextBlock Text="Data Usage"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Text="32%" HorizontalAlignment="Right"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </Grid>
+                        <ProgressBar Value="32" Maximum="100"
+                                     Height="5" CornerRadius="3"
+                                     Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                     Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+
+            <!-- Plan Card 2 -->
+            <Border x:Name="PlanCard2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="16,14">
+                <StackPanel Spacing="12">
+
+                    <!-- Plan header -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                CornerRadius="6" Padding="8,3">
+                            <TextBlock Text="Basic — 5GB — 1 Month"
+                                       FontSize="12" FontWeight="SemiBold"
+                                       Foreground="White"/>
+                        </Border>
+                        <Border Grid.Column="2"
+                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="8,3">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xEC92;" FontSize="11"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center"/>
+                                <TextBlock Text="180 days left"
+                                           FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                    <!-- Stats -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="2">
+                            <FontIcon Glyph="&#xECAD;" FontSize="16"
+                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                      HorizontalAlignment="Center"/>
+                            <TextBlock Text="2.0 GB"
+                                       FontSize="13" FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Data Left"
+                                       FontSize="10" HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" Spacing="2">
+                            <FontIcon Glyph="&#xEC92;" FontSize="16"
+                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                      HorizontalAlignment="Center"/>
+                            <TextBlock Text="180 Days"
+                                       FontSize="13" FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Expiry"
+                                       FontSize="10" HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="2">
+                            <FontIcon Glyph="&#xE12B;" FontSize="16"
+                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                      HorizontalAlignment="Center"/>
+                            <TextBlock Text="5"
+                                       FontSize="13" FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Locations"
+                                       FontSize="10" HorizontalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Data usage bar -->
+                    <StackPanel Spacing="4">
+                        <Grid>
+                            <TextBlock Text="Data Usage"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Text="78%" HorizontalAlignment="Right"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </Grid>
+                        <ProgressBar Value="78" Maximum="100"
+                                     Height="5" CornerRadius="3"
+                                     Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                     Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ── Account ── -->
+            <TextBlock Text="Account"
+                       FontSize="13" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="2,6,0,0"/>
+
+            <!-- Sign Out -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="14,12">
+                <Grid RowSpacing="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <FontIcon Grid.Row="0" Grid.Column="0" Glyph="&#xF3B1;" FontSize="15"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               Text="Sign Out"
+                               FontSize="14" FontWeight="SemiBold"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                    <Button Grid.Row="0" Grid.Column="2"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="8"
+                            Content="Sign out" Padding="10,5"
+                            Click="SignOut_Click"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                               Text="Sign out of your Lithium account"
+                               FontSize="11"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </Grid>
+            </Border>
+
+            <!-- Delete Account -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="#40E53935"
+                    BorderThickness="1" CornerRadius="12" Padding="14,12"
+                    Margin="0,0,0,4">
+                <Grid RowSpacing="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <FontIcon Grid.Row="0" Grid.Column="0" Glyph="&#xE74D;" FontSize="15"
+                              Foreground="#FFE53935"
+                              VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               Text="Delete Account"
+                               FontSize="14" FontWeight="SemiBold"
+                               Foreground="#FFE53935"
+                               VerticalAlignment="Center"/>
+                    <Button Grid.Row="0" Grid.Column="2"
+                            Background="#20E53935"
+                            BorderBrush="#40E53935"
+                            BorderThickness="1" CornerRadius="8"
+                            Padding="10,5"
+                            Click="DeleteAccount_Click">
+                        <TextBlock Text="Delete" Foreground="#FFE53935" FontSize="12"/>
+                    </Button>
+
+                    <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                               Text="Permanently delete your account"
+                               FontSize="11"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </Grid>
+            </Border>
+
+            <TeachingTip x:Name="TourTip1"
+                         Target="{x:Bind ProfileCard}"
+                         Title="Your Profile"
+                         Subtitle="This shows your account name and email address."
+                         ActionButtonContent="Next ›"
+                         CloseButtonContent="Skip Tour"
+                         IsOpen="False"/>
+
+            <TeachingTip x:Name="TourTip2"
+                         Target="{x:Bind PlanCard1}"
+                         Title="Active Subscriptions"
+                         Subtitle="Each card shows one of your active plans — data left, days until expiry, and how many server locations are included."
+                         ActionButtonContent="Next ›"
+                         CloseButtonContent="Skip Tour"
+                         IsOpen="False"/>
+
+            <TeachingTip x:Name="TourTip3"
+                         Title="Account Actions"
+                         Subtitle="Use Sign Out to log off safely, or Delete Account to permanently remove your data."
+                         CloseButtonContent="Done ✓"
+                         IsOpen="False"/>
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>

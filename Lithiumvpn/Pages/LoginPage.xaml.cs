@@ -196,10 +196,8 @@ namespace Lithiumvpn.Pages
             }
             else
             {
-                // use toast for login errors
                 ShowToast("Invalid username or password.", ToastType.Error);
-                // visually mark username field
-                AnimateFieldError(LoginUsername);
+                AnimateFieldError(LoginBtn);
             }
         }
 

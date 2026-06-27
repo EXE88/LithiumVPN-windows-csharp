@@ -46,7 +46,8 @@
                 <TextBlock x:Name="LoginError" Foreground="#FFE53935" FontSize="12"
                            HorizontalAlignment="Center" Visibility="Collapsed"/>
 
-                <Button Content="Sign In" HorizontalAlignment="Stretch"
+                <Button x:Name="LoginBtn"
+                        Content="Sign In" HorizontalAlignment="Stretch"
                         CornerRadius="10" Height="42" Margin="0,4,0,0"
                         Style="{StaticResource AccentButtonStyle}"
                         Click="LoginBtn_Click"/>
