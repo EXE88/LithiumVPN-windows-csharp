@@ -3,23 +3,201 @@
     x:Class="Lithiumvpn.Pages.CoinsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:Lithiumvpn"
-    xmlns:dev="using:DevWinUI"
-    mc:Ignorable="d">
+    xmlns:dev="using:DevWinUI">
 
-    <Grid>
-        <TextBlock Text="Coins"
-                   FontSize="24" FontWeight="Bold"
-                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="10">
 
-        <TeachingTip x:Name="TourTip1"
-                     Title="Coins Page"
-                     Subtitle="Check your coin balance here. You can earn coins by referring friends and use them to purchase plans."
-                     CloseButtonContent="Got it ✓"
-                     IsOpen="False"/>
-    </Grid>
+            <!-- ── Balance Card ── -->
+            <Border x:Name="BalanceCard"
+                    Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                    CornerRadius="16" Padding="20,28">
+                <StackPanel HorizontalAlignment="Center" Spacing="6">
+                    <FontIcon Glyph="&#xE8C7;" FontSize="34" Foreground="White"
+                              HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="CoinBalanceText" Text="2,450"
+                               FontSize="44" FontWeight="Bold"
+                               Foreground="White"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Lithium Coins"
+                               FontSize="13" Foreground="#CCFFFFFF"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ── How to Buy ── -->
+            <TextBlock Text="How to Buy Coins"
+                       FontSize="13" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="2,6,0,0"/>
+
+            <Border x:Name="HowToBuyCard"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="16,16">
+                <StackPanel Spacing="14">
+
+                    <!-- Step 1 -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                CornerRadius="20" Width="28" Height="28">
+                            <TextBlock Text="1" FontSize="13" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Contact Admin on Telegram"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Message the admin and mention the coin amount you want"
+                                       FontSize="11" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                    <!-- Step 2 -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                CornerRadius="20" Width="28" Height="28">
+                            <TextBlock Text="2" FontSize="13" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Send Payment Receipt"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="After payment, send the receipt screenshot to the admin"
+                                       FontSize="11" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                    <!-- Step 3 -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0"
+                                Background="{ThemeResource SystemFillColorSuccessBrush}"
+                                CornerRadius="20" Width="28" Height="28">
+                            <TextBlock Text="3" FontSize="13" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Coins Added to Your Account"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="After admin approval, coins appear in your balance automatically"
+                                       FontSize="11" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ── Contact Admin ── -->
+            <TextBlock Text="Contact Admin"
+                       FontSize="13" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="2,6,0,0"/>
+
+            <Border x:Name="TelegramCard"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="16,14">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Telegram circle icon -->
+                    <Border Grid.Column="0"
+                            Width="40" Height="40" CornerRadius="20"
+                            Background="#FF2CA5E0">
+                        <FontIcon Glyph="&#xE715;" FontSize="20" Foreground="White"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Telegram Admin"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock x:Name="AdminIdText" Text="@Devamirkaj"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+
+                    <!-- Copy button -->
+                    <Button Grid.Column="2"
+                            x:Name="CopyIdButton"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="8"
+                            Padding="10,6" VerticalAlignment="Center"
+                            Click="CopyId_Click"
+                            ToolTipService.ToolTip="Copy ID">
+                        <FontIcon Glyph="&#xE8C8;" FontSize="14"
+                                  Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    </Button>
+
+                    <!-- Open Telegram button -->
+                    <Button Grid.Column="3"
+                            Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                            BorderThickness="0" CornerRadius="8"
+                            Padding="10,6" VerticalAlignment="Center"
+                            Click="OpenTelegram_Click"
+                            ToolTipService.ToolTip="Open in Telegram">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE8A7;" FontSize="13" Foreground="White"/>
+                            <TextBlock Text="Open" FontSize="12" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- ── Teaching Tips ── -->
+            <TeachingTip x:Name="TourTip1"
+                         Target="{x:Bind BalanceCard}"
+                         Title="Your Coin Balance"
+                         Subtitle="This shows your current Lithium Coins — the in-app currency used to purchase VPN plans."
+                         ActionButtonContent="Next ›"
+                         CloseButtonContent="Skip Tour"
+                         IsOpen="False"/>
+
+            <TeachingTip x:Name="TourTip2"
+                         Target="{x:Bind HowToBuyCard}"
+                         Title="How to Buy Coins"
+                         Subtitle="Follow these 3 steps: contact the admin on Telegram, send your payment receipt, and coins will be added after approval."
+                         ActionButtonContent="Next ›"
+                         CloseButtonContent="Skip Tour"
+                         IsOpen="False"/>
+
+            <TeachingTip x:Name="TourTip3"
+                         Target="{x:Bind TelegramCard}"
+                         Title="Contact Admin"
+                         Subtitle="Tap Copy to copy the admin Telegram ID, or Open to launch Telegram and start the conversation directly."
+                         CloseButtonContent="Done ✓"
+                         IsOpen="False"/>
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>
