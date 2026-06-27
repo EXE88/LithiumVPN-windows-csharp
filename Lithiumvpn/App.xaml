@@ -6,10 +6,10 @@
     xmlns:local="using:Lithiumvpn">
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Global dialog acrylic used by ContentDialogs to provide consistent blurred background -->
+            <!-- Global dialog acrylic — TintColor uses SystemChromeLowColor which is dark in dark mode, light in light mode -->
             <AcrylicBrush x:Key="DialogAcrylic"
-                          TintColor="{ThemeResource SystemBaseHighColor}"
-                          TintOpacity="0.1"
+                          TintColor="{ThemeResource SystemChromeLowColor}"
+                          TintOpacity="0.6"
                           FallbackColor="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />

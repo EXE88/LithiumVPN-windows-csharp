@@ -70,9 +70,14 @@ namespace Lithiumvpn
             _logoInitialized = true;
 
             UpdateLogo();
+            UpdateParticle();
 
             if (App.GetThemeService is not null)
-                App.GetThemeService.ThemeChanged += (s, e) => UpdateLogo();
+                App.GetThemeService.ThemeChanged += (s, e) =>
+                {
+                    UpdateLogo();
+                    UpdateParticle();
+                };
         }
 
         // Removed duplicate connection state code (DashboardPage implements this behavior).
@@ -176,6 +181,7 @@ namespace Lithiumvpn
         }
         private void MainFrame_Navigated(object? sender, Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
         {
+            UpdateParticle();
             // If navigated to SplashPage or LoginPage: hide left navigation and expand Frame to full window
             if (e?.SourcePageType == typeof(Pages.SplashPage) || e?.SourcePageType == typeof(Pages.LoginPage))
             {
@@ -313,6 +319,23 @@ namespace Lithiumvpn
             }
             catch { }
         }
+        private void UpdateParticle()
+        {
+            if (App.GetThemeService is null || ParticleBg is null) return;
+            if (App.GetThemeService.IsDark)
+            {
+                ParticleBg.ParticleColor = Color.FromArgb(255, 90, 90, 110);
+                ParticleBg.LineColor = Color.FromArgb(255, 70, 70, 90);
+                ParticleBg.Opacity = 0.12;
+            }
+            else
+            {
+                ParticleBg.ParticleColor = Color.FromArgb(255, 255, 255, 255);
+                ParticleBg.LineColor = Color.FromArgb(255, 255, 255, 255);
+                ParticleBg.Opacity = 0.2;
+            }
+        }
+
         private void UpdateLogo()
         {
             // ✅ double null-safe
