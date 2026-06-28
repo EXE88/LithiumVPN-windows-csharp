@@ -9,17 +9,341 @@
     xmlns:dev="using:DevWinUI"
     mc:Ignorable="d">
 
-    <Grid>
-        <TextBlock Text="Plans"
-                   FontSize="24" FontWeight="Bold"
-                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+    <Page.Resources>
 
-        <TeachingTip x:Name="TourTip1"
-                     Title="Plans Page"
-                     Subtitle="Browse available subscription plans here. Choose a plan that fits your needs and purchase it using your coins or payment method."
-                     CloseButtonContent="Got it ✓"
-                     IsOpen="False"/>
-    </Grid>
+        <!-- ظاهر پایه‌ی plan card -->
+        <Style x:Key="PlanCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="18,16"/>
+        </Style>
+
+        <!-- یک ردیف ویژگی (آیکن + متن) -->
+        <Style x:Key="FeatureIconStyle" TargetType="FontIcon">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{ThemeResource AccentAAFillColorDefaultBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="FeatureTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}"/>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="12">
+            <StackPanel.ChildrenTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="28"/>
+                    <RepositionThemeTransition/>
+                </TransitionCollection>
+            </StackPanel.ChildrenTransitions>
+
+            <!-- ════════ موجودی Coins ════════ -->
+            <Border x:Name="BalanceCard"
+                    Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                    CornerRadius="16" Padding="20,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="44" Height="44" CornerRadius="12"
+                            Background="#33FFFFFF" Margin="0,0,12,0">
+                        <FontIcon Glyph="&#xE8C7;" FontSize="20" Foreground="White"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                        <TextBlock Text="Your balance" FontSize="11" Foreground="#CCFFFFFF"/>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock x:Name="HeroBalanceText" Text="2,450"
+                                       FontSize="26" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text="Coins" FontSize="13" Foreground="#CCFFFFFF"
+                                       VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ════════ Section header ════════ -->
+            <TextBlock Text="Choose a Plan"
+                       FontSize="13" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="2,6,0,0"/>
+
+            <!-- ════════ Basic ════════ -->
+            <Border x:Name="FirstPlanCard" Style="{StaticResource PlanCardStyle}"
+                    RenderTransformOrigin="0.5,0.5"
+                    PointerEntered="PlanCard_PointerEntered"
+                    PointerExited="PlanCard_PointerExited">
+                <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
+                <StackPanel Spacing="14">
+                    <!-- عنوان -->
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <Border Width="38" Height="38" CornerRadius="10"
+                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                <FontIcon Glyph="&#xE9D9;" FontSize="17"
+                                          Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center" Spacing="1">
+                                <TextBlock Text="Basic" FontSize="16" FontWeight="Bold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="Great for light browsing" FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- قیمت -->
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                        <FontIcon Glyph="&#xE8C7;" FontSize="18"
+                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Text="450" FontSize="28" FontWeight="Bold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock Text="coins" FontSize="13"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                        <TextBlock Text="/ 30 days" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   VerticalAlignment="Bottom" Margin="4,0,0,5"/>
+                    </StackPanel>
+
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                    <!-- ویژگی‌ها -->
+                    <StackPanel Spacing="9">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="5 GB data" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="30 days validity" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="5 server locations" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="Up to 2 devices" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Buy -->
+                    <Button Tag="Basic|450"
+                            Click="Buy_Click"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="9" Padding="12,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <TextBlock Text="Buy with 450 coins" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- ════════ Pro (Most Popular) ════════ -->
+            <Border x:Name="PopularPlanCard"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}"
+                    BorderThickness="1.5" CornerRadius="14" Padding="18,16"
+                    RenderTransformOrigin="0.5,0.5"
+                    PointerEntered="PlanCard_PointerEntered"
+                    PointerExited="PlanCard_PointerExited">
+                <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
+                <StackPanel Spacing="14">
+                    <!-- عنوان + بَج -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <Border Width="38" Height="38" CornerRadius="10"
+                                    Background="{ThemeResource AccentAAFillColorDefaultBrush}">
+                                <FontIcon Glyph="&#xE735;" FontSize="17" Foreground="White"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center" Spacing="1">
+                                <TextBlock Text="Pro" FontSize="16" FontWeight="Bold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="Best value for daily use" FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="1"
+                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                CornerRadius="7" Padding="9,4" VerticalAlignment="Top">
+                            <TextBlock Text="MOST POPULAR" FontSize="10" FontWeight="Bold"
+                                       Foreground="White"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- قیمت -->
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                        <FontIcon Glyph="&#xE8C7;" FontSize="18"
+                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Text="900" FontSize="28" FontWeight="Bold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock Text="coins" FontSize="13"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                        <TextBlock Text="/ 30 days" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   VerticalAlignment="Bottom" Margin="4,0,0,5"/>
+                    </StackPanel>
+
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                    <!-- ویژگی‌ها -->
+                    <StackPanel Spacing="9">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="50 GB data" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="30 days validity" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="12 server locations" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="Unlimited speed" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="Up to 5 devices" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Buy -->
+                    <Button Tag="Pro|900"
+                            Click="Buy_Click"
+                            Style="{ThemeResource AccentButtonStyle}"
+                            CornerRadius="9" Padding="12,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8C7;" FontSize="14" Foreground="White"/>
+                            <TextBlock Text="Buy with 900 coins" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- ════════ Ultimate ════════ -->
+            <Border Style="{StaticResource PlanCardStyle}"
+                    RenderTransformOrigin="0.5,0.5"
+                    PointerEntered="PlanCard_PointerEntered"
+                    PointerExited="PlanCard_PointerExited">
+                <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
+                <StackPanel Spacing="14">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <Border Width="38" Height="38" CornerRadius="10"
+                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                <FontIcon Glyph="&#xEB05;" FontSize="17"
+                                          Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center" Spacing="1">
+                                <TextBlock Text="Ultimate" FontSize="16" FontWeight="Bold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="For heavy streaming &amp; downloads" FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                        <FontIcon Glyph="&#xE8C7;" FontSize="18"
+                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Text="2,200" FontSize="28" FontWeight="Bold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock Text="coins" FontSize="13"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                        <TextBlock Text="/ 90 days" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   VerticalAlignment="Bottom" Margin="4,0,0,5"/>
+                    </StackPanel>
+
+                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+                    <StackPanel Spacing="9">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="200 GB data" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="90 days validity" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="All server locations" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="Unlimited speed" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
+                            <TextBlock Text="Up to 10 devices" Style="{StaticResource FeatureTextStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Tag="Ultimate|2200"
+                            Click="Buy_Click"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="9" Padding="12,8"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <TextBlock Text="Buy with 2,200 coins" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- ════════ تور راهنما ════════ -->
+            <TeachingTip x:Name="TourTip1"
+                         Target="{x:Bind BalanceCard}"
+                         Title="Your Coin Balance"
+                         Subtitle="Plans are purchased with Lithium Coins. This shows how many coins you currently have available."
+                         ActionButtonContent="Next ›"
+                         CloseButtonContent="Skip Tour"
+                         IsOpen="False"/>
+
+            <TeachingTip x:Name="TourTip2"
+                         Target="{x:Bind FirstPlanCard}"
+                         Title="Pick a Plan"
+                         Subtitle="Each plan shows its data, validity, locations and price. Compare them and choose the one that fits your needs."
+                         ActionButtonContent="Next ›"
+                         CloseButtonContent="Skip Tour"
+                         IsOpen="False"/>
+
+            <TeachingTip x:Name="TourTip3"
+                         Target="{x:Bind PopularPlanCard}"
+                         Title="Buy a Plan"
+                         Subtitle="Tap Buy to purchase a plan with your coins. It will be added as a new subscription you can use on the Configs page."
+                         CloseButtonContent="Done ✓"
+                         IsOpen="False"/>
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>
