@@ -7,9 +7,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="Select Config"
-    CloseButtonText="Cancel"
+    Title="{Binding [Dialog_SelectConfig], Source={StaticResource Loc}}"
+    CloseButtonText="{Binding [Common_Cancel], Source={StaticResource Loc}}"
     DefaultButton="Close"
+    FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}"
     Background="{StaticResource DialogAcrylic}"
     Foreground="{ThemeResource TextFillColorPrimaryBrush}">
 

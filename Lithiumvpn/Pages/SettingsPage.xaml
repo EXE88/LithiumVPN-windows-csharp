@@ -4,12 +4,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Lithiumvpn"
-    xmlns:dev="using:DevWinUI">
+    xmlns:dev="using:DevWinUI"
+    FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
 
     <ScrollViewer Padding="20,15,20,15">
         <StackPanel Spacing="10" MaxWidth="520" HorizontalAlignment="Left">
 
-            <TextBlock Text="Appearance" FontSize="20" FontWeight="SemiBold"
+            <TextBlock Text="{Binding [Settings_Appearance], Source={StaticResource Loc}}" FontSize="20" FontWeight="SemiBold"
                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                        Margin="0,0,0,8"/>
 
@@ -29,7 +30,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Title (left) -->
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="App Theme"
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding [Settings_AppTheme], Source={StaticResource Loc}}"
                                Padding="0,6,80,0"
                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                FontWeight="SemiBold" FontSize="14"/>
@@ -38,14 +39,14 @@
                     <ComboBox Grid.Row="0" Grid.Column="1" MinWidth="150"
                               VerticalAlignment="Center"
                               dev:ThemeServiceAttach.ThemeService="{x:Bind local:App.GetThemeService}">
-                        <ComboBoxItem Content="Light"  Tag="Light"/>
-                        <ComboBoxItem Content="Dark"   Tag="Dark"/>
-                        <ComboBoxItem Content="System" Tag="Default"/>
+                        <ComboBoxItem Content="{Binding [Settings_ThemeLight], Source={StaticResource Loc}}"  Tag="Light"/>
+                        <ComboBoxItem Content="{Binding [Settings_ThemeDark], Source={StaticResource Loc}}"   Tag="Dark"/>
+                        <ComboBoxItem Content="{Binding [Settings_ThemeSystem], Source={StaticResource Loc}}" Tag="Default"/>
                     </ComboBox>
 
                     <!-- Description (full width, below) -->
                     <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                               Text="Choose your preferred color theme"
+                               Text="{Binding [Settings_ThemeDesc], Source={StaticResource Loc}}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
                 </Grid>
@@ -65,7 +66,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Window Effect"
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding [Settings_WindowEffect], Source={StaticResource Loc}}"
                                Padding="0,6,80,0"
                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                FontWeight="SemiBold" FontSize="14"/>
@@ -73,14 +74,51 @@
                     <ComboBox Grid.Row="0" Grid.Column="1" MinWidth="150"
                               VerticalAlignment="Center"
                               dev:ThemeServiceAttach.ThemeService="{x:Bind local:App.GetThemeService}">
-                        <ComboBoxItem Content="Matte"      Tag="Mica"/>
-                        <ComboBoxItem Content="High Matte" Tag="MicaAlt"/>
-                        <ComboBoxItem Content="Glass"      Tag="Acrylic"/>
-                        <ComboBoxItem Content="Glass Thin" Tag="AcrylicThin"/>
+                        <ComboBoxItem Content="{Binding [Settings_EffectMatte], Source={StaticResource Loc}}"      Tag="Mica"/>
+                        <ComboBoxItem Content="{Binding [Settings_EffectHighMatte], Source={StaticResource Loc}}" Tag="MicaAlt"/>
+                        <ComboBoxItem Content="{Binding [Settings_EffectGlass], Source={StaticResource Loc}}"      Tag="Acrylic"/>
+                        <ComboBoxItem Content="{Binding [Settings_EffectGlassThin], Source={StaticResource Loc}}" Tag="AcrylicThin"/>
                     </ComboBox>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                               Text="Choose the window background effect"
+                               Text="{Binding [Settings_WindowEffectDesc], Source={StaticResource Loc}}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                </Grid>
+            </Border>
+
+            <!-- ── Language & Region ── -->
+            <TextBlock Text="{Binding [Settings_LanguageSection], Source={StaticResource Loc}}" FontSize="20" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                       Margin="0,12,0,8"/>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="16,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding [Settings_Language], Source={StaticResource Loc}}"
+                               Padding="0,6,80,0"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                               FontWeight="SemiBold" FontSize="14"/>
+
+                    <ComboBox x:Name="LanguageComboBox" Grid.Row="0" Grid.Column="1" MinWidth="150"
+                              VerticalAlignment="Center"
+                              SelectionChanged="LanguageComboBox_SelectionChanged">
+                        <ComboBoxItem Content="{Binding [Settings_LanguageEnglish], Source={StaticResource Loc}}" Tag="en"/>
+                        <ComboBoxItem Content="{Binding [Settings_LanguagePersian], Source={StaticResource Loc}}" Tag="fa"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="{Binding [Settings_LanguageDesc], Source={StaticResource Loc}}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
                 </Grid>

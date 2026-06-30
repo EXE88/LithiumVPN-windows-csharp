@@ -3,9 +3,13 @@
     x:Class="Lithiumvpn.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Lithiumvpn">
+    xmlns:local="using:Lithiumvpn"
+    xmlns:loc="using:Lithiumvpn.Localization">
     <Application.Resources>
         <ResourceDictionary>
+            <!-- Runtime localization service (EN/FA). Bind with {Binding [Key], Source={StaticResource Loc}} -->
+            <loc:LocalizationManager x:Key="Loc" />
+
             <!-- Global dialog acrylic — TintColor uses SystemChromeLowColor which is dark in dark mode, light in light mode -->
             <AcrylicBrush x:Key="DialogAcrylic"
                           TintColor="{ThemeResource SystemChromeLowColor}"

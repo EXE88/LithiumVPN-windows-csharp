@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI;
+using Lithiumvpn.Localization;
 
 namespace Lithiumvpn.Dialogs
 {
@@ -84,12 +85,15 @@ namespace Lithiumvpn.Dialogs
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            int index = 1;
             foreach (var (label, volume, configs) in _purchases)
-                PurchasesPanel.Children.Add(BuildPurchaseSection(label, volume, configs));
+                PurchasesPanel.Children.Add(BuildPurchaseSection(index++, volume, configs));
         }
 
-        private StackPanel BuildPurchaseSection(string label, string volume, List<ConfigInfo> configs)
+        private StackPanel BuildPurchaseSection(int index, string volume, List<ConfigInfo> configs)
         {
+            var loc = LocalizationManager.Instance;
+            string label = string.Format(loc.Get("Dialog_Purchase"), index);
             string expiryPersian = configs.FirstOrDefault()?.ExpiryPersian ?? "";
 
             var headerGrid = new Grid { ColumnSpacing = 8 };
@@ -110,7 +114,7 @@ namespace Lithiumvpn.Dialogs
 
             var infoText = new TextBlock
             {
-                Text = $"{volume}  ·  Expiry {expiryPersian}",
+                Text = $"{volume}  ·  {loc.Get("Dialog_ExpiryPrefix")} {expiryPersian}",
                 FontSize = 12,
                 VerticalAlignment = VerticalAlignment.Center,
                 Opacity = 0.6,
@@ -148,7 +152,7 @@ namespace Lithiumvpn.Dialogs
 
             var countryText = new TextBlock
             {
-                Text = cfg.Country,
+                Text = LocalizeCountry(cfg.Country),
                 FontSize = 12,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 Margin = new Thickness(0, 4, 0, 0),
@@ -161,7 +165,7 @@ namespace Lithiumvpn.Dialogs
             if (!cfg.IsAvailable)
                 content.Children.Add(new TextBlock
                 {
-                    Text = "Unavailable",
+                    Text = LocalizationManager.Instance.Get("Dialog_Unavailable"),
                     FontSize = 11,
                     Foreground = new SolidColorBrush(Color.FromArgb(255, 229, 57, 53))
                 });
@@ -197,6 +201,14 @@ namespace Lithiumvpn.Dialogs
 
             return btn;
         }
+
+        private static string LocalizeCountry(string country) => country switch
+        {
+            "Netherlands" => LocalizationManager.Instance.Get("Country_Netherlands"),
+            "Germany" => LocalizationManager.Instance.Get("Country_Germany"),
+            "Poland" => LocalizationManager.Instance.Get("Country_Poland"),
+            _ => country
+        };
 
         // ✅ دایره پرچم SVG — همان الگوی config selection bar
         private static Grid BuildFlagCircle(string countryCode, string fallbackEmoji)

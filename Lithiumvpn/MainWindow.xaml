@@ -11,7 +11,8 @@
     mc:Ignorable="d"
     Title="Lithiumvpn">
 
-    <Grid x:Name="RootGrid">
+    <Grid x:Name="RootGrid"
+          FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <Grid.Resources>
             <Style x:Key="GlassPanelStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
@@ -394,14 +395,14 @@
                         <Button x:Name="NavDashboardButton" Tag="Dashboard" Style="{StaticResource SelectedNavButtonStyle}"  Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE80F;" FontSize="16"/>
-                                <TextBlock Text="Dashboard" FontWeight="SemiBold" FontSize="15"/>
+                                <TextBlock Text="{Binding [Nav_Dashboard], Source={StaticResource Loc}}" FontWeight="SemiBold" FontSize="15"/>
                             </StackPanel>
                         </Button>
 
                         <Button Tag="Configs" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE838;" FontSize="16"/>
-                                <TextBlock Text="Configs" FontSize="15"/>
+                                <TextBlock Text="{Binding [Nav_Configs], Source={StaticResource Loc}}" FontSize="15"/>
                             </StackPanel>
                         </Button>
 
@@ -410,21 +411,21 @@
                         <Button Tag="Account" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE77B;" FontSize="16"/>
-                                <TextBlock Text="Account" FontSize="15"/>
+                                <TextBlock Text="{Binding [Nav_Account], Source={StaticResource Loc}}" FontSize="15"/>
                             </StackPanel>
                         </Button>
                         
                         <Button Tag="Coins" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE8C7;" FontSize="16"/>
-                                <TextBlock Text="Coins" FontSize="15"/>
+                                <TextBlock Text="{Binding [Nav_Coins], Source={StaticResource Loc}}" FontSize="15"/>
                             </StackPanel>
                         </Button>
 
                         <Button Tag="Plans" Style="{StaticResource NavButtonStyle}" Click="NavButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="15">
                                 <FontIcon Glyph="&#xE787;" FontSize="16"/>
-                                <TextBlock Text="Plans" FontSize="15"/>
+                                <TextBlock Text="{Binding [Nav_Plans], Source={StaticResource Loc}}" FontSize="15"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -434,7 +435,7 @@
                         <Button x:Name="HelpIconButton" Background="Transparent" BorderThickness="0"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}" Click="NavButton_Click" Tag="Help"
                                 HorizontalAlignment="Left" Margin="0,0,0,6"
-                                ToolTipService.ToolTip="Help &amp; Tours">
+                                ToolTipService.ToolTip="{Binding [Nav_HelpTooltip], Source={StaticResource Loc}}">
                             <FontIcon Glyph="&#xE11B;" FontSize="18"/>
                         </Button>
                         <Button x:Name="SettingsIconButton" Background="Transparent" BorderThickness="0"

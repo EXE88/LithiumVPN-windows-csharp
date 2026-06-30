@@ -9,7 +9,8 @@
     mc:Ignorable="d"
     >
 
-    <Grid x:Name="RootGrid">
+    <Grid x:Name="RootGrid"
+          FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <dev:Particle IsPointerEnable="False"
                       Density="4" ParticleColor="White" LineColor="White"
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -30,34 +31,34 @@
                 <Image x:Name="AppLogoLogin" Width="48" Height="48"
                        HorizontalAlignment="Center" Margin="0,4,0,4"/>
 
-                <TextBlock Text="Welcome Back" FontSize="22" FontWeight="SemiBold"
+                <TextBlock Text="{Binding [Login_WelcomeBack], Source={StaticResource Loc}}" FontSize="22" FontWeight="SemiBold"
                            HorizontalAlignment="Center"
                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                <TextBlock Text="Sign in to your Lithium account"
+                <TextBlock Text="{Binding [Login_SignInSub], Source={StaticResource Loc}}"
                            FontSize="12" HorizontalAlignment="Center"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Margin="0,0,0,6"/>
 
-                <TextBox x:Name="LoginUsername" Header="Username"
-                         PlaceholderText="Enter username" CornerRadius="10"/>
-                <PasswordBox x:Name="LoginPassword" Header="Password"
-                             PlaceholderText="Enter password" CornerRadius="10"/>
+                <TextBox x:Name="LoginUsername" Header="{Binding [Login_Username], Source={StaticResource Loc}}"
+                         PlaceholderText="{Binding [Login_EnterUsername], Source={StaticResource Loc}}" CornerRadius="10"/>
+                <PasswordBox x:Name="LoginPassword" Header="{Binding [Login_Password], Source={StaticResource Loc}}"
+                             PlaceholderText="{Binding [Login_EnterPassword], Source={StaticResource Loc}}" CornerRadius="10"/>
 
                 <TextBlock x:Name="LoginError" Foreground="#FFE53935" FontSize="12"
                            HorizontalAlignment="Center" Visibility="Collapsed"/>
 
                 <Button x:Name="LoginBtn"
-                        Content="Sign In" HorizontalAlignment="Stretch"
+                        Content="{Binding [Login_SignIn], Source={StaticResource Loc}}" HorizontalAlignment="Stretch"
                         CornerRadius="10" Height="42" Margin="0,4,0,0"
                         Style="{StaticResource AccentButtonStyle}"
                         Click="LoginBtn_Click"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
                             Spacing="4" Margin="0,4,0,0">
-                    <TextBlock Text="Don't have an account?" FontSize="12"
+                    <TextBlock Text="{Binding [Login_NoAccount], Source={StaticResource Loc}}" FontSize="12"
                                VerticalAlignment="Center"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <HyperlinkButton Content="Create one" FontSize="12" Padding="4,0"
+                    <HyperlinkButton Content="{Binding [Login_CreateOne], Source={StaticResource Loc}}" FontSize="12" Padding="4,0"
                                      Click="SwitchToRegister_Click"/>
                 </StackPanel>
             </StackPanel>
@@ -88,7 +89,7 @@
                         <FontIcon Glyph="&#xE72B;" FontSize="14"
                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </Button>
-                    <TextBlock Grid.Column="1" Text="Create Account"
+                    <TextBlock Grid.Column="1" Text="{Binding [Login_CreateAccount], Source={StaticResource Loc}}"
                                FontSize="18" FontWeight="SemiBold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                Margin="0,0,28,0"
@@ -97,25 +98,25 @@
 
                 <!-- StepBar -->
                 <dev:StepBar x:Name="RegisterStepBar" StepIndex="0" Margin="0,4,0,8" Background="Transparent" BorderThickness="0">
-                    <dev:StepBarItem Content="Info"/>
-                    <dev:StepBarItem Content="Verify"/>
-                    <dev:StepBarItem Content="Done"/>
+                    <dev:StepBarItem Content="{Binding [Login_StepInfo], Source={StaticResource Loc}}"/>
+                    <dev:StepBarItem Content="{Binding [Login_StepVerify], Source={StaticResource Loc}}"/>
+                    <dev:StepBarItem Content="{Binding [Login_StepDone], Source={StaticResource Loc}}"/>
                 </dev:StepBar>
 
                 <!-- ── Step 1: Info ── -->
                 <StackPanel x:Name="Step1Panel" Spacing="10">
-                    <TextBox x:Name="RegUsername" Header="Username"
-                             PlaceholderText="Choose a username" CornerRadius="10"/>
-                    <TextBox x:Name="RegEmail" Header="Email"
-                             PlaceholderText="your@email.com" CornerRadius="10"/>
-                    <PasswordBox x:Name="RegPassword" Header="Password"
-                                 PlaceholderText="Create a strong password" CornerRadius="10"
+                    <TextBox x:Name="RegUsername" Header="{Binding [Login_Username], Source={StaticResource Loc}}"
+                             PlaceholderText="{Binding [Login_ChooseUsername], Source={StaticResource Loc}}" CornerRadius="10"/>
+                    <TextBox x:Name="RegEmail" Header="{Binding [Login_Email], Source={StaticResource Loc}}"
+                             PlaceholderText="{Binding [Login_EmailPlaceholder], Source={StaticResource Loc}}" CornerRadius="10"/>
+                    <PasswordBox x:Name="RegPassword" Header="{Binding [Login_Password], Source={StaticResource Loc}}"
+                                 PlaceholderText="{Binding [Login_CreatePassword], Source={StaticResource Loc}}" CornerRadius="10"
                                  PasswordRevealMode="Peek"
                                  PasswordChanged="RegPassword_PasswordChanged"
                                  GotFocus="RegPassword_GotFocus"
                                  LostFocus="RegPassword_LostFocus"/>
-                    <PasswordBox x:Name="RegConfirmPassword" Header="Confirm Password"
-                                 PlaceholderText="Repeat your password" CornerRadius="10"
+                    <PasswordBox x:Name="RegConfirmPassword" Header="{Binding [Login_ConfirmPassword], Source={StaticResource Loc}}"
+                                 PlaceholderText="{Binding [Login_RepeatPassword], Source={StaticResource Loc}}" CornerRadius="10"
                                  PasswordRevealMode="Peek"/>
                     <!-- removed Step1Error in favor of toast notifications -->
                     <!-- Password rules popup -->
@@ -124,19 +125,19 @@
                             CornerRadius="8" Padding="10" Visibility="Collapsed" Width="320"
                             HorizontalAlignment="Center">
                         <StackPanel Spacing="6">
-                            <TextBlock Text="Password must:" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding [Login_PasswordMust], Source={StaticResource Loc}}" FontWeight="SemiBold"/>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock x:Name="RuleLenIcon" Text="○" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="Be at least 8 characters" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding [Login_Rule8Chars], Source={StaticResource Loc}}" VerticalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <TextBlock x:Name="RuleDigitIcon" Text="○" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="Contain at least one digit" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding [Login_RuleDigit], Source={StaticResource Loc}}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
 
-                    <Button Content="Continue →" HorizontalAlignment="Stretch"
+                    <Button Content="{Binding [Login_Continue], Source={StaticResource Loc}}" HorizontalAlignment="Stretch"
                             CornerRadius="10" Height="42" Margin="0,4,0,0"
                             Style="{StaticResource AccentButtonStyle}"
                             Click="RegNext_Click"/>
@@ -148,7 +149,7 @@
                     <FontIcon Glyph="&#xE715;" FontSize="36"
                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                               HorizontalAlignment="Center"/>
-                    <TextBlock Text="Check your email" FontSize="16" FontWeight="SemiBold"
+                    <TextBlock Text="{Binding [Login_CheckEmail], Source={StaticResource Loc}}" FontSize="16" FontWeight="SemiBold"
                                HorizontalAlignment="Center"
                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     <TextBlock x:Name="OtpEmailHint" FontSize="12" TextAlignment="Center"
@@ -171,7 +172,7 @@
 
                         <Button x:Name="OtpBackBtn"
                                 Grid.Column="0"
-                                Content="← Back"
+                                Content="{Binding [Login_Back], Source={StaticResource Loc}}"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Padding="6,4"
@@ -182,13 +183,13 @@
 
                         <HyperlinkButton x:Name="OtpResendBtn"
                                          Grid.Column="2"
-                                         Content="Resend code"
+                                         Content="{Binding [Login_ResendCode], Source={StaticResource Loc}}"
                                          Padding="6,4"
                                          Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                                          Click="OtpResend_Click" />
                     </Grid>
 
-                    <Button Content="Verify Code" HorizontalAlignment="Stretch"
+                    <Button Content="{Binding [Login_VerifyCode], Source={StaticResource Loc}}" HorizontalAlignment="Stretch"
                             CornerRadius="10" Height="42"
                             Style="{StaticResource AccentButtonStyle}"
                             Click="RegVerify_Click"/>
@@ -207,7 +208,7 @@
                         <TextBlock x:Name="WelcomeTitle" FontSize="20" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="Your account has been created successfully!"
+                        <TextBlock Text="{Binding [Login_AccountCreated], Source={StaticResource Loc}}"
                                    FontSize="12" TextAlignment="Center"
                                    TextWrapping="Wrap" MaxWidth="320"
                                    HorizontalAlignment="Center"

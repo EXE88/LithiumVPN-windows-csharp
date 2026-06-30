@@ -6,7 +6,8 @@
     xmlns:local="using:Lithiumvpn"
     xmlns:dev="using:DevWinUI">
 
-    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto"
+                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <StackPanel Spacing="10">
 
             <!-- ── Balance Card ── -->
@@ -20,14 +21,14 @@
                                FontSize="44" FontWeight="Bold"
                                Foreground="White"
                                HorizontalAlignment="Center"/>
-                    <TextBlock Text="Lithium Coins"
+                    <TextBlock Text="{Binding [Coins_LithiumCoins], Source={StaticResource Loc}}"
                                FontSize="13" Foreground="#CCFFFFFF"
                                HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
             <!-- ── How to Buy ── -->
-            <TextBlock Text="How to Buy Coins"
+            <TextBlock Text="{Binding [Coins_HowToBuy], Source={StaticResource Loc}}"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="2,6,0,0"/>
@@ -51,10 +52,10 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock Text="Contact Admin on Telegram"
+                            <TextBlock Text="{Binding [Coins_Step1Title], Source={StaticResource Loc}}"
                                        FontSize="13" FontWeight="SemiBold"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Message the admin and mention the coin amount you want"
+                            <TextBlock Text="{Binding [Coins_Step1Desc], Source={StaticResource Loc}}"
                                        FontSize="11" TextWrapping="Wrap"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -75,10 +76,10 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock Text="Send Payment Receipt"
+                            <TextBlock Text="{Binding [Coins_Step2Title], Source={StaticResource Loc}}"
                                        FontSize="13" FontWeight="SemiBold"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="After payment, send the receipt screenshot to the admin"
+                            <TextBlock Text="{Binding [Coins_Step2Desc], Source={StaticResource Loc}}"
                                        FontSize="11" TextWrapping="Wrap"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -99,10 +100,10 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock Text="Coins Added to Your Account"
+                            <TextBlock Text="{Binding [Coins_Step3Title], Source={StaticResource Loc}}"
                                        FontSize="13" FontWeight="SemiBold"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="After admin approval, coins appear in your balance automatically"
+                            <TextBlock Text="{Binding [Coins_Step3Desc], Source={StaticResource Loc}}"
                                        FontSize="11" TextWrapping="Wrap"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -112,7 +113,7 @@
             </Border>
 
             <!-- ── Contact Admin ── -->
-            <TextBlock Text="Contact Admin"
+            <TextBlock Text="{Binding [Coins_ContactAdmin], Source={StaticResource Loc}}"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="2,6,0,0"/>
@@ -138,7 +139,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                        <TextBlock Text="Telegram Admin"
+                        <TextBlock Text="{Binding [Coins_TelegramAdmin], Source={StaticResource Loc}}"
                                    FontSize="13" FontWeight="SemiBold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                         <TextBlock x:Name="AdminIdText" Text="@Devamirkaj"
@@ -154,7 +155,7 @@
                             BorderThickness="1" CornerRadius="8"
                             Padding="10,6" VerticalAlignment="Center"
                             Click="CopyId_Click"
-                            ToolTipService.ToolTip="Copy ID">
+                            ToolTipService.ToolTip="{Binding [Coins_CopyId], Source={StaticResource Loc}}">
                         <FontIcon Glyph="&#xE8C8;" FontSize="14"
                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     </Button>
@@ -165,10 +166,10 @@
                             BorderThickness="0" CornerRadius="8"
                             Padding="10,6" VerticalAlignment="Center"
                             Click="OpenTelegram_Click"
-                            ToolTipService.ToolTip="Open in Telegram">
+                            ToolTipService.ToolTip="{Binding [Coins_OpenInTelegram], Source={StaticResource Loc}}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon Glyph="&#xE8A7;" FontSize="13" Foreground="White"/>
-                            <TextBlock Text="Open" FontSize="12" Foreground="White"/>
+                            <TextBlock Text="{Binding [Common_Open], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
                         </StackPanel>
                     </Button>
                 </Grid>
@@ -177,25 +178,25 @@
             <!-- ── Teaching Tips ── -->
             <TeachingTip x:Name="TourTip1"
                          Target="{x:Bind BalanceCard}"
-                         Title="Your Coin Balance"
-                         Subtitle="This shows your current Lithium Coins — the in-app currency used to purchase VPN plans."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Coins_Tour1Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Coins_Tour1Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip2"
                          Target="{x:Bind HowToBuyCard}"
-                         Title="How to Buy Coins"
-                         Subtitle="Follow these 3 steps: contact the admin on Telegram, send your payment receipt, and coins will be added after approval."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Coins_Tour2Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Coins_Tour2Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip3"
                          Target="{x:Bind TelegramCard}"
-                         Title="Contact Admin"
-                         Subtitle="Tap Copy to copy the admin Telegram ID, or Open to launch Telegram and start the conversation directly."
-                         CloseButtonContent="Done ✓"
+                         Title="{Binding [Coins_Tour3Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Coins_Tour3Sub], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_Done], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
         </StackPanel>

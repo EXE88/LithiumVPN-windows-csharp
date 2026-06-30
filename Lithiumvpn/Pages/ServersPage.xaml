@@ -46,7 +46,8 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto"
+                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <StackPanel Spacing="12">
             <StackPanel.ChildrenTransitions>
                 <TransitionCollection>
@@ -66,7 +67,7 @@
                             <FontIcon Glyph="&#xE838;" FontSize="18" Foreground="White"
                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="Subscriptions"
+                        <TextBlock Text="{Binding [Servers_Subscriptions], Source={StaticResource Loc}}"
                                    FontSize="19" FontWeight="Bold" Foreground="White"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
@@ -84,21 +85,21 @@
                         <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="1">
                             <TextBlock Text="2" FontSize="24" FontWeight="Bold"
                                        Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Active" FontSize="11" Foreground="#CCFFFFFF"
+                            <TextBlock Text="{Binding [Servers_Active], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
                         <Rectangle Grid.Column="1" Width="1" Fill="#40FFFFFF" Margin="0,4"/>
                         <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="1">
                             <TextBlock Text="3" FontSize="24" FontWeight="Bold"
                                        Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Locations" FontSize="11" Foreground="#CCFFFFFF"
+                            <TextBlock Text="{Binding [Servers_Locations], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
                         <Rectangle Grid.Column="3" Width="1" Fill="#40FFFFFF" Margin="0,4"/>
                         <StackPanel Grid.Column="4" HorizontalAlignment="Center" Spacing="1">
                             <TextBlock Text="2" FontSize="24" FontWeight="Bold"
                                        Foreground="White" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Purchases" FontSize="11" Foreground="#CCFFFFFF"
+                            <TextBlock Text="{Binding [Servers_Purchases], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
@@ -128,13 +129,13 @@
                         <!-- تگ id + دکمه‌ی info -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Border Style="{StaticResource PurchaseTagStyle}">
-                                <TextBlock Text="Purchase #1" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                <TextBlock Text="{Binding [Servers_Purchase1], Source={StaticResource Loc}}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
                             </Border>
                             <Button x:Name="InfoButton1"
                                     Style="{StaticResource InfoButtonStyle}"
                                     Tag="{Binding ElementName=Purchase1InfoTip}"
                                     Click="InfoButton_Click"
-                                    ToolTipService.ToolTip="Plan details">
+                                    ToolTipService.ToolTip="{Binding [Servers_PlanDetails], Source={StaticResource Loc}}">
                                 <FontIcon Glyph="&#xE946;" FontSize="13"
                                           Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
                             </Button>
@@ -194,7 +195,7 @@
                                         <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
                                     </Grid>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="Netherlands" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding [Country_Netherlands], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         <TextBlock Text="cn_nl_a1" FontSize="11"
@@ -218,11 +219,11 @@
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="Test ping">
+                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE72C;" FontSize="13"
                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="Ping" FontSize="12"
+                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         </StackPanel>
                                     </Button>
@@ -232,7 +233,7 @@
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="Connect" FontSize="12" Foreground="White"/>
+                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -270,7 +271,7 @@
                                         <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
                                     </Grid>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="Germany" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding [Country_Germany], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         <TextBlock Text="cn_de_f1" FontSize="11"
@@ -292,11 +293,11 @@
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="Test ping">
+                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE72C;" FontSize="13"
                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="Ping" FontSize="12"
+                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         </StackPanel>
                                     </Button>
@@ -306,7 +307,7 @@
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="Connect" FontSize="12" Foreground="White"/>
+                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -344,7 +345,7 @@
                                         <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
                                     </Grid>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="Poland" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding [Country_Poland], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         <TextBlock Text="cn_pl_w1" FontSize="11"
@@ -366,11 +367,11 @@
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="Test ping">
+                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE72C;" FontSize="13"
                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="Ping" FontSize="12"
+                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         </StackPanel>
                                     </Button>
@@ -380,7 +381,7 @@
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="Connect" FontSize="12" Foreground="White"/>
+                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -412,13 +413,13 @@
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Border Style="{StaticResource PurchaseTagStyle}">
-                                <TextBlock Text="Purchase #2" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                <TextBlock Text="{Binding [Servers_Purchase2], Source={StaticResource Loc}}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
                             </Border>
                             <Button x:Name="InfoButton2"
                                     Style="{StaticResource InfoButtonStyle}"
                                     Tag="{Binding ElementName=Purchase2InfoTip}"
                                     Click="InfoButton_Click"
-                                    ToolTipService.ToolTip="Plan details">
+                                    ToolTipService.ToolTip="{Binding [Servers_PlanDetails], Source={StaticResource Loc}}">
                                 <FontIcon Glyph="&#xE946;" FontSize="13"
                                           Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
                             </Button>
@@ -474,7 +475,7 @@
                                         <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
                                     </Grid>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="Netherlands" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding [Country_Netherlands], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         <TextBlock Text="cn_nl_b1" FontSize="11"
@@ -496,11 +497,11 @@
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="Test ping">
+                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE72C;" FontSize="13"
                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="Ping" FontSize="12"
+                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         </StackPanel>
                                     </Button>
@@ -510,7 +511,7 @@
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="Connect" FontSize="12" Foreground="White"/>
+                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -548,7 +549,7 @@
                                         <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
                                     </Grid>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="Germany" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding [Country_Germany], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         <TextBlock Text="cn_de_f2" FontSize="11"
@@ -570,11 +571,11 @@
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="Test ping">
+                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE72C;" FontSize="13"
                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="Ping" FontSize="12"
+                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         </StackPanel>
                                     </Button>
@@ -584,7 +585,7 @@
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="Connect" FontSize="12" Foreground="White"/>
+                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -622,7 +623,7 @@
                                         <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
                                     </Grid>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="Poland" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding [Country_Poland], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         <TextBlock Text="cn_pl_w2" FontSize="11"
@@ -644,11 +645,11 @@
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="Test ping">
+                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE72C;" FontSize="13"
                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="Ping" FontSize="12"
+                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                         </StackPanel>
                                     </Button>
@@ -658,7 +659,7 @@
                                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                             <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="Connect" FontSize="12" Foreground="White"/>
+                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -671,32 +672,32 @@
             <!-- ════════ تور راهنما ════════ -->
             <TeachingTip x:Name="TourTip1"
                          Target="{x:Bind HeroCard}"
-                         Title="Your Subscriptions"
-                         Subtitle="This card summarizes your plans — how many purchases are still active, how many locations you can use, and your total purchases."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Servers_Tour1Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Servers_Tour1Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip2"
                          Target="{x:Bind Purchase1Expander}"
-                         Title="A Purchase = One Plan"
-                         Subtitle="Each purchase you made appears here. Tap the info button to see remaining data and time — all configs inside it share the same quota. Tap the card to expand."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Servers_Tour2Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Servers_Tour2Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip3"
                          Target="{x:Bind FirstConfigCard}"
-                         Title="Locations &amp; Connect"
-                         Subtitle="Expand a purchase to see one config per location. Tap Ping to measure latency, then Connect to route your traffic through that server."
-                         CloseButtonContent="Done ✓"
+                         Title="{Binding [Servers_Tour3Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Servers_Tour3Sub], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_Done], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <!-- جزئیات Purchase — متصل به دکمه‌ی info (محتوای غنی: تگ + ProgressBar) -->
             <TeachingTip x:Name="Purchase1InfoTip"
                          Target="{x:Bind InfoButton1}"
-                         Title="Purchase #1 — Details"
-                         CloseButtonContent="Got it"
+                         Title="{Binding [Servers_Purchase1Details], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_GotIt], Source={StaticResource Loc}}"
                          IsOpen="False">
                 <TeachingTip.Content>
                     <StackPanel Width="260" Spacing="16" Margin="0,8,0,0">
@@ -706,7 +707,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                     <FontIcon Glyph="&#xECAD;" FontSize="14"
                                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="Data left" FontSize="13" FontWeight="SemiBold"
+                                    <TextBlock Text="{Binding [Servers_DataLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </StackPanel>
                                 <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
@@ -724,7 +725,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                     <FontIcon Glyph="&#xEC92;" FontSize="14"
                                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="Time left" FontSize="13" FontWeight="SemiBold"
+                                    <TextBlock Text="{Binding [Servers_TimeLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </StackPanel>
                                 <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
@@ -736,7 +737,7 @@
                                          Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
                         </StackPanel>
 
-                        <TextBlock Text="All configs in this purchase share this quota."
+                        <TextBlock Text="{Binding [Servers_SharedQuota], Source={StaticResource Loc}}"
                                    FontSize="11" TextWrapping="Wrap"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </StackPanel>
@@ -745,8 +746,8 @@
 
             <TeachingTip x:Name="Purchase2InfoTip"
                          Target="{x:Bind InfoButton2}"
-                         Title="Purchase #2 — Details"
-                             CloseButtonContent="Got it"
+                         Title="{Binding [Servers_Purchase2Details], Source={StaticResource Loc}}"
+                             CloseButtonContent="{Binding [Common_GotIt], Source={StaticResource Loc}}"
                          IsOpen="False">
                 <TeachingTip.Content>
                     <StackPanel Width="260" Spacing="16" Margin="0,8,0,0">
@@ -756,7 +757,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                     <FontIcon Glyph="&#xECAD;" FontSize="14"
                                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="Data left" FontSize="13" FontWeight="SemiBold"
+                                    <TextBlock Text="{Binding [Servers_DataLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </StackPanel>
                                 <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
@@ -774,7 +775,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                     <FontIcon Glyph="&#xEC92;" FontSize="14"
                                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="Time left" FontSize="13" FontWeight="SemiBold"
+                                    <TextBlock Text="{Binding [Servers_TimeLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </StackPanel>
                                 <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
@@ -786,7 +787,7 @@
                                          Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
                         </StackPanel>
 
-                        <TextBlock Text="All configs in this purchase share this quota."
+                        <TextBlock Text="{Binding [Servers_SharedQuota], Source={StaticResource Loc}}"
                                    FontSize="11" TextWrapping="Wrap"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     </StackPanel>

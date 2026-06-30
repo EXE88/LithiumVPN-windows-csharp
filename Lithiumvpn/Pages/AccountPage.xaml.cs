@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using Lithiumvpn.Localization;
 
 namespace Lithiumvpn.Pages
 {
@@ -38,13 +39,15 @@ namespace Lithiumvpn.Pages
 
         private async void SignOut_Click(object sender, RoutedEventArgs e)
         {
+            var loc = LocalizationManager.Instance;
             var dialog = new ContentDialog
             {
-                Title = "Sign Out",
-                Content = "Are you sure you want to sign out?",
-                PrimaryButtonText = "Sign Out",
-                CloseButtonText = "Cancel",
+                Title = loc.Get("Account_SignOutDialogTitle"),
+                Content = loc.Get("Account_SignOutDialogBody"),
+                PrimaryButtonText = loc.Get("Account_SignOut"),
+                CloseButtonText = loc.Get("Common_Cancel"),
                 DefaultButton = ContentDialogButton.Close,
+                FlowDirection = loc.FlowDirection,
                 XamlRoot = this.XamlRoot
             };
             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
@@ -53,13 +56,15 @@ namespace Lithiumvpn.Pages
 
         private async void DeleteAccount_Click(object sender, RoutedEventArgs e)
         {
+            var loc = LocalizationManager.Instance;
             await new ContentDialog
             {
-                Title = "Delete Account",
-                Content = "This action is permanent and cannot be undone. All your data, subscription, and coins will be lost.",
-                PrimaryButtonText = "Delete Forever",
-                CloseButtonText = "Cancel",
+                Title = loc.Get("Account_DeleteDialogTitle"),
+                Content = loc.Get("Account_DeleteDialogBody"),
+                PrimaryButtonText = loc.Get("Account_DeleteForever"),
+                CloseButtonText = loc.Get("Common_Cancel"),
                 DefaultButton = ContentDialogButton.Close,
+                FlowDirection = loc.FlowDirection,
                 XamlRoot = this.XamlRoot
             }.ShowAsync();
         }

@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Text.RegularExpressions;
 using Windows.UI;
+using Lithiumvpn.Localization;
 
 namespace Lithiumvpn.Pages
 {
@@ -41,6 +42,9 @@ namespace Lithiumvpn.Pages
         private ConnectionState currentState = ConnectionState.Disconnected;
         private DispatcherTimer connectionTimer;
 
+        // Remember the active config so we can re-render its labels when the language changes.
+        private Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo? _selectedConfig;
+
         public DashboardPage()
         {
             this.InitializeComponent();
@@ -54,7 +58,28 @@ namespace Lithiumvpn.Pages
 
             // ✅ تغییر ۱: حالت اولیه — هیچ config انتخاب نشده
             SetEmptyState();
+
+            // Re-apply localized labels when the language is switched at runtime.
+            // The page is cached for the app lifetime, so the subscription persists with it.
+            LocalizationManager.Instance.LanguageChanged += OnLanguageChanged;
         }
+
+        private void OnLanguageChanged()
+        {
+            if (_selectedConfig is { } cfg)
+                ApplySelectedConfig(cfg);
+            else
+                SetEmptyState();
+        }
+
+        // Map an English country name to its localized form.
+        private static string LocalizeCountry(string country) => country switch
+        {
+            "Netherlands" => LocalizationManager.Instance.Get("Country_Netherlands"),
+            "Germany" => LocalizationManager.Instance.Get("Country_Germany"),
+            "Poland" => LocalizationManager.Instance.Get("Country_Poland"),
+            _ => country
+        };
 
         // ─── حالت خالی اولیه ──────────────────────────────────────────
         private void SetEmptyState()
@@ -63,8 +88,8 @@ namespace Lithiumvpn.Pages
             ConfigFlagEllipse.Visibility = Visibility.Collapsed;
             ConfigFlag.Text = "";
             ConfigFlag.Visibility = Visibility.Visible;
-            ConfigCountry.Text = "Choose your configuration";
-            ConfigName.Text = "No config selected";
+            ConfigCountry.Text = LocalizationManager.Instance.Get("Dash_ChooseConfig");
+            ConfigName.Text = LocalizationManager.Instance.Get("Dash_NoConfigSelected");
 
             // data cards — همه صفر
             PingValue.Text = "—";
@@ -126,6 +151,8 @@ namespace Lithiumvpn.Pages
 
         private void ApplySelectedConfig(Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo cfg)
         {
+            _selectedConfig = cfg;
+
             // ── هدر ──────────────────────────────────────────────────
             ConfigFlag.Text = cfg.FlagEmoji;
             try
@@ -151,7 +178,7 @@ namespace Lithiumvpn.Pages
                 ConfigFlag.Visibility = Visibility.Visible;
             }
 
-            ConfigCountry.Text = $"{cfg.Country} ({cfg.CountryCode})";
+            ConfigCountry.Text = $"{LocalizeCountry(cfg.Country)} ({cfg.CountryCode})";
             ConfigName.Text = cfg.ConfigName;
 
             // ── data cards ────────────────────────────────────────────

@@ -6,7 +6,8 @@
     xmlns:local="using:Lithiumvpn"
     xmlns:dev="using:DevWinUI">
 
-    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto"
+                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <StackPanel Spacing="10">
 
             <!-- ── Profile Card ── -->
@@ -40,7 +41,7 @@
             </Border>
 
             <!-- ── Active Subscriptions ── -->
-            <TextBlock Text="Active Subscriptions"
+            <TextBlock Text="{Binding [Account_ActiveSubscriptions], Source={StaticResource Loc}}"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="2,6,0,0"/>
@@ -61,7 +62,7 @@
                         <Border Grid.Column="0"
                                 Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                                 CornerRadius="6" Padding="8,3">
-                            <TextBlock Text="Pro — 10GB — 1 Month"
+                            <TextBlock Text="{Binding [Account_PlanPro], Source={StaticResource Loc}}"
                                        FontSize="12" FontWeight="SemiBold"
                                        Foreground="White"/>
                         </Border>
@@ -73,7 +74,7 @@
                                 <FontIcon Glyph="&#xEC92;" FontSize="11"
                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="47 days left"
+                                <TextBlock Text="{Binding [Account_47DaysLeft], Source={StaticResource Loc}}"
                                            FontSize="11"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            VerticalAlignment="Center"/>
@@ -99,7 +100,7 @@
                                        FontSize="13" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Data Left"
+                            <TextBlock Text="{Binding [Account_DataLeft], Source={StaticResource Loc}}"
                                        FontSize="10" HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -108,11 +109,11 @@
                             <FontIcon Glyph="&#xEC92;" FontSize="16"
                                       Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="47 Days"
+                            <TextBlock Text="{Binding [Account_47Days], Source={StaticResource Loc}}"
                                        FontSize="13" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Expiry"
+                            <TextBlock Text="{Binding [Account_Expiry], Source={StaticResource Loc}}"
                                        FontSize="10" HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -125,7 +126,7 @@
                                        FontSize="13" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Locations"
+                            <TextBlock Text="{Binding [Account_Locations], Source={StaticResource Loc}}"
                                        FontSize="10" HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -134,7 +135,7 @@
                     <!-- Data usage bar -->
                     <StackPanel Spacing="4">
                         <Grid>
-                            <TextBlock Text="Data Usage"
+                            <TextBlock Text="{Binding [Account_DataUsage], Source={StaticResource Loc}}"
                                        FontSize="11"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Text="32%" HorizontalAlignment="Right"
@@ -166,7 +167,7 @@
                         <Border Grid.Column="0"
                                 Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                                 CornerRadius="6" Padding="8,3">
-                            <TextBlock Text="Basic — 5GB — 1 Month"
+                            <TextBlock Text="{Binding [Account_PlanBasic], Source={StaticResource Loc}}"
                                        FontSize="12" FontWeight="SemiBold"
                                        Foreground="White"/>
                         </Border>
@@ -178,7 +179,7 @@
                                 <FontIcon Glyph="&#xEC92;" FontSize="11"
                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="180 days left"
+                                <TextBlock Text="{Binding [Account_180DaysLeft], Source={StaticResource Loc}}"
                                            FontSize="11"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                            VerticalAlignment="Center"/>
@@ -204,7 +205,7 @@
                                        FontSize="13" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Data Left"
+                            <TextBlock Text="{Binding [Account_DataLeft], Source={StaticResource Loc}}"
                                        FontSize="10" HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -213,11 +214,11 @@
                             <FontIcon Glyph="&#xEC92;" FontSize="16"
                                       Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="180 Days"
+                            <TextBlock Text="{Binding [Account_180Days], Source={StaticResource Loc}}"
                                        FontSize="13" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Expiry"
+                            <TextBlock Text="{Binding [Account_Expiry], Source={StaticResource Loc}}"
                                        FontSize="10" HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -230,7 +231,7 @@
                                        FontSize="13" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="Locations"
+                            <TextBlock Text="{Binding [Account_Locations], Source={StaticResource Loc}}"
                                        FontSize="10" HorizontalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                         </StackPanel>
@@ -239,7 +240,7 @@
                     <!-- Data usage bar -->
                     <StackPanel Spacing="4">
                         <Grid>
-                            <TextBlock Text="Data Usage"
+                            <TextBlock Text="{Binding [Account_DataUsage], Source={StaticResource Loc}}"
                                        FontSize="11"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             <TextBlock Text="78%" HorizontalAlignment="Right"
@@ -256,7 +257,7 @@
             </Border>
 
             <!-- ── Account ── -->
-            <TextBlock Text="Account"
+            <TextBlock Text="{Binding [Account_Section], Source={StaticResource Loc}}"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="2,6,0,0"/>
@@ -280,7 +281,7 @@
                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                               VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Grid.Row="0" Grid.Column="1"
-                               Text="Sign Out"
+                               Text="{Binding [Account_SignOut], Source={StaticResource Loc}}"
                                FontSize="14" FontWeight="SemiBold"
                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                VerticalAlignment="Center"/>
@@ -288,11 +289,11 @@
                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1" CornerRadius="8"
-                            Content="Sign out" Padding="10,5"
+                            Content="{Binding [Account_SignOutBtn], Source={StaticResource Loc}}" Padding="10,5"
                             Click="SignOut_Click"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                               Text="Sign out of your Lithium account"
+                               Text="{Binding [Account_SignOutDesc], Source={StaticResource Loc}}"
                                FontSize="11"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </Grid>
@@ -318,7 +319,7 @@
                               Foreground="#FFE53935"
                               VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Grid.Row="0" Grid.Column="1"
-                               Text="Delete Account"
+                               Text="{Binding [Account_DeleteAccount], Source={StaticResource Loc}}"
                                FontSize="14" FontWeight="SemiBold"
                                Foreground="#FFE53935"
                                VerticalAlignment="Center"/>
@@ -328,11 +329,11 @@
                             BorderThickness="1" CornerRadius="8"
                             Padding="10,5"
                             Click="DeleteAccount_Click">
-                        <TextBlock Text="Delete" Foreground="#FFE53935" FontSize="12"/>
+                        <TextBlock Text="{Binding [Account_DeleteBtn], Source={StaticResource Loc}}" Foreground="#FFE53935" FontSize="12"/>
                     </Button>
 
                     <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                               Text="Permanently delete your account"
+                               Text="{Binding [Account_DeleteDesc], Source={StaticResource Loc}}"
                                FontSize="11"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </Grid>
@@ -340,24 +341,24 @@
 
             <TeachingTip x:Name="TourTip1"
                          Target="{x:Bind ProfileCard}"
-                         Title="Your Profile"
-                         Subtitle="This shows your account name and email address."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Account_Tour1Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Account_Tour1Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip2"
                          Target="{x:Bind PlanCard1}"
-                         Title="Active Subscriptions"
-                         Subtitle="Each card shows one of your active plans — data left, days until expiry, and how many server locations are included."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Account_Tour2Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Account_Tour2Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip3"
-                         Title="Account Actions"
-                         Subtitle="Use Sign Out to log off safely, or Delete Account to permanently remove your data."
-                         CloseButtonContent="Done ✓"
+                         Title="{Binding [Account_Tour3Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Account_Tour3Sub], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_Done], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
         </StackPanel>

@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Globalization;
+using Lithiumvpn.Localization;
 
 namespace Lithiumvpn.Pages
 {
@@ -61,16 +62,20 @@ namespace Lithiumvpn.Pages
             if (parts.Length != 2 || !int.TryParse(parts[1], out int price)) return;
             string planName = parts[0];
 
+            var loc = LocalizationManager.Instance;
+            string localizedPlan = LocalizePlanName(planName);
+
             // موجودی کافی نیست
             if (price > _balance)
             {
                 await new ContentDialog
                 {
-                    Title = "Not enough coins",
-                    Content = $"The {planName} plan costs {price:N0} coins, but your balance is {_balance:N0}. " +
-                              "Top up your coins and try again.",
-                    CloseButtonText = "OK",
+                    Title = loc.Get("Plans_NotEnoughTitle"),
+                    Content = string.Format(loc.Get("Plans_NotEnoughBody"),
+                                            localizedPlan, price.ToString("N0"), _balance.ToString("N0")),
+                    CloseButtonText = loc.Get("Common_OK"),
                     DefaultButton = ContentDialogButton.Close,
+                    FlowDirection = loc.FlowDirection,
                     XamlRoot = this.XamlRoot
                 }.ShowAsync();
                 return;
@@ -79,12 +84,13 @@ namespace Lithiumvpn.Pages
             // تأیید خرید
             var confirm = new ContentDialog
             {
-                Title = $"Buy {planName} plan",
-                Content = $"This will deduct {price:N0} coins from your balance of {_balance:N0}. " +
-                          "The plan will be added as a new subscription.",
-                PrimaryButtonText = "Buy",
-                CloseButtonText = "Cancel",
+                Title = string.Format(loc.Get("Plans_BuyTitle"), localizedPlan),
+                Content = string.Format(loc.Get("Plans_BuyBody"),
+                                        price.ToString("N0"), _balance.ToString("N0")),
+                PrimaryButtonText = loc.Get("Plans_BuyConfirm"),
+                CloseButtonText = loc.Get("Common_Cancel"),
                 DefaultButton = ContentDialogButton.Primary,
+                FlowDirection = loc.FlowDirection,
                 XamlRoot = this.XamlRoot
             };
 
@@ -93,6 +99,14 @@ namespace Lithiumvpn.Pages
             _balance -= price;
             HeroBalanceText.Text = _balance.ToString("N0", CultureInfo.InvariantCulture);
         }
+
+        private static string LocalizePlanName(string englishName) => englishName switch
+        {
+            "Basic" => LocalizationManager.Instance.Get("Plans_Basic"),
+            "Pro" => LocalizationManager.Instance.Get("Plans_Pro"),
+            "Ultimate" => LocalizationManager.Instance.Get("Plans_Ultimate"),
+            _ => englishName
+        };
 
         // ─── تور راهنما ─────────────────────────────────────────────────
         protected override void OnNavigatedTo(NavigationEventArgs e)

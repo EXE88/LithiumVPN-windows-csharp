@@ -33,7 +33,8 @@
         </Style>
     </Page.Resources>
 
-    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
+    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto"
+                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <StackPanel Spacing="12">
             <StackPanel.ChildrenTransitions>
                 <TransitionCollection>
@@ -60,11 +61,11 @@
                     </Border>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
-                        <TextBlock Text="Your balance" FontSize="11" Foreground="#CCFFFFFF"/>
+                        <TextBlock Text="{Binding [Plans_YourBalance], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"/>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock x:Name="HeroBalanceText" Text="2,450"
                                        FontSize="26" FontWeight="Bold" Foreground="White"/>
-                            <TextBlock Text="Coins" FontSize="13" Foreground="#CCFFFFFF"
+                            <TextBlock Text="{Binding [Plans_Coins], Source={StaticResource Loc}}" FontSize="13" Foreground="#CCFFFFFF"
                                        VerticalAlignment="Bottom" Margin="0,0,0,4"/>
                         </StackPanel>
                     </StackPanel>
@@ -72,7 +73,7 @@
             </Border>
 
             <!-- ════════ Section header ════════ -->
-            <TextBlock Text="Choose a Plan"
+            <TextBlock Text="{Binding [Plans_ChooseAPlan], Source={StaticResource Loc}}"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="2,6,0,0"/>
@@ -94,9 +95,9 @@
                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel VerticalAlignment="Center" Spacing="1">
-                                <TextBlock Text="Basic" FontSize="16" FontWeight="Bold"
+                                <TextBlock Text="{Binding [Plans_Basic], Source={StaticResource Loc}}" FontSize="16" FontWeight="Bold"
                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Text="Great for light browsing" FontSize="11"
+                                <TextBlock Text="{Binding [Plans_BasicDesc], Source={StaticResource Loc}}" FontSize="11"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
@@ -109,10 +110,10 @@
                                   VerticalAlignment="Center"/>
                         <TextBlock Text="450" FontSize="28" FontWeight="Bold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="coins" FontSize="13"
+                        <TextBlock Text="{Binding [Plans_CoinsUnit], Source={StaticResource Loc}}" FontSize="13"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    VerticalAlignment="Bottom" Margin="0,0,0,5"/>
-                        <TextBlock Text="/ 30 days" FontSize="12"
+                        <TextBlock Text="{Binding [Plans_Per30Days], Source={StaticResource Loc}}" FontSize="12"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    VerticalAlignment="Bottom" Margin="4,0,0,5"/>
                     </StackPanel>
@@ -123,19 +124,19 @@
                     <StackPanel Spacing="9">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="5 GB data" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_5gb], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="30 days validity" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_30dValidity], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="5 server locations" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_5loc], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="Up to 2 devices" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_Up2Devices], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -146,7 +147,7 @@
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1" CornerRadius="9" Padding="12,8"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                        <TextBlock Text="Buy with 450 coins" FontSize="13" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding [Plans_BuyBasic], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     </Button>
                 </StackPanel>
@@ -175,16 +176,16 @@
                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel VerticalAlignment="Center" Spacing="1">
-                                <TextBlock Text="Pro" FontSize="16" FontWeight="Bold"
+                                <TextBlock Text="{Binding [Plans_Pro], Source={StaticResource Loc}}" FontSize="16" FontWeight="Bold"
                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Text="Best value for daily use" FontSize="11"
+                                <TextBlock Text="{Binding [Plans_ProDesc], Source={StaticResource Loc}}" FontSize="11"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
                         <Border Grid.Column="1"
                                 Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                                 CornerRadius="7" Padding="9,4" VerticalAlignment="Top">
-                            <TextBlock Text="MOST POPULAR" FontSize="10" FontWeight="Bold"
+                            <TextBlock Text="{Binding [Plans_MostPopular], Source={StaticResource Loc}}" FontSize="10" FontWeight="Bold"
                                        Foreground="White"/>
                         </Border>
                     </Grid>
@@ -196,10 +197,10 @@
                                   VerticalAlignment="Center"/>
                         <TextBlock Text="900" FontSize="28" FontWeight="Bold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="coins" FontSize="13"
+                        <TextBlock Text="{Binding [Plans_CoinsUnit], Source={StaticResource Loc}}" FontSize="13"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    VerticalAlignment="Bottom" Margin="0,0,0,5"/>
-                        <TextBlock Text="/ 30 days" FontSize="12"
+                        <TextBlock Text="{Binding [Plans_Per30Days], Source={StaticResource Loc}}" FontSize="12"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    VerticalAlignment="Bottom" Margin="4,0,0,5"/>
                     </StackPanel>
@@ -210,23 +211,23 @@
                     <StackPanel Spacing="9">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="50 GB data" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_50gb], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="30 days validity" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_30dValidity], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="12 server locations" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_12loc], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="Unlimited speed" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_UnlimitedSpeed], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="Up to 5 devices" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_Up5Devices], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -238,7 +239,7 @@
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE8C7;" FontSize="14" Foreground="White"/>
-                            <TextBlock Text="Buy with 900 coins" FontSize="13" FontWeight="SemiBold"
+                            <TextBlock Text="{Binding [Plans_BuyPro], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
                                        Foreground="White"/>
                         </StackPanel>
                     </Button>
@@ -261,9 +262,9 @@
                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel VerticalAlignment="Center" Spacing="1">
-                                <TextBlock Text="Ultimate" FontSize="16" FontWeight="Bold"
+                                <TextBlock Text="{Binding [Plans_Ultimate], Source={StaticResource Loc}}" FontSize="16" FontWeight="Bold"
                                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Text="For heavy streaming &amp; downloads" FontSize="11"
+                                <TextBlock Text="{Binding [Plans_UltimateDesc], Source={StaticResource Loc}}" FontSize="11"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
                         </StackPanel>
@@ -275,10 +276,10 @@
                                   VerticalAlignment="Center"/>
                         <TextBlock Text="2,200" FontSize="28" FontWeight="Bold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="coins" FontSize="13"
+                        <TextBlock Text="{Binding [Plans_CoinsUnit], Source={StaticResource Loc}}" FontSize="13"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    VerticalAlignment="Bottom" Margin="0,0,0,5"/>
-                        <TextBlock Text="/ 90 days" FontSize="12"
+                        <TextBlock Text="{Binding [Plans_Per90Days], Source={StaticResource Loc}}" FontSize="12"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    VerticalAlignment="Bottom" Margin="4,0,0,5"/>
                     </StackPanel>
@@ -288,23 +289,23 @@
                     <StackPanel Spacing="9">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="200 GB data" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_200gb], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="90 days validity" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_90dValidity], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="All server locations" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_AllLoc], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="Unlimited speed" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_UnlimitedSpeed], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="Up to 10 devices" Style="{StaticResource FeatureTextStyle}"/>
+                            <TextBlock Text="{Binding [Plans_Up10Devices], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -314,7 +315,7 @@
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1" CornerRadius="9" Padding="12,8"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                        <TextBlock Text="Buy with 2,200 coins" FontSize="13" FontWeight="SemiBold"
+                        <TextBlock Text="{Binding [Plans_BuyUltimate], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     </Button>
                 </StackPanel>
@@ -323,25 +324,25 @@
             <!-- ════════ تور راهنما ════════ -->
             <TeachingTip x:Name="TourTip1"
                          Target="{x:Bind BalanceCard}"
-                         Title="Your Coin Balance"
-                         Subtitle="Plans are purchased with Lithium Coins. This shows how many coins you currently have available."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Plans_Tour1Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Plans_Tour1Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip2"
                          Target="{x:Bind FirstPlanCard}"
-                         Title="Pick a Plan"
-                         Subtitle="Each plan shows its data, validity, locations and price. Compare them and choose the one that fits your needs."
-                         ActionButtonContent="Next ›"
-                         CloseButtonContent="Skip Tour"
+                         Title="{Binding [Plans_Tour2Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Plans_Tour2Sub], Source={StaticResource Loc}}"
+                         ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip3"
                          Target="{x:Bind PopularPlanCard}"
-                         Title="Buy a Plan"
-                         Subtitle="Tap Buy to purchase a plan with your coins. It will be added as a new subscription you can use on the Configs page."
-                         CloseButtonContent="Done ✓"
+                         Title="{Binding [Plans_Tour3Title], Source={StaticResource Loc}}"
+                         Subtitle="{Binding [Plans_Tour3Sub], Source={StaticResource Loc}}"
+                         CloseButtonContent="{Binding [Common_Done], Source={StaticResource Loc}}"
                          IsOpen="False"/>
 
         </StackPanel>

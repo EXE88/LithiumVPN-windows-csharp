@@ -4,13 +4,14 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <StackPanel Spacing="12" Padding="20,15">
 
-            <TextBlock Text="Help &amp; Tour Guide"
+            <TextBlock Text="{Binding [Help_Title], Source={StaticResource Loc}}"
                        FontSize="22" FontWeight="Bold"
                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-            <TextBlock Text="Select a section to start an interactive tour."
+            <TextBlock Text="{Binding [Help_Subtitle], Source={StaticResource Loc}}"
                        FontSize="13"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="0,0,0,8"/>
@@ -29,13 +30,13 @@
                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
                               VerticalAlignment="Center" Margin="0,0,14,0"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Dashboard" FontWeight="SemiBold" FontSize="14"
+                        <TextBlock Text="{Binding [Nav_Dashboard], Source={StaticResource Loc}}" FontWeight="SemiBold" FontSize="14"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="Connect to VPN, view stats and manage your active config."
+                        <TextBlock Text="{Binding [Help_DashboardDesc], Source={StaticResource Loc}}"
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="Start Tour" Tag="Dashboard"
+                    <Button Grid.Column="2" Content="{Binding [Help_StartTour], Source={StaticResource Loc}}" Tag="Dashboard"
                             Click="StartTour_Click" VerticalAlignment="Center"
                             Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0"/>
                 </Grid>
@@ -55,13 +56,13 @@
                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
                               VerticalAlignment="Center" Margin="0,0,14,0"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Configs" FontWeight="SemiBold" FontSize="14"
+                        <TextBlock Text="{Binding [Nav_Configs], Source={StaticResource Loc}}" FontWeight="SemiBold" FontSize="14"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="Browse and select VPN server configurations."
+                        <TextBlock Text="{Binding [Help_ConfigsDesc], Source={StaticResource Loc}}"
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="Start Tour" Tag="Configs"
+                    <Button Grid.Column="2" Content="{Binding [Help_StartTour], Source={StaticResource Loc}}" Tag="Configs"
                             Click="StartTour_Click" VerticalAlignment="Center"
                             Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0"/>
                 </Grid>
@@ -81,13 +82,13 @@
                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
                               VerticalAlignment="Center" Margin="0,0,14,0"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Account" FontWeight="SemiBold" FontSize="14"
+                        <TextBlock Text="{Binding [Nav_Account], Source={StaticResource Loc}}" FontWeight="SemiBold" FontSize="14"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="View and manage your account details and subscription."
+                        <TextBlock Text="{Binding [Help_AccountDesc], Source={StaticResource Loc}}"
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="Start Tour" Tag="Account"
+                    <Button Grid.Column="2" Content="{Binding [Help_StartTour], Source={StaticResource Loc}}" Tag="Account"
                             Click="StartTour_Click" VerticalAlignment="Center"
                             Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0"/>
                 </Grid>
@@ -107,13 +108,13 @@
                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
                               VerticalAlignment="Center" Margin="0,0,14,0"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Coins" FontWeight="SemiBold" FontSize="14"
+                        <TextBlock Text="{Binding [Nav_Coins], Source={StaticResource Loc}}" FontWeight="SemiBold" FontSize="14"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="Check your coin balance and earn more through referrals."
+                        <TextBlock Text="{Binding [Help_CoinsDesc], Source={StaticResource Loc}}"
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="Start Tour" Tag="Coins"
+                    <Button Grid.Column="2" Content="{Binding [Help_StartTour], Source={StaticResource Loc}}" Tag="Coins"
                             Click="StartTour_Click" VerticalAlignment="Center"
                             Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0"/>
                 </Grid>
@@ -133,13 +134,13 @@
                               Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
                               VerticalAlignment="Center" Margin="0,0,14,0"/>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Plans" FontWeight="SemiBold" FontSize="14"
+                        <TextBlock Text="{Binding [Nav_Plans], Source={StaticResource Loc}}" FontWeight="SemiBold" FontSize="14"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="Explore and purchase subscription plans."
+                        <TextBlock Text="{Binding [Help_PlansDesc], Source={StaticResource Loc}}"
                                    FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="Start Tour" Tag="Plans"
+                    <Button Grid.Column="2" Content="{Binding [Help_StartTour], Source={StaticResource Loc}}" Tag="Plans"
                             Click="StartTour_Click" VerticalAlignment="Center"
                             Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0"/>
                 </Grid>

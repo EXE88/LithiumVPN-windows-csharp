@@ -168,7 +168,8 @@
         </Style>
     </Page.Resources>
 
-    <Grid Margin="20,15,20,15">
+    <Grid Margin="20,15,20,15"
+          FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -242,7 +243,7 @@
 
             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,5">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock HorizontalAlignment="Center" Text="GB Left" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
+                    <TextBlock HorizontalAlignment="Center" Text="{Binding [Dash_GbLeft], Source={StaticResource Loc}}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
                     <Grid HorizontalAlignment="Center">
                         <ProgressRing x:Name="DataProgressRing"
                           IsIndeterminate="False"
@@ -257,15 +258,15 @@
 
             <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,5,5">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock HorizontalAlignment="Center" Text="Expiry" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
+                    <TextBlock HorizontalAlignment="Center" Text="{Binding [Dash_Expiry], Source={StaticResource Loc}}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
                     <TextBlock x:Name="ExpiryValue" Text="47" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontWeight="Bold" FontSize="26" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Days Left" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="11" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding [Dash_DaysLeft], Source={StaticResource Loc}}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="11" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,5">
                 <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="Ping" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding [Dash_Ping], Source={StaticResource Loc}}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10" HorizontalAlignment="Center"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,5,0,0">
                         <TextBlock x:Name="PingValue" Text="24" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontWeight="Bold" FontSize="26"/>
                         <TextBlock Text=" ms" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
@@ -281,7 +282,7 @@
 
                 <Border Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,0">
                     <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Upload"
+                        <TextBlock Text="{Binding [Dash_Upload], Source={StaticResource Loc}}"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                    FontSize="13" Margin="0,0,0,5"
                                    HorizontalAlignment="Center"/>
@@ -300,7 +301,7 @@
 
                 <Border Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,0">
                     <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="Download"
+                        <TextBlock Text="{Binding [Dash_Download], Source={StaticResource Loc}}"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                    FontSize="13" Margin="0,0,0,5"
                                    HorizontalAlignment="Center"/>
@@ -320,26 +321,26 @@
         </Grid>
         <TeachingTip x:Name="TourTip1"
                      Target="{x:Bind ConfigHeaderBorder}"
-                     Title="Server Config"
-                     Subtitle="This shows your currently selected VPN server. Click the arrow button to change the server."
-                     ActionButtonContent="Next ›"
-                     CloseButtonContent="Skip Tour"
+                     Title="{Binding [Dash_Tour1Title], Source={StaticResource Loc}}"
+                     Subtitle="{Binding [Dash_Tour1Sub], Source={StaticResource Loc}}"
+                     ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                     CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                      PlacementMargin="8"
                      IsOpen="False"/>
 
         <TeachingTip x:Name="TourTip2"
                      Target="{x:Bind MainConnectButton}"
-                     Title="Connect Button"
-                     Subtitle="Tap this button to connect or disconnect from your VPN. It turns green when connected."
-                     ActionButtonContent="Next ›"
-                     CloseButtonContent="Skip Tour"
+                     Title="{Binding [Dash_Tour2Title], Source={StaticResource Loc}}"
+                     Subtitle="{Binding [Dash_Tour2Sub], Source={StaticResource Loc}}"
+                     ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
+                     CloseButtonContent="{Binding [Common_SkipTour], Source={StaticResource Loc}}"
                      IsOpen="False"/>
 
         <TeachingTip x:Name="TourTip3"
                      Target="{x:Bind StatsGrid}"
-                     Title="Connection Stats"
-                     Subtitle="These cards show your remaining data, days until expiry, current ping, and upload/download speeds."
-                     CloseButtonContent="Done ✓"
+                     Title="{Binding [Dash_Tour3Title], Source={StaticResource Loc}}"
+                     Subtitle="{Binding [Dash_Tour3Sub], Source={StaticResource Loc}}"
+                     CloseButtonContent="{Binding [Common_Done], Source={StaticResource Loc}}"
                      IsOpen="False"/>
     </Grid>
 </Page>

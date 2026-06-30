@@ -14,6 +14,9 @@ namespace Lithiumvpn
         private static ThemeService? _themeService;
         public static ThemeService GetThemeService => _themeService!;
 
+        /// <summary>The single main window — used for app-wide visual transitions (e.g. language change).</summary>
+        public static MainWindow? RootWindow { get; private set; }
+
         public App()
         {
             InitializeComponent();
@@ -25,6 +28,7 @@ namespace Lithiumvpn
 
             // Create single main window and start with pages inside its Frame (SplashPage -> DashboardPage)
             _window = new MainWindow();
+            RootWindow = (MainWindow)_window;
 
             _themeService
                 .ConfigureAutoSave(true)

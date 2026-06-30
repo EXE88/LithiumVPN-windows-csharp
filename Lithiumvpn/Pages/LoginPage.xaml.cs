@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using System.Reflection;
 using Microsoft.UI.Xaml.Shapes;
+using Lithiumvpn.Localization;
 
 namespace Lithiumvpn.Pages
 {
@@ -40,7 +41,7 @@ namespace Lithiumvpn.Pages
         {
             // In a real app you'd re-request the verification code here.
             // Show an in-app toast notification instead of a modal dialog.
-            ShowToast("A new verification code has been sent to your email.");
+            ShowToast(LocalizationManager.Instance.Get("Login_CodeResent"));
         }
 
         private async void ShowToast(string message, ToastType type = ToastType.Success)
@@ -196,7 +197,7 @@ namespace Lithiumvpn.Pages
             }
             else
             {
-                ShowToast("Invalid username or password.", ToastType.Error);
+                ShowToast(LocalizationManager.Instance.Get("Login_InvalidCredentials"), ToastType.Error);
                 AnimateFieldError(LoginBtn);
             }
         }
@@ -265,22 +266,22 @@ namespace Lithiumvpn.Pages
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(email) ||
                 string.IsNullOrEmpty(pass))
             {
-                ShowToast("Please fill in all fields.", ToastType.Error);
+                ShowToast(LocalizationManager.Instance.Get("Login_FillAllFields"), ToastType.Error);
                 return;
             }
             if (!email.Contains('@'))
             {
-                ShowToast("Invalid email address.", ToastType.Error);
+                ShowToast(LocalizationManager.Instance.Get("Login_InvalidEmail"), ToastType.Error);
                 return;
             }
             if (pass != confirm)
             {
-                ShowToast("Passwords do not match.", ToastType.Error);
+                ShowToast(LocalizationManager.Instance.Get("Login_PasswordsNoMatch"), ToastType.Error);
                 return;
             }
             // proceed
             _pendingUsername      = user;
-            OtpEmailHint.Text     = $"We sent a 6-digit code to {MaskEmail(email)}";
+            OtpEmailHint.Text     = string.Format(LocalizationManager.Instance.Get("Login_OtpHint"), MaskEmail(email));
 
             GoToStep(Step1Panel, Step2Panel, stepIndex: 1);
         }
@@ -305,7 +306,7 @@ namespace Lithiumvpn.Pages
             else
             {
                 // show error as toast and animate pinbox
-                ShowToast($"Invalid code. (hint: {DefaultOtp})", ToastType.Error);
+                ShowToast(string.Format(LocalizationManager.Instance.Get("Login_InvalidCode"), DefaultOtp), ToastType.Error);
                 TryShowPinBoxError();
             }
         }
@@ -555,20 +556,20 @@ namespace Lithiumvpn.Pages
 
         private void ShowWelcome()
         {
-            WelcomeTitle.Text        = $"Welcome, {_pendingUsername}!";
+            WelcomeTitle.Text        = string.Format(LocalizationManager.Instance.Get("Login_WelcomeUser"), _pendingUsername);
             WelcomeAvatar.DisplayName = _pendingUsername;
 
             ConfettiLeft.FireBasic();
             ConfettiRight.FireBasic();
 
             _countdownSeconds = 5;
-            CountdownText.Text = $"Opening app in {_countdownSeconds}s...";
+            CountdownText.Text = string.Format(LocalizationManager.Instance.Get("Login_OpeningApp"), _countdownSeconds);
 
             _countdownTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _countdownTimer.Tick += (_, _) =>
             {
                 _countdownSeconds--;
-                CountdownText.Text = $"Opening app in {_countdownSeconds}s...";
+                CountdownText.Text = string.Format(LocalizationManager.Instance.Get("Login_OpeningApp"), _countdownSeconds);
                 if (_countdownSeconds <= 0)
                 {
                     _countdownTimer!.Stop();

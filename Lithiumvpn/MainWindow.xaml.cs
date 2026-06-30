@@ -319,6 +319,54 @@ namespace Lithiumvpn
             }
             catch { }
         }
+        /// <summary>
+        /// Smoothly fades the whole window out, applies a change (e.g. switching language /
+        /// flow direction) while hidden so the layout flip isn't visible, then fades back in.
+        /// </summary>
+        public void AnimateLanguageChange(Action applyChange)
+        {
+            try
+            {
+                var ease = new Microsoft.UI.Xaml.Media.Animation.CubicEase
+                    { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseInOut };
+
+                var sbOut = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    From = 1, To = 0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(170)),
+                    EasingFunction = ease
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, RootGrid);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                sbOut.Children.Add(fadeOut);
+
+                sbOut.Completed += (_, _) =>
+                {
+                    try { applyChange?.Invoke(); } catch { }
+
+                    var sbIn = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0, To = 1,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(260)),
+                        EasingFunction = ease
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, RootGrid);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                    sbIn.Children.Add(fadeIn);
+                    sbIn.Begin();
+                };
+                sbOut.Begin();
+            }
+            catch
+            {
+                // If anything goes wrong, at least apply the change.
+                try { applyChange?.Invoke(); } catch { }
+                RootGrid.Opacity = 1;
+            }
+        }
+
         private void UpdateParticle()
         {
             if (App.GetThemeService is null || ParticleBg is null) return;
