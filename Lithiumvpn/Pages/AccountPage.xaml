@@ -46,213 +46,21 @@
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="2,6,0,0"/>
 
-            <!-- Plan Card 1 -->
-            <Border x:Name="PlanCard1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            <!-- Subscription cards are generated at runtime from /accounts/status/ -->
+            <StackPanel x:Name="SubscriptionsContainer" Spacing="10"/>
+
+            <!-- Empty state -->
+            <Border x:Name="NoSubsCard" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1" CornerRadius="12" Padding="16,14">
-                <StackPanel Spacing="12">
-
-                    <!-- Plan header -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0"
-                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                CornerRadius="6" Padding="8,3">
-                            <TextBlock Text="{Binding [Account_PlanPro], Source={StaticResource Loc}}"
-                                       FontSize="12" FontWeight="SemiBold"
-                                       Foreground="White"/>
-                        </Border>
-                        <Border Grid.Column="2"
-                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1" CornerRadius="6" Padding="8,3">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <FontIcon Glyph="&#xEC92;" FontSize="11"
-                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                          VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding [Account_47DaysLeft], Source={StaticResource Loc}}"
-                                           FontSize="11"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
-
-                    <!-- Stats -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="2">
-                            <FontIcon Glyph="&#xECAD;" FontSize="16"
-                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="6.75 GB"
-                                       FontSize="13" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="{Binding [Account_DataLeft], Source={StaticResource Loc}}"
-                                       FontSize="10" HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" Spacing="2">
-                            <FontIcon Glyph="&#xEC92;" FontSize="16"
-                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding [Account_47Days], Source={StaticResource Loc}}"
-                                       FontSize="13" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="{Binding [Account_Expiry], Source={StaticResource Loc}}"
-                                       FontSize="10" HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="2">
-                            <FontIcon Glyph="&#xE12B;" FontSize="16"
-                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="12"
-                                       FontSize="13" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="{Binding [Account_Locations], Source={StaticResource Loc}}"
-                                       FontSize="10" HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Data usage bar -->
-                    <StackPanel Spacing="4">
-                        <Grid>
-                            <TextBlock Text="{Binding [Account_DataUsage], Source={StaticResource Loc}}"
-                                       FontSize="11"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Text="32%" HorizontalAlignment="Right"
-                                       FontSize="11"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </Grid>
-                        <ProgressBar Value="32" Maximum="100"
-                                     Height="5" CornerRadius="3"
-                                     Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                     Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
-                    </StackPanel>
-
-                </StackPanel>
-            </Border>
-
-            <!-- Plan Card 2 -->
-            <Border x:Name="PlanCard2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1" CornerRadius="12" Padding="16,14">
-                <StackPanel Spacing="12">
-
-                    <!-- Plan header -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0"
-                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                CornerRadius="6" Padding="8,3">
-                            <TextBlock Text="{Binding [Account_PlanBasic], Source={StaticResource Loc}}"
-                                       FontSize="12" FontWeight="SemiBold"
-                                       Foreground="White"/>
-                        </Border>
-                        <Border Grid.Column="2"
-                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1" CornerRadius="6" Padding="8,3">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <FontIcon Glyph="&#xEC92;" FontSize="11"
-                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                          VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding [Account_180DaysLeft], Source={StaticResource Loc}}"
-                                           FontSize="11"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
-
-                    <!-- Stats -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="2">
-                            <FontIcon Glyph="&#xECAD;" FontSize="16"
-                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="2.0 GB"
-                                       FontSize="13" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="{Binding [Account_DataLeft], Source={StaticResource Loc}}"
-                                       FontSize="10" HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" Spacing="2">
-                            <FontIcon Glyph="&#xEC92;" FontSize="16"
-                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding [Account_180Days], Source={StaticResource Loc}}"
-                                       FontSize="13" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="{Binding [Account_Expiry], Source={StaticResource Loc}}"
-                                       FontSize="10" HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="2">
-                            <FontIcon Glyph="&#xE12B;" FontSize="16"
-                                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                      HorizontalAlignment="Center"/>
-                            <TextBlock Text="5"
-                                       FontSize="13" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="{Binding [Account_Locations], Source={StaticResource Loc}}"
-                                       FontSize="10" HorizontalAlignment="Center"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Data usage bar -->
-                    <StackPanel Spacing="4">
-                        <Grid>
-                            <TextBlock Text="{Binding [Account_DataUsage], Source={StaticResource Loc}}"
-                                       FontSize="11"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            <TextBlock Text="78%" HorizontalAlignment="Right"
-                                       FontSize="11"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </Grid>
-                        <ProgressBar Value="78" Maximum="100"
-                                     Height="5" CornerRadius="3"
-                                     Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                     Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
-                    </StackPanel>
-
+                    BorderThickness="1" CornerRadius="12" Padding="16,20"
+                    Visibility="Collapsed">
+                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                    <FontIcon Glyph="&#xE7BA;" FontSize="30"
+                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                              HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding [Account_NoSubs], Source={StaticResource Loc}}"
+                               FontSize="12" HorizontalAlignment="Center" TextAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
             </Border>
 
@@ -348,7 +156,6 @@
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip2"
-                         Target="{x:Bind PlanCard1}"
                          Title="{Binding [Account_Tour2Title], Source={StaticResource Loc}}"
                          Subtitle="{Binding [Account_Tour2Sub], Source={StaticResource Loc}}"
                          ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"

@@ -10,14 +10,6 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-
-        <!-- پس‌زمینه‌ی محتوای Expander را با خود کارت یکدست می‌کنیم تا purchase card
-             یک سطح یکپارچه به‌نظر برسد و config cardها داخلش تودرتو دیده شوند -->
-        <SolidColorBrush x:Key="ExpanderContentBackground" Color="{ThemeResource CardBackgroundFillColorDefault}"/>
-        <SolidColorBrush x:Key="ExpanderContentBorderBrush" Color="{ThemeResource CardStrokeColorDefault}"/>
-        <Thickness x:Key="ExpanderContentPadding">12,4,12,12</Thickness>
-
-        <!-- تگ‌های روی purchase card — رنگ پس‌زمینه/متن مثل summary card -->
         <Style x:Key="PurchaseTagStyle" TargetType="Border">
             <Setter Property="Background" Value="{ThemeResource AccentAAFillColorDefaultBrush}"/>
             <Setter Property="CornerRadius" Value="7"/>
@@ -26,7 +18,6 @@
             <Setter Property="HorizontalAlignment" Value="Left"/>
         </Style>
 
-        <!-- ظاهر پایه‌ی config card (سطح ثانویه برای خوانایی و تودرتو دیده‌شدن) -->
         <Style x:Key="ConfigCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorSecondaryBrush}"/>
             <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
@@ -35,7 +26,6 @@
             <Setter Property="Padding" Value="12,10"/>
         </Style>
 
-        <!-- دکمه‌ی info کنار purchase id -->
         <Style x:Key="InfoButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}"/>
             <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
@@ -61,7 +51,6 @@
                     Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                     CornerRadius="16" Padding="20,16">
                 <StackPanel Spacing="16">
-                    <!-- عنوان -->
                     <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                         <Border Width="40" Height="40" CornerRadius="11" Background="#33FFFFFF">
                             <FontIcon Glyph="&#xE838;" FontSize="18" Foreground="White"
@@ -72,7 +61,6 @@
                                    VerticalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- آمار — گرید سه‌ستونه‌ی مساوی -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -83,21 +71,21 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="1">
-                            <TextBlock Text="2" FontSize="24" FontWeight="Bold"
+                            <TextBlock x:Name="StatActive" Text="0" FontSize="24" FontWeight="Bold"
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding [Servers_Active], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
                         <Rectangle Grid.Column="1" Width="1" Fill="#40FFFFFF" Margin="0,4"/>
                         <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="1">
-                            <TextBlock Text="3" FontSize="24" FontWeight="Bold"
+                            <TextBlock x:Name="StatLocations" Text="0" FontSize="24" FontWeight="Bold"
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding [Servers_Locations], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
                         <Rectangle Grid.Column="3" Width="1" Fill="#40FFFFFF" Margin="0,4"/>
                         <StackPanel Grid.Column="4" HorizontalAlignment="Center" Spacing="1">
-                            <TextBlock Text="2" FontSize="24" FontWeight="Bold"
+                            <TextBlock x:Name="StatPurchases" Text="0" FontSize="24" FontWeight="Bold"
                                        Foreground="White" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding [Servers_Purchases], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"
                                        HorizontalAlignment="Center"/>
@@ -106,568 +94,20 @@
                 </StackPanel>
             </Border>
 
-            <!-- ════════ Purchase #1 ════════ -->
-            <Expander x:Name="Purchase1Expander"
-                      IsExpanded="False"
-                      HorizontalAlignment="Stretch"
-                      HorizontalContentAlignment="Stretch"
-                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                      BorderThickness="1" CornerRadius="12">
-                <Expander.Header>
-                    <Grid Padding="0,10" ColumnSpacing="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+            <!-- Purchases (expanders + config cards) are generated at runtime from /accounts/status/ -->
+            <StackPanel x:Name="PurchasesContainer" Spacing="12"/>
 
-                        <FontIcon Grid.Column="0" Glyph="&#xE719;" FontSize="18"
-                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                  VerticalAlignment="Center"/>
-
-                        <!-- تگ id + دکمه‌ی info -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <Border Style="{StaticResource PurchaseTagStyle}">
-                                <TextBlock Text="{Binding [Servers_Purchase1], Source={StaticResource Loc}}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                            </Border>
-                            <Button x:Name="InfoButton1"
-                                    Style="{StaticResource InfoButtonStyle}"
-                                    Tag="{Binding ElementName=Purchase1InfoTip}"
-                                    Click="InfoButton_Click"
-                                    ToolTipService.ToolTip="{Binding [Servers_PlanDetails], Source={StaticResource Loc}}">
-                                <FontIcon Glyph="&#xE946;" FontSize="13"
-                                          Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-                </Expander.Header>
-
-                <!-- config cardها — تودرتو زیر purchase card -->
-                <Grid ColumnSpacing="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- خط عمودی اتصال برای نمایش سلسله‌مراتب -->
-                    <Rectangle Grid.Column="0" Width="2" RadiusX="1" RadiusY="1"
-                               Fill="{ThemeResource AccentAAFillColorDefaultBrush}" Opacity="0.35"
-                               VerticalAlignment="Stretch" Margin="3,2,0,2"/>
-
-                    <StackPanel Grid.Column="1" Spacing="8">
-                        <StackPanel.ChildrenTransitions>
-                            <TransitionCollection>
-                                <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="14"/>
-                            </TransitionCollection>
-                        </StackPanel.ChildrenTransitions>
-
-                        <!-- Netherlands -->
-                        <Border x:Name="FirstConfigCard" Style="{StaticResource ConfigCardStyle}"
-                                RenderTransformOrigin="0.5,0.5"
-                                PointerEntered="ConfigCard_PointerEntered"
-                                PointerExited="ConfigCard_PointerExited">
-                            <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <!-- ردیف ۱: پرچم + کشور/کانفیگ + تگ پینگ -->
-                                <Grid Grid.Row="0" ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Width="40" Height="40">
-                                        <Ellipse Fill="#22808080"/>
-                                        <Ellipse>
-                                            <Ellipse.Fill>
-                                                <ImageBrush Stretch="UniformToFill">
-                                                    <ImageBrush.ImageSource>
-                                                        <SvgImageSource UriSource="ms-appx:///Assets/Flags/nl.svg"/>
-                                                    </ImageBrush.ImageSource>
-                                                </ImageBrush>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                        <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
-                                    </Grid>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding [Country_Netherlands], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        <TextBlock Text="cn_nl_a1" FontSize="11"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                    <Border x:Name="PingTag1" Grid.Column="2" Visibility="Collapsed"
-                                            CornerRadius="7" Padding="9,4" VerticalAlignment="Center"
-                                            RenderTransformOrigin="0.5,0.5">
-                                        <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                                        <TextBlock x:Name="PingText1" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                    </Border>
-                                </Grid>
-
-                                <!-- ردیف ۲: دکمه‌های Ping + Connect -->
-                                <Grid Grid.Row="1" ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Tag="{Binding ElementName=PingTag1}" Click="Ping_Click"
-                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="13"
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Grid.Column="1"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            CornerRadius="8" Padding="12,6"
-                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-
-                        <!-- Germany -->
-                        <Border Style="{StaticResource ConfigCardStyle}"
-                                RenderTransformOrigin="0.5,0.5"
-                                PointerEntered="ConfigCard_PointerEntered"
-                                PointerExited="ConfigCard_PointerExited">
-                            <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0" ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Width="40" Height="40">
-                                        <Ellipse Fill="#22808080"/>
-                                        <Ellipse>
-                                            <Ellipse.Fill>
-                                                <ImageBrush Stretch="UniformToFill">
-                                                    <ImageBrush.ImageSource>
-                                                        <SvgImageSource UriSource="ms-appx:///Assets/Flags/de.svg"/>
-                                                    </ImageBrush.ImageSource>
-                                                </ImageBrush>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                        <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
-                                    </Grid>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding [Country_Germany], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        <TextBlock Text="cn_de_f1" FontSize="11"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                    <Border x:Name="PingTag2" Grid.Column="2" Visibility="Collapsed"
-                                            CornerRadius="7" Padding="9,4" VerticalAlignment="Center"
-                                            RenderTransformOrigin="0.5,0.5">
-                                        <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                                        <TextBlock x:Name="PingText2" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                    </Border>
-                                </Grid>
-                                <Grid Grid.Row="1" ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Tag="{Binding ElementName=PingTag2}" Click="Ping_Click"
-                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="13"
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Grid.Column="1"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            CornerRadius="8" Padding="12,6"
-                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-
-                        <!-- Poland -->
-                        <Border Style="{StaticResource ConfigCardStyle}"
-                                RenderTransformOrigin="0.5,0.5"
-                                PointerEntered="ConfigCard_PointerEntered"
-                                PointerExited="ConfigCard_PointerExited">
-                            <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0" ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Width="40" Height="40">
-                                        <Ellipse Fill="#22808080"/>
-                                        <Ellipse>
-                                            <Ellipse.Fill>
-                                                <ImageBrush Stretch="UniformToFill">
-                                                    <ImageBrush.ImageSource>
-                                                        <SvgImageSource UriSource="ms-appx:///Assets/Flags/pl.svg"/>
-                                                    </ImageBrush.ImageSource>
-                                                </ImageBrush>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                        <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
-                                    </Grid>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding [Country_Poland], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        <TextBlock Text="cn_pl_w1" FontSize="11"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                    <Border x:Name="PingTag3" Grid.Column="2" Visibility="Collapsed"
-                                            CornerRadius="7" Padding="9,4" VerticalAlignment="Center"
-                                            RenderTransformOrigin="0.5,0.5">
-                                        <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                                        <TextBlock x:Name="PingText3" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                    </Border>
-                                </Grid>
-                                <Grid Grid.Row="1" ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Tag="{Binding ElementName=PingTag3}" Click="Ping_Click"
-                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="13"
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Grid.Column="1"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            CornerRadius="8" Padding="12,6"
-                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Grid>
-            </Expander>
-
-            <!-- ════════ Purchase #2 ════════ -->
-            <Expander x:Name="Purchase2Expander"
-                      IsExpanded="False"
-                      HorizontalAlignment="Stretch"
-                      HorizontalContentAlignment="Stretch"
-                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                      Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                      BorderThickness="1" CornerRadius="12">
-                <Expander.Header>
-                    <Grid Padding="0,10" ColumnSpacing="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <FontIcon Grid.Column="0" Glyph="&#xE719;" FontSize="18"
-                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                  VerticalAlignment="Center"/>
-
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <Border Style="{StaticResource PurchaseTagStyle}">
-                                <TextBlock Text="{Binding [Servers_Purchase2], Source={StaticResource Loc}}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                            </Border>
-                            <Button x:Name="InfoButton2"
-                                    Style="{StaticResource InfoButtonStyle}"
-                                    Tag="{Binding ElementName=Purchase2InfoTip}"
-                                    Click="InfoButton_Click"
-                                    ToolTipService.ToolTip="{Binding [Servers_PlanDetails], Source={StaticResource Loc}}">
-                                <FontIcon Glyph="&#xE946;" FontSize="13"
-                                          Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-                </Expander.Header>
-
-                <Grid ColumnSpacing="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Rectangle Grid.Column="0" Width="2" RadiusX="1" RadiusY="1"
-                               Fill="{ThemeResource AccentAAFillColorDefaultBrush}" Opacity="0.35"
-                               VerticalAlignment="Stretch" Margin="3,2,0,2"/>
-
-                    <StackPanel Grid.Column="1" Spacing="8">
-                        <StackPanel.ChildrenTransitions>
-                            <TransitionCollection>
-                                <EntranceThemeTransition IsStaggeringEnabled="True" FromVerticalOffset="14"/>
-                            </TransitionCollection>
-                        </StackPanel.ChildrenTransitions>
-
-                        <!-- Netherlands -->
-                        <Border Style="{StaticResource ConfigCardStyle}"
-                                RenderTransformOrigin="0.5,0.5"
-                                PointerEntered="ConfigCard_PointerEntered"
-                                PointerExited="ConfigCard_PointerExited">
-                            <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0" ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Width="40" Height="40">
-                                        <Ellipse Fill="#22808080"/>
-                                        <Ellipse>
-                                            <Ellipse.Fill>
-                                                <ImageBrush Stretch="UniformToFill">
-                                                    <ImageBrush.ImageSource>
-                                                        <SvgImageSource UriSource="ms-appx:///Assets/Flags/nl.svg"/>
-                                                    </ImageBrush.ImageSource>
-                                                </ImageBrush>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                        <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
-                                    </Grid>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding [Country_Netherlands], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        <TextBlock Text="cn_nl_b1" FontSize="11"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                    <Border x:Name="PingTag4" Grid.Column="2" Visibility="Collapsed"
-                                            CornerRadius="7" Padding="9,4" VerticalAlignment="Center"
-                                            RenderTransformOrigin="0.5,0.5">
-                                        <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                                        <TextBlock x:Name="PingText4" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                    </Border>
-                                </Grid>
-                                <Grid Grid.Row="1" ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Tag="{Binding ElementName=PingTag4}" Click="Ping_Click"
-                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="13"
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Grid.Column="1"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            CornerRadius="8" Padding="12,6"
-                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-
-                        <!-- Germany -->
-                        <Border Style="{StaticResource ConfigCardStyle}"
-                                RenderTransformOrigin="0.5,0.5"
-                                PointerEntered="ConfigCard_PointerEntered"
-                                PointerExited="ConfigCard_PointerExited">
-                            <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0" ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Width="40" Height="40">
-                                        <Ellipse Fill="#22808080"/>
-                                        <Ellipse>
-                                            <Ellipse.Fill>
-                                                <ImageBrush Stretch="UniformToFill">
-                                                    <ImageBrush.ImageSource>
-                                                        <SvgImageSource UriSource="ms-appx:///Assets/Flags/de.svg"/>
-                                                    </ImageBrush.ImageSource>
-                                                </ImageBrush>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                        <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
-                                    </Grid>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding [Country_Germany], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        <TextBlock Text="cn_de_f2" FontSize="11"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                    <Border x:Name="PingTag5" Grid.Column="2" Visibility="Collapsed"
-                                            CornerRadius="7" Padding="9,4" VerticalAlignment="Center"
-                                            RenderTransformOrigin="0.5,0.5">
-                                        <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                                        <TextBlock x:Name="PingText5" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                    </Border>
-                                </Grid>
-                                <Grid Grid.Row="1" ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Tag="{Binding ElementName=PingTag5}" Click="Ping_Click"
-                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="13"
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Grid.Column="1"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            CornerRadius="8" Padding="12,6"
-                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-
-                        <!-- Poland -->
-                        <Border Style="{StaticResource ConfigCardStyle}"
-                                RenderTransformOrigin="0.5,0.5"
-                                PointerEntered="ConfigCard_PointerEntered"
-                                PointerExited="ConfigCard_PointerExited">
-                            <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0" ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Width="40" Height="40">
-                                        <Ellipse Fill="#22808080"/>
-                                        <Ellipse>
-                                            <Ellipse.Fill>
-                                                <ImageBrush Stretch="UniformToFill">
-                                                    <ImageBrush.ImageSource>
-                                                        <SvgImageSource UriSource="ms-appx:///Assets/Flags/pl.svg"/>
-                                                    </ImageBrush.ImageSource>
-                                                </ImageBrush>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
-                                        <Ellipse Stroke="#20FFFFFF" StrokeThickness="1"/>
-                                    </Grid>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding [Country_Poland], Source={StaticResource Loc}}" FontSize="14" FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        <TextBlock Text="cn_pl_w2" FontSize="11"
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                    <Border x:Name="PingTag6" Grid.Column="2" Visibility="Collapsed"
-                                            CornerRadius="7" Padding="9,4" VerticalAlignment="Center"
-                                            RenderTransformOrigin="0.5,0.5">
-                                        <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                                        <TextBlock x:Name="PingText6" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                    </Border>
-                                </Grid>
-                                <Grid Grid.Row="1" ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Tag="{Binding ElementName=PingTag6}" Click="Ping_Click"
-                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1" CornerRadius="8" Padding="12,6"
-                                            ToolTipService.ToolTip="{Binding [Common_TestPing], Source={StaticResource Loc}}">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE72C;" FontSize="13"
-                                                      Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding [Common_Ping], Source={StaticResource Loc}}" FontSize="12"
-                                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Grid.Column="1"
-                                            Style="{ThemeResource AccentButtonStyle}"
-                                            CornerRadius="8" Padding="12,6"
-                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <FontIcon Glyph="&#xE701;" FontSize="13" Foreground="White"/>
-                                            <TextBlock Text="{Binding [Common_Connect], Source={StaticResource Loc}}" FontSize="12" Foreground="White"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Grid>
-            </Expander>
+            <!-- Empty state -->
+            <StackPanel x:Name="EmptyState" Spacing="10"
+                        HorizontalAlignment="Center" Margin="0,40,0,0"
+                        Visibility="Collapsed">
+                <FontIcon Glyph="&#xE838;" FontSize="40"
+                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                          HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding [Servers_Empty], Source={StaticResource Loc}}"
+                           FontSize="13" HorizontalAlignment="Center" TextAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
 
             <!-- ════════ تور راهنما ════════ -->
             <TeachingTip x:Name="TourTip1"
@@ -679,7 +119,6 @@
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip2"
-                         Target="{x:Bind Purchase1Expander}"
                          Title="{Binding [Servers_Tour2Title], Source={StaticResource Loc}}"
                          Subtitle="{Binding [Servers_Tour2Sub], Source={StaticResource Loc}}"
                          ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
@@ -687,112 +126,10 @@
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip3"
-                         Target="{x:Bind FirstConfigCard}"
                          Title="{Binding [Servers_Tour3Title], Source={StaticResource Loc}}"
                          Subtitle="{Binding [Servers_Tour3Sub], Source={StaticResource Loc}}"
                          CloseButtonContent="{Binding [Common_Done], Source={StaticResource Loc}}"
                          IsOpen="False"/>
-
-            <!-- جزئیات Purchase — متصل به دکمه‌ی info (محتوای غنی: تگ + ProgressBar) -->
-            <TeachingTip x:Name="Purchase1InfoTip"
-                         Target="{x:Bind InfoButton1}"
-                         Title="{Binding [Servers_Purchase1Details], Source={StaticResource Loc}}"
-                         CloseButtonContent="{Binding [Common_GotIt], Source={StaticResource Loc}}"
-                         IsOpen="False">
-                <TeachingTip.Content>
-                    <StackPanel Width="260" Spacing="16" Margin="0,8,0,0">
-                        <!-- حجم -->
-                        <StackPanel Spacing="6">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xECAD;" FontSize="14"
-                                              Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="{Binding [Servers_DataLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                </StackPanel>
-                                <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
-                                    <TextBlock Text="32.5 / 50 GB" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                </Border>
-                            </Grid>
-                            <ProgressBar Value="65" Maximum="100" Height="6" CornerRadius="3"
-                                         Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                         Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
-                        </StackPanel>
-
-                        <!-- زمان -->
-                        <StackPanel Spacing="6">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xEC92;" FontSize="14"
-                                              Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="{Binding [Servers_TimeLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                </StackPanel>
-                                <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
-                                    <TextBlock Text="23 / 30 days" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                </Border>
-                            </Grid>
-                            <ProgressBar Value="77" Maximum="100" Height="6" CornerRadius="3"
-                                         Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                         Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
-                        </StackPanel>
-
-                        <TextBlock Text="{Binding [Servers_SharedQuota], Source={StaticResource Loc}}"
-                                   FontSize="11" TextWrapping="Wrap"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    </StackPanel>
-                </TeachingTip.Content>
-            </TeachingTip>
-
-            <TeachingTip x:Name="Purchase2InfoTip"
-                         Target="{x:Bind InfoButton2}"
-                         Title="{Binding [Servers_Purchase2Details], Source={StaticResource Loc}}"
-                             CloseButtonContent="{Binding [Common_GotIt], Source={StaticResource Loc}}"
-                         IsOpen="False">
-                <TeachingTip.Content>
-                    <StackPanel Width="260" Spacing="16" Margin="0,8,0,0">
-                        <!-- حجم -->
-                        <StackPanel Spacing="6">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xECAD;" FontSize="14"
-                                              Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="{Binding [Servers_DataLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                </StackPanel>
-                                <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
-                                    <TextBlock Text="78 / 100 GB" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                </Border>
-                            </Grid>
-                            <ProgressBar Value="78" Maximum="100" Height="6" CornerRadius="3"
-                                         Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                         Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
-                        </StackPanel>
-
-                        <!-- زمان -->
-                        <StackPanel Spacing="6">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xEC92;" FontSize="14"
-                                              Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
-                                    <TextBlock Text="{Binding [Servers_TimeLeft], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                </StackPanel>
-                                <Border Style="{StaticResource PurchaseTagStyle}" HorizontalAlignment="Right">
-                                    <TextBlock Text="54 / 60 days" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
-                                </Border>
-                            </Grid>
-                            <ProgressBar Value="90" Maximum="100" Height="6" CornerRadius="3"
-                                         Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                         Background="{ThemeResource ControlAltFillColorQuarternaryBrush}"/>
-                        </StackPanel>
-
-                        <TextBlock Text="{Binding [Servers_SharedQuota], Source={StaticResource Loc}}"
-                                   FontSize="11" TextWrapping="Wrap"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    </StackPanel>
-                </TeachingTip.Content>
-            </TeachingTip>
 
         </StackPanel>
     </ScrollViewer>

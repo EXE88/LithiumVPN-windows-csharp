@@ -63,7 +63,7 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
                         <TextBlock Text="{Binding [Plans_YourBalance], Source={StaticResource Loc}}" FontSize="11" Foreground="#CCFFFFFF"/>
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock x:Name="HeroBalanceText" Text="2,450"
+                            <TextBlock x:Name="HeroBalanceText" Text="0"
                                        FontSize="26" FontWeight="Bold" Foreground="White"/>
                             <TextBlock Text="{Binding [Plans_Coins], Source={StaticResource Loc}}" FontSize="13" Foreground="#CCFFFFFF"
                                        VerticalAlignment="Bottom" Margin="0,0,0,4"/>
@@ -78,248 +78,20 @@
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Margin="2,6,0,0"/>
 
-            <!-- ════════ Basic ════════ -->
-            <Border x:Name="FirstPlanCard" Style="{StaticResource PlanCardStyle}"
-                    RenderTransformOrigin="0.5,0.5"
-                    PointerEntered="PlanCard_PointerEntered"
-                    PointerExited="PlanCard_PointerExited">
-                <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                <StackPanel Spacing="14">
-                    <!-- عنوان -->
-                    <Grid>
-                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                            <Border Width="38" Height="38" CornerRadius="10"
-                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
-                                <FontIcon Glyph="&#xE9D9;" FontSize="17"
-                                          Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel VerticalAlignment="Center" Spacing="1">
-                                <TextBlock Text="{Binding [Plans_Basic], Source={StaticResource Loc}}" FontSize="16" FontWeight="Bold"
-                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Text="{Binding [Plans_BasicDesc], Source={StaticResource Loc}}" FontSize="11"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
+            <!-- Plan cards are generated at runtime from the /plans/ endpoint -->
+            <StackPanel x:Name="PlansContainer" Spacing="12"/>
 
-                    <!-- قیمت -->
-                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
-                        <FontIcon Glyph="&#xE8C7;" FontSize="18"
-                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                  VerticalAlignment="Center"/>
-                        <TextBlock Text="450" FontSize="28" FontWeight="Bold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="{Binding [Plans_CoinsUnit], Source={StaticResource Loc}}" FontSize="13"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   VerticalAlignment="Bottom" Margin="0,0,0,5"/>
-                        <TextBlock Text="{Binding [Plans_Per30Days], Source={StaticResource Loc}}" FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   VerticalAlignment="Bottom" Margin="4,0,0,5"/>
-                    </StackPanel>
-
-                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
-
-                    <!-- ویژگی‌ها -->
-                    <StackPanel Spacing="9">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_5gb], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_30dValidity], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_5loc], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_Up2Devices], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <!-- Buy -->
-                    <Button Tag="Basic|450"
-                            Click="Buy_Click"
-                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1" CornerRadius="9" Padding="12,8"
-                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                        <TextBlock Text="{Binding [Plans_BuyBasic], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                    </Button>
-                </StackPanel>
-            </Border>
-
-            <!-- ════════ Pro (Most Popular) ════════ -->
-            <Border x:Name="PopularPlanCard"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource AccentAAFillColorDefaultBrush}"
-                    BorderThickness="1.5" CornerRadius="14" Padding="18,16"
-                    RenderTransformOrigin="0.5,0.5"
-                    PointerEntered="PlanCard_PointerEntered"
-                    PointerExited="PlanCard_PointerExited">
-                <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                <StackPanel Spacing="14">
-                    <!-- عنوان + بَج -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                            <Border Width="38" Height="38" CornerRadius="10"
-                                    Background="{ThemeResource AccentAAFillColorDefaultBrush}">
-                                <FontIcon Glyph="&#xE735;" FontSize="17" Foreground="White"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel VerticalAlignment="Center" Spacing="1">
-                                <TextBlock Text="{Binding [Plans_Pro], Source={StaticResource Loc}}" FontSize="16" FontWeight="Bold"
-                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Text="{Binding [Plans_ProDesc], Source={StaticResource Loc}}" FontSize="11"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-                        <Border Grid.Column="1"
-                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                CornerRadius="7" Padding="9,4" VerticalAlignment="Top">
-                            <TextBlock Text="{Binding [Plans_MostPopular], Source={StaticResource Loc}}" FontSize="10" FontWeight="Bold"
-                                       Foreground="White"/>
-                        </Border>
-                    </Grid>
-
-                    <!-- قیمت -->
-                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
-                        <FontIcon Glyph="&#xE8C7;" FontSize="18"
-                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                  VerticalAlignment="Center"/>
-                        <TextBlock Text="900" FontSize="28" FontWeight="Bold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="{Binding [Plans_CoinsUnit], Source={StaticResource Loc}}" FontSize="13"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   VerticalAlignment="Bottom" Margin="0,0,0,5"/>
-                        <TextBlock Text="{Binding [Plans_Per30Days], Source={StaticResource Loc}}" FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   VerticalAlignment="Bottom" Margin="4,0,0,5"/>
-                    </StackPanel>
-
-                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
-
-                    <!-- ویژگی‌ها -->
-                    <StackPanel Spacing="9">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_50gb], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_30dValidity], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_12loc], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_UnlimitedSpeed], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_Up5Devices], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <!-- Buy -->
-                    <Button Tag="Pro|900"
-                            Click="Buy_Click"
-                            Style="{ThemeResource AccentButtonStyle}"
-                            CornerRadius="9" Padding="12,8"
-                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE8C7;" FontSize="14" Foreground="White"/>
-                            <TextBlock Text="{Binding [Plans_BuyPro], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
-                                       Foreground="White"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Border>
-
-            <!-- ════════ Ultimate ════════ -->
-            <Border Style="{StaticResource PlanCardStyle}"
-                    RenderTransformOrigin="0.5,0.5"
-                    PointerEntered="PlanCard_PointerEntered"
-                    PointerExited="PlanCard_PointerExited">
-                <Border.RenderTransform><ScaleTransform/></Border.RenderTransform>
-                <StackPanel Spacing="14">
-                    <Grid>
-                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                            <Border Width="38" Height="38" CornerRadius="10"
-                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
-                                <FontIcon Glyph="&#xEB05;" FontSize="17"
-                                          Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel VerticalAlignment="Center" Spacing="1">
-                                <TextBlock Text="{Binding [Plans_Ultimate], Source={StaticResource Loc}}" FontSize="16" FontWeight="Bold"
-                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Text="{Binding [Plans_UltimateDesc], Source={StaticResource Loc}}" FontSize="11"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
-
-                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
-                        <FontIcon Glyph="&#xE8C7;" FontSize="18"
-                                  Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                  VerticalAlignment="Center"/>
-                        <TextBlock Text="2,200" FontSize="28" FontWeight="Bold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                        <TextBlock Text="{Binding [Plans_CoinsUnit], Source={StaticResource Loc}}" FontSize="13"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   VerticalAlignment="Bottom" Margin="0,0,0,5"/>
-                        <TextBlock Text="{Binding [Plans_Per90Days], Source={StaticResource Loc}}" FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   VerticalAlignment="Bottom" Margin="4,0,0,5"/>
-                    </StackPanel>
-
-                    <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}"/>
-
-                    <StackPanel Spacing="9">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xECAD;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_200gb], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xEC92;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_90dValidity], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE12B;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_AllLoc], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_UnlimitedSpeed], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE73E;" Style="{StaticResource FeatureIconStyle}"/>
-                            <TextBlock Text="{Binding [Plans_Up10Devices], Source={StaticResource Loc}}" Style="{StaticResource FeatureTextStyle}"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <Button Tag="Ultimate|2200"
-                            Click="Buy_Click"
-                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1" CornerRadius="9" Padding="12,8"
-                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
-                        <TextBlock Text="{Binding [Plans_BuyUltimate], Source={StaticResource Loc}}" FontSize="13" FontWeight="SemiBold"
-                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                    </Button>
-                </StackPanel>
-            </Border>
+            <!-- Empty state -->
+            <StackPanel x:Name="EmptyState" Spacing="10"
+                        HorizontalAlignment="Center" Margin="0,40,0,0"
+                        Visibility="Collapsed">
+                <FontIcon Glyph="&#xE7BA;" FontSize="40"
+                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                          HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding [Plans_Empty], Source={StaticResource Loc}}"
+                           FontSize="13" HorizontalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
 
             <!-- ════════ تور راهنما ════════ -->
             <TeachingTip x:Name="TourTip1"
@@ -331,7 +103,6 @@
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip2"
-                         Target="{x:Bind FirstPlanCard}"
                          Title="{Binding [Plans_Tour2Title], Source={StaticResource Loc}}"
                          Subtitle="{Binding [Plans_Tour2Sub], Source={StaticResource Loc}}"
                          ActionButtonContent="{Binding [Common_Next], Source={StaticResource Loc}}"
@@ -339,7 +110,6 @@
                          IsOpen="False"/>
 
             <TeachingTip x:Name="TourTip3"
-                         Target="{x:Bind PopularPlanCard}"
                          Title="{Binding [Plans_Tour3Title], Source={StaticResource Loc}}"
                          Subtitle="{Binding [Plans_Tour3Sub], Source={StaticResource Loc}}"
                          CloseButtonContent="{Binding [Common_Done], Source={StaticResource Loc}}"

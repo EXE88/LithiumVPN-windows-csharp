@@ -28,6 +28,7 @@ namespace Lithiumvpn.Dialogs
             public string Country { get; init; } = "";
             public string CountryCode { get; init; } = "";
             public string ConfigName { get; init; } = "";
+            public string ConfigCode { get; init; } = "";
             public int PingMs { get; init; }
             public bool IsAvailable { get; init; } = true;
 
@@ -42,38 +43,6 @@ namespace Lithiumvpn.Dialogs
             }
         }
 
-        // ─── داده‌های پیش‌فرض ────────────────────────────────────────
-        private readonly List<(string Label, string Volume, List<ConfigInfo> Configs)> _purchases = new()
-        {
-            (
-                "Purchase #1", "50 GB",
-                new List<ConfigInfo>
-                {
-                    new() { PurchaseId="P1", Tag="P1_NL", FlagEmoji="🇳🇱", Country="Netherlands", CountryCode="NL", ConfigName="cn_nl_a1", PingMs=24, GbLeft=32.5, DaysLeft=47,  ExpiryDate=new DateOnly(2025,6,30)  },
-                    new() { PurchaseId="P1", Tag="P1_DE", FlagEmoji="🇩🇪", Country="Germany",     CountryCode="DE", ConfigName="cn_de_f1", PingMs=38, GbLeft=6.75, DaysLeft=47,  ExpiryDate=new DateOnly(2025,6,30)  },
-                    new() { PurchaseId="P1", Tag="P1_PL", FlagEmoji="🇵🇱", Country="Poland",      CountryCode="PL", ConfigName="cn_pl_w1", PingMs=51, GbLeft=44.0, DaysLeft=47,  ExpiryDate=new DateOnly(2025,6,30)  },
-                }
-            ),
-            (
-                "Purchase #2", "100 GB",
-                new List<ConfigInfo>
-                {
-                    new() { PurchaseId="P2", Tag="P2_NL", FlagEmoji="🇳🇱", Country="Netherlands", CountryCode="NL", ConfigName="cn_nl_b1", PingMs=27, GbLeft=78.0, DaysLeft=93,  ExpiryDate=new DateOnly(2025,8,15)  },
-                    new() { PurchaseId="P2", Tag="P2_DE", FlagEmoji="🇩🇪", Country="Germany",     CountryCode="DE", ConfigName="cn_de_f2", PingMs=41, GbLeft=15.3, DaysLeft=93,  ExpiryDate=new DateOnly(2025,8,15)  },
-                    new() { PurchaseId="P2", Tag="P2_PL", FlagEmoji="🇵🇱", Country="Poland",      CountryCode="PL", ConfigName="cn_pl_w2", PingMs=0,  GbLeft=0,    DaysLeft=93,  ExpiryDate=new DateOnly(2025,8,15)  },
-                }
-            ),
-            (
-                "Purchase #3", "200 GB",
-                new List<ConfigInfo>
-                {
-                    new() { PurchaseId="P3", Tag="P3_NL", FlagEmoji="🇳🇱", Country="Netherlands", CountryCode="NL", ConfigName="cn_nl_c1", PingMs=22, GbLeft=185.0, DaysLeft=169, ExpiryDate=new DateOnly(2025,12,1)  },
-                    new() { PurchaseId="P3", Tag="P3_DE", FlagEmoji="🇩🇪", Country="Germany",     CountryCode="DE", ConfigName="cn_de_f3", PingMs=35, GbLeft=120.5, DaysLeft=169, ExpiryDate=new DateOnly(2025,12,1)  },
-                    new() { PurchaseId="P3", Tag="P3_PL", FlagEmoji="🇵🇱", Country="Poland",      CountryCode="PL", ConfigName="cn_pl_w3", PingMs=48, GbLeft=92.0,  DaysLeft=169, ExpiryDate=new DateOnly(2025,12,1)  },
-                }
-            ),
-        };
-
         public ConfigInfo? SelectedConfig { get; private set; }
         private Button? _selectedButton;
 
@@ -85,10 +54,71 @@ namespace Lithiumvpn.Dialogs
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            // Build the sections from the live account data (each purchase = one plan,
+            // each config = one server/location inside that purchase).
             int index = 1;
-            foreach (var (label, volume, configs) in _purchases)
+            foreach (var (volume, configs) in BuildPurchasesFromState())
                 PurchasesPanel.Children.Add(BuildPurchaseSection(index++, volume, configs));
         }
+
+        /// <summary>Maps the cached account purchases into the dialog's view model.</summary>
+        private static List<(string Volume, List<ConfigInfo> Configs)> BuildPurchasesFromState()
+        {
+            var result = new List<(string, List<ConfigInfo>)>();
+
+            foreach (var purchase in Services.AppState.Instance.Purchases)
+            {
+                // Total data for this purchase comes from the matching plan's usage (GB).
+                int totalGb = PlanUsageFor(purchase.Plan);
+                string volume = totalGb > 0 ? $"{totalGb} GB" : "";
+
+                var configs = new List<ConfigInfo>();
+                foreach (var cfg in purchase.Configs ?? new List<Services.ConfigDto>())
+                {
+                    string code = cfg.Country ?? "";
+                    string country = CodeToCountryName(code);
+                    configs.Add(new ConfigInfo
+                    {
+                        PurchaseId  = purchase.PurchaseId.ToString(),
+                        DataVolume  = volume,                       // total, for the ring %
+                        GbLeft      = cfg.GbLeftValue,
+                        DaysLeft    = cfg.DaysLeft,
+                        ExpiryDate  = DateOnly.FromDateTime(DateTime.Now.AddDays(cfg.DaysLeft)),
+                        Tag         = $"{purchase.PurchaseId}_{cfg.Name}",
+                        FlagEmoji   = "",
+                        Country     = country,
+                        CountryCode = code,
+                        ConfigName  = cfg.Name ?? "",
+                        ConfigCode  = cfg.ConfigCode ?? "",
+                        PingMs      = 0,          // ping stays measured on demand (fake)
+                        IsAvailable = true,
+                    });
+                }
+
+                if (configs.Count > 0)
+                    result.Add((volume, configs));
+            }
+
+            return result;
+        }
+
+        private static int PlanUsageFor(string? planName)
+        {
+            if (string.IsNullOrEmpty(planName)) return 0;
+            foreach (var p in Services.AppState.Instance.Plans)
+                if (string.Equals(p.PlanName, planName, StringComparison.OrdinalIgnoreCase))
+                    return p.Usage;
+            return 0;
+        }
+
+        // Map an ISO-3166 alpha-2 code to an English country name the app can localize.
+        private static string CodeToCountryName(string code) => code.ToUpperInvariant() switch
+        {
+            "DE" => "Germany",
+            "NL" => "Netherlands",
+            "PL" => "Poland",
+            _ => code
+        };
 
         private StackPanel BuildPurchaseSection(int index, string volume, List<ConfigInfo> configs)
         {
@@ -182,6 +212,7 @@ namespace Lithiumvpn.Dialogs
                 Country = cfg.Country,
                 CountryCode = cfg.CountryCode,
                 ConfigName = cfg.ConfigName,
+                ConfigCode = cfg.ConfigCode,
                 PingMs = cfg.PingMs,
                 IsAvailable = cfg.IsAvailable,
             };

@@ -9,11 +9,29 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
-        <TextBlock Text="{Binding [Notif_Title], Source={StaticResource Loc}}"
-                FontSize="24" FontWeight="Bold"
-                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center"/>
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
+        <StackPanel Spacing="12" Padding="20,15">
+
+            <TextBlock Text="{Binding [Notif_Title], Source={StaticResource Loc}}"
+                       FontSize="22" FontWeight="Bold"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+
+            <!-- Populated at runtime from the events API -->
+            <StackPanel x:Name="NotificationsList" Spacing="10"/>
+
+            <!-- Empty state -->
+            <StackPanel x:Name="EmptyState" Spacing="10"
+                        HorizontalAlignment="Center" Margin="0,60,0,0"
+                        Visibility="Collapsed">
+                <FontIcon Glyph="&#xEA8F;" FontSize="42"
+                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                          HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding [Notif_Empty], Source={StaticResource Loc}}"
+                           FontSize="13" HorizontalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>

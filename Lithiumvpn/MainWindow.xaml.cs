@@ -202,8 +202,12 @@ namespace Lithiumvpn
                 {
                     splash.SplashCompleted += () =>
                     {
-                        // Navigate to login when splash finished
-                        MainFrame.Navigate(typeof(Pages.LoginPage));
+                        // A saved session was validated on the splash → go straight to the
+                        // dashboard (revealing the nav); otherwise show the login page.
+                        if (splash.GoToDashboard)
+                            OnLoginCompleted();
+                        else
+                            MainFrame.Navigate(typeof(Pages.LoginPage));
                     };
                 }
 

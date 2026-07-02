@@ -19,11 +19,19 @@ namespace Lithiumvpn.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            PopulateBalance();
             if (TourManager.IsTourPending)
             {
                 TourManager.IsTourPending = false;
                 DispatcherQueue.TryEnqueue(() => StartTour());
             }
+        }
+
+        private void PopulateBalance()
+        {
+            var status = Services.AppState.Instance.Status;
+            if (status is not null)
+                CoinBalanceText.Text = status.CoinCount.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
         }
 
         private void StartTour()

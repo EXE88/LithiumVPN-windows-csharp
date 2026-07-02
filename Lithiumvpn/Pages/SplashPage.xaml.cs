@@ -15,6 +15,12 @@ namespace Lithiumvpn.Pages
 
         public event Action? SplashCompleted;
 
+        /// <summary>
+        /// When a saved session was validated and its data prefetched on the splash,
+        /// the app skips the login page and goes straight to the dashboard.
+        /// </summary>
+        public bool GoToDashboard { get; private set; }
+
         public SplashPage()
         {
             this.InitializeComponent();
@@ -45,9 +51,93 @@ namespace Lithiumvpn.Pages
             await FadeInLogo();
             await FadeInTextAndBar();
             StartMorphTimer();
-            await Task.Delay(3000);
+            await ValidateAndProceedAsync();
+        }
+
+        /// <summary>
+        /// Replaces the old fixed 3s delay: the splash now waits on real backend work.
+        /// It confirms the server is reachable and, if a saved session exists, validates
+        /// it and prefetches all app data. On any failure it shows a blocking error state
+        /// (with retry) instead of continuing with missing data.
+        /// </summary>
+        private async Task ValidateAndProceedAsync()
+        {
+            // Keep the branding visible for a short minimum even if the backend is instant.
+            var minDisplay = Task.Delay(1400);
+
+            bool reachable = await Services.ApiService.CheckConnectivityAsync();
+            if (!reachable)
+            {
+                await ShowErrorAsync("Splash_ErrorBody");
+                return;
+            }
+
+            if (Services.TokenStore.Instance.HasSession)
+            {
+                var outcome = await Services.AppState.Instance.LoadAllAsync();
+                if (outcome == Services.AppState.LoadOutcome.NetworkError)
+                {
+                    await ShowErrorAsync("Splash_ErrorBody");
+                    return;
+                }
+                if (outcome == Services.AppState.LoadOutcome.Success)
+                {
+                    GoToDashboard = true;   // valid session → skip the login page
+                }
+                // AuthFailed: the client already cleared the dead session → fall to login.
+            }
+
+            await minDisplay;
             await FadeOutAll();
             SplashCompleted?.Invoke();
+        }
+
+        private async Task ShowErrorAsync(string bodyKey)
+        {
+            _morphTimer?.Stop();
+            ErrorBody.Text = Localization.LocalizationManager.Instance.Get(bodyKey);
+
+            // Fade the loading content out, then the error panel in.
+            var tcs = new TaskCompletionSource<object?>();
+            var sbOut = new Storyboard();
+            foreach (var target in new UIElement[] { MorphText, LoadingBar })
+            {
+                var fade = new DoubleAnimation { To = 0, Duration = new Duration(TimeSpan.FromMilliseconds(200)) };
+                Storyboard.SetTarget(fade, target);
+                Storyboard.SetTargetProperty(fade, "Opacity");
+                sbOut.Children.Add(fade);
+            }
+            sbOut.Completed += (s, e) => tcs.TrySetResult(null);
+            sbOut.Begin();
+            await tcs.Task;
+
+            LoadingBar.Visibility = Visibility.Collapsed;
+            MorphText.Visibility = Visibility.Collapsed;
+            ErrorPanel.Opacity = 0;
+            ErrorPanel.Visibility = Visibility.Visible;
+
+            var sbIn = new Storyboard();
+            var fadeIn = new DoubleAnimation { From = 0, To = 1, Duration = new Duration(TimeSpan.FromMilliseconds(280)) };
+            Storyboard.SetTarget(fadeIn, ErrorPanel);
+            Storyboard.SetTargetProperty(fadeIn, "Opacity");
+            sbIn.Children.Add(fadeIn);
+            sbIn.Begin();
+        }
+
+        private async void Retry_Click(object sender, RoutedEventArgs e)
+        {
+            // Reset back to the loading state and re-run validation.
+            RetryButton.IsEnabled = false;
+            ErrorPanel.Visibility = Visibility.Collapsed;
+            MorphText.Visibility = Visibility.Visible;
+            MorphText.Opacity = 1;
+            LoadingBar.Visibility = Visibility.Visible;
+            LoadingBar.Opacity = 1;
+            _morphIndex = 0;
+            MorphText.Text = _morphWords[0];
+            StartMorphTimer();
+            RetryButton.IsEnabled = true;
+            await ValidateAndProceedAsync();
         }
 
         private Task FadeInLogo()

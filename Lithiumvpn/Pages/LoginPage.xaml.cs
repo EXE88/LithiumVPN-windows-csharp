@@ -14,14 +14,12 @@ namespace Lithiumvpn.Pages
     public sealed partial class LoginPage : Page
     {
         private enum ToastType { Success, Info, Warning, Error }
-        // ── Default credentials (demo only) ──────────────────
-        private const string DefaultUsername = "lithium";
-        private const string DefaultPassword = "Lithium@2025";
-        private const string DefaultOtp      = "123456";
 
         public event Action? LoginCompleted;
 
         private string _pendingUsername = "";
+        private string _pendingEmail = "";
+        private string _pendingPassword = "";
         private DispatcherTimer? _countdownTimer;
         private int _countdownSeconds = 4;
 
@@ -39,9 +37,37 @@ namespace Lithiumvpn.Pages
 
         private async void OtpResend_Click(object sender, RoutedEventArgs e)
         {
-            // In a real app you'd re-request the verification code here.
-            // Show an in-app toast notification instead of a modal dialog.
-            ShowToast(LocalizationManager.Instance.Get("Login_CodeResent"));
+            if (sender is not HyperlinkButton link) return;
+            link.IsEnabled = false;
+            var result = await Services.ApiService.ResendVerificationAsync(_pendingEmail);
+            link.IsEnabled = true;
+
+            if (result.IsSuccess)
+                ShowToast(LocalizationManager.Instance.Get("Login_CodeResent"));
+            else
+                ShowToast(result.Message ?? LocalizationManager.Instance.Get("Login_GenericError"), ToastType.Error);
+        }
+
+        // Toggle a control's busy state: disables it and swaps its content for a spinner.
+        private static void SetButtonBusy(Button button, bool busy, object? idleContent = null)
+        {
+            if (busy)
+            {
+                button.Tag = button.Content;
+                button.IsEnabled = false;
+                button.Content = new ProgressRing
+                {
+                    IsActive = true,
+                    Width = 20,
+                    Height = 20
+                };
+            }
+            else
+            {
+                button.IsEnabled = true;
+                button.Content = idleContent ?? button.Tag ?? button.Content;
+                button.Tag = null;
+            }
         }
 
         private async void ShowToast(string message, ToastType type = ToastType.Success)
@@ -188,18 +214,42 @@ namespace Lithiumvpn.Pages
                     : "ms-appx:///Assets/LogoBlack.svg"));
         }
 
-        private void LoginBtn_Click(object sender, RoutedEventArgs e)
+        private async void LoginBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (LoginUsername.Text.Trim() == DefaultUsername &&
-                LoginPassword.Password    == DefaultPassword)
+            var loc = LocalizationManager.Instance;
+            string user = LoginUsername.Text.Trim();
+            string pass = LoginPassword.Password;
+
+            if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
             {
-                LoginCompleted?.Invoke();
-            }
-            else
-            {
-                ShowToast(LocalizationManager.Instance.Get("Login_InvalidCredentials"), ToastType.Error);
+                ShowToast(loc.Get("Login_FillAllFields"), ToastType.Error);
                 AnimateFieldError(LoginBtn);
+                return;
             }
+
+            SetButtonBusy(LoginBtn, true);
+
+            var result = await Services.ApiService.LoginAsync(user, pass);
+            if (!result.IsSuccess)
+            {
+                SetButtonBusy(LoginBtn, false);
+                ShowToast(result.Message ?? loc.Get("Login_InvalidCredentials"), ToastType.Error);
+                AnimateFieldError(LoginBtn);
+                return;
+            }
+
+            // Signed in — prefetch every dataset before entering the app so no page
+            // loads with missing data. Do not proceed unless the load fully succeeds.
+            var outcome = await Services.AppState.Instance.LoadAllAsync();
+            SetButtonBusy(LoginBtn, false);
+
+            if (outcome != Services.AppState.LoadOutcome.Success)
+            {
+                ShowToast(loc.Get("Login_LoadDataFailed"), ToastType.Error);
+                return;
+            }
+
+            LoginCompleted?.Invoke();
         }
 
         private void SwitchToRegister_Click(object sender, RoutedEventArgs e)
@@ -256,8 +306,9 @@ namespace Lithiumvpn.Pages
             sbOut.Begin();
         }
 
-        private void RegNext_Click(object sender, RoutedEventArgs e)
+        private async void RegNext_Click(object sender, RoutedEventArgs e)
         {
+            var loc = LocalizationManager.Instance;
             string user    = RegUsername.Text.Trim();
             string email   = RegEmail.Text.Trim();
             string pass    = RegPassword.Password;
@@ -266,49 +317,88 @@ namespace Lithiumvpn.Pages
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(email) ||
                 string.IsNullOrEmpty(pass))
             {
-                ShowToast(LocalizationManager.Instance.Get("Login_FillAllFields"), ToastType.Error);
+                ShowToast(loc.Get("Login_FillAllFields"), ToastType.Error);
                 return;
             }
             if (!email.Contains('@'))
             {
-                ShowToast(LocalizationManager.Instance.Get("Login_InvalidEmail"), ToastType.Error);
+                ShowToast(loc.Get("Login_InvalidEmail"), ToastType.Error);
                 return;
             }
             if (pass != confirm)
             {
-                ShowToast(LocalizationManager.Instance.Get("Login_PasswordsNoMatch"), ToastType.Error);
+                ShowToast(loc.Get("Login_PasswordsNoMatch"), ToastType.Error);
                 return;
             }
-            // proceed
-            _pendingUsername      = user;
-            OtpEmailHint.Text     = string.Format(LocalizationManager.Instance.Get("Login_OtpHint"), MaskEmail(email));
+
+            if (sender is not Button btn) return;
+            SetButtonBusy(btn, true);
+
+            // Create the account — the backend sends a verification code to the email.
+            var result = await Services.ApiService.RegisterAsync(user, email, pass);
+            SetButtonBusy(btn, false);
+
+            if (!result.IsSuccess)
+            {
+                ShowToast(result.Message ?? loc.Get("Login_GenericError"), ToastType.Error);
+                return;
+            }
+
+            _pendingUsername  = user;
+            _pendingEmail     = email;
+            _pendingPassword  = pass;
+            OtpEmailHint.Text = string.Format(loc.Get("Login_OtpHint"), MaskEmail(email));
 
             GoToStep(Step1Panel, Step2Panel, stepIndex: 1);
         }
 
-        private void RegVerify_Click(object sender, RoutedEventArgs e)
+        private async void RegVerify_Click(object sender, RoutedEventArgs e)
         {
+            var loc = LocalizationManager.Instance;
             string entered = (OtpPinBox.Password ?? "").Replace(" ", "");
 
-            if (entered == DefaultOtp)
+            if (entered.Length < 6)
             {
-                // show success state on pinbox
-                TryShowPinBoxSuccess();
-
-                // small delay so the success state is visible before proceeding
-                var _ = DispatcherQueue.TryEnqueue(async () =>
-                {
-                    await Task.Delay(450);
-                    GoToStep(Step2Panel, Step3Panel, stepIndex: 2);
-                    ShowWelcome();
-                });
-            }
-            else
-            {
-                // show error as toast and animate pinbox
-                ShowToast(string.Format(LocalizationManager.Instance.Get("Login_InvalidCode"), DefaultOtp), ToastType.Error);
+                ShowToast(loc.Get("Login_EnterFullCode"), ToastType.Error);
                 TryShowPinBoxError();
+                return;
             }
+
+            if (sender is not Button btn) return;
+            SetButtonBusy(btn, true);
+
+            var verify = await Services.ApiService.VerifyEmailAsync(_pendingEmail, entered);
+            if (!verify.IsSuccess)
+            {
+                SetButtonBusy(btn, false);
+                ShowToast(verify.Message ?? loc.Get("Login_GenericError"), ToastType.Error);
+                TryShowPinBoxError();
+                return;
+            }
+
+            // Verified — sign in with the credentials just used and prefetch app data.
+            var login = await Services.ApiService.LoginAsync(_pendingUsername, _pendingPassword);
+            if (!login.IsSuccess)
+            {
+                SetButtonBusy(btn, false);
+                // Account exists and is verified; fall back to the login card.
+                ShowToast(login.Message ?? loc.Get("Login_GenericError"), ToastType.Error);
+                SwitchToLogin_Click(this, e);
+                return;
+            }
+
+            var outcome = await Services.AppState.Instance.LoadAllAsync();
+            SetButtonBusy(btn, false);
+
+            if (outcome != Services.AppState.LoadOutcome.Success)
+            {
+                ShowToast(loc.Get("Login_LoadDataFailed"), ToastType.Error);
+                return;
+            }
+
+            TryShowPinBoxSuccess();
+            GoToStep(Step2Panel, Step3Panel, stepIndex: 2);
+            ShowWelcome();
         }
 
         private bool TryShowPinBoxSuccess()

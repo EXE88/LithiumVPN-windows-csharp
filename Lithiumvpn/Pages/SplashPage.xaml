@@ -51,5 +51,30 @@
                          CornerRadius="2"
                          Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"/>
         </StackPanel>
+
+        <!-- Connection error state (hidden until a validation failure) -->
+        <StackPanel x:Name="ErrorPanel"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Spacing="14" MaxWidth="360" Padding="24"
+                    Visibility="Collapsed">
+            <FontIcon Glyph="&#xEB5E;" FontSize="46"
+                      Foreground="#FFE53935"
+                      HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding [Splash_ErrorTitle], Source={StaticResource Loc}}"
+                       FontSize="18" FontWeight="SemiBold"
+                       HorizontalAlignment="Center" TextAlignment="Center"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+            <TextBlock x:Name="ErrorBody"
+                       Text="{Binding [Splash_ErrorBody], Source={StaticResource Loc}}"
+                       FontSize="13" TextWrapping="Wrap" TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <Button x:Name="RetryButton"
+                    Content="{Binding [Splash_Retry], Source={StaticResource Loc}}"
+                    HorizontalAlignment="Center" CornerRadius="10"
+                    Padding="20,8" Margin="0,4,0,0"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="Retry_Click"/>
+        </StackPanel>
     </Grid>
 </Page>

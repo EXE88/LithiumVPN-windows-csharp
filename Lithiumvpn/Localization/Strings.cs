@@ -83,6 +83,8 @@ namespace Lithiumvpn.Localization
             ["Servers_SharedQuota"] = "All configs in this purchase share this quota.",
             ["Servers_Purchase1Details"] = "Purchase #1 — Details",
             ["Servers_Purchase2Details"] = "Purchase #2 — Details",
+            ["Servers_PurchaseDetails"] = "Purchase #{0} — Details",
+            ["Servers_Empty"] = "You have no active purchases yet. Buy a plan from the Plans page.",
             ["Servers_Tour1Title"] = "Your Subscriptions",
             ["Servers_Tour1Sub"] = "This card summarizes your plans — how many purchases are still active, how many locations you can use, and your total purchases.",
             ["Servers_Tour2Title"] = "A Purchase = One Plan",
@@ -92,6 +94,7 @@ namespace Lithiumvpn.Localization
 
             // ── Account ──
             ["Account_ActiveSubscriptions"] = "Active Subscriptions",
+            ["Account_NoSubs"] = "No active subscriptions. Purchase a plan to get started.",
             ["Account_DataLeft"] = "Data Left",
             ["Account_Expiry"] = "Expiry",
             ["Account_Locations"] = "Locations",
@@ -179,6 +182,14 @@ namespace Lithiumvpn.Localization
             ["Plans_Tour2Sub"] = "Each plan shows its data, validity, locations and price. Compare them and choose the one that fits your needs.",
             ["Plans_Tour3Title"] = "Buy a Plan",
             ["Plans_Tour3Sub"] = "Tap Buy to purchase a plan with your coins. It will be added as a new subscription you can use on the Configs page.",
+            ["Plans_Empty"] = "No plans are available right now.",
+            ["Plans_CardSubtitle"] = "{0} GB · {1} mo",
+            ["Plans_PricePerMonths"] = "/ {0} mo",
+            ["Plans_FeatureData"] = "{0} GB data",
+            ["Plans_FeatureValidityMonths"] = "{0}-month validity",
+            ["Plans_FeatureLocations"] = "{0} server locations",
+            ["Plans_FeatureDevices"] = "Up to {0} devices",
+            ["Plans_BuyWithCoins"] = "Buy with {0} coins",
             ["Plans_NotEnoughTitle"] = "Not enough coins",
             ["Plans_NotEnoughBody"] = "The {0} plan costs {1} coins, but your balance is {2}. Buy more coins from the Coins page.",
             ["Plans_BuyTitle"] = "Buy {0} plan",
@@ -188,6 +199,12 @@ namespace Lithiumvpn.Localization
 
             // ── Notifications ──
             ["Notif_Title"] = "Notifications",
+            ["Notif_Empty"] = "You have no notifications yet.",
+
+            // ── Splash ──
+            ["Splash_ErrorTitle"] = "Connection Problem",
+            ["Splash_ErrorBody"] = "We couldn't reach the server. Please check your internet connection and try again.",
+            ["Splash_Retry"] = "Try Again",
 
             // ── Help ──
             ["Help_Title"] = "Help & Tour Guide",
@@ -198,6 +215,14 @@ namespace Lithiumvpn.Localization
             ["Help_AccountDesc"] = "View and manage your account details and subscription.",
             ["Help_CoinsDesc"] = "Check your coin balance and earn more through referrals.",
             ["Help_PlansDesc"] = "Explore and purchase subscription plans.",
+            ["Help_SupportTitle"] = "Support Tickets",
+            ["Help_SupportSubtitle"] = "Have a problem? Open a ticket and chat with our team.",
+            ["Help_NewTicket"] = "New Ticket",
+            ["Help_NoTickets"] = "You have no tickets yet.",
+            ["Help_TicketSubjectPlaceholder"] = "Briefly describe your issue",
+            ["Help_Create"] = "Create",
+            ["Help_TypeMessage"] = "Type a message…",
+            ["Help_ActionFailed"] = "Something went wrong. Please try again.",
 
             // ── Login ──
             ["Login_WelcomeBack"] = "Welcome Back",
@@ -237,6 +262,9 @@ namespace Lithiumvpn.Localization
             ["Login_PasswordsNoMatch"] = "Passwords do not match.",
             ["Login_CodeResent"] = "A new verification code has been sent to your email.",
             ["Login_InvalidCode"] = "Invalid code. (hint: {0})",
+            ["Login_GenericError"] = "Something went wrong. Please try again.",
+            ["Login_LoadDataFailed"] = "Signed in, but we couldn't load your data. Please try again.",
+            ["Login_EnterFullCode"] = "Please enter the full 6-digit code.",
 
             // ── Config selection dialog ──
             ["Dialog_SelectConfig"] = "Select Config",
@@ -320,6 +348,8 @@ namespace Lithiumvpn.Localization
             ["Servers_SharedQuota"] = "همه‌ی کانفیگ‌های این خرید از یک سهمیه‌ی مشترک استفاده می‌کنن.",
             ["Servers_Purchase1Details"] = "خرید ۱# — جزئیات",
             ["Servers_Purchase2Details"] = "خرید ۲# — جزئیات",
+            ["Servers_PurchaseDetails"] = "خرید {0}# — جزئیات",
+            ["Servers_Empty"] = "هنوز خرید فعالی نداری. از صفحه‌ی پلن‌ها یک پلن بخر.",
             ["Servers_Tour1Title"] = "اشتراک‌های تو",
             ["Servers_Tour1Sub"] = "این کارت خلاصه‌ای از پلن‌هات می‌ده — چند خرید هنوز فعاله، چند موقعیت می‌تونی استفاده کنی و مجموع خریدهات.",
             ["Servers_Tour2Title"] = "هر خرید = یک پلن",
@@ -329,6 +359,7 @@ namespace Lithiumvpn.Localization
 
             // ── Account ──
             ["Account_ActiveSubscriptions"] = "اشتراک‌های فعال",
+            ["Account_NoSubs"] = "اشتراک فعالی نداری. برای شروع یک پلن بخر.",
             ["Account_DataLeft"] = "حجم باقی‌مانده",
             ["Account_Expiry"] = "انقضا",
             ["Account_Locations"] = "موقعیت‌ها",
@@ -416,6 +447,14 @@ namespace Lithiumvpn.Localization
             ["Plans_Tour2Sub"] = "هر پلن حجم، اعتبار، موقعیت‌ها و قیمتش رو نشون می‌ده. مقایسه کن و اونی که به نیازت می‌خوره رو انتخاب کن.",
             ["Plans_Tour3Title"] = "خرید یک پلن",
             ["Plans_Tour3Sub"] = "روی «خرید» بزن تا با سکه‌هات یک پلن بخری. به‌عنوان یک اشتراک جدید اضافه می‌شه که می‌تونی در صفحه‌ی کانفیگ‌ها ازش استفاده کنی.",
+            ["Plans_Empty"] = "در حال حاضر پلنی موجود نیست.",
+            ["Plans_CardSubtitle"] = "{0} گیگ · {1} ماه",
+            ["Plans_PricePerMonths"] = "/ {0} ماه",
+            ["Plans_FeatureData"] = "{0} گیگ حجم",
+            ["Plans_FeatureValidityMonths"] = "{0} ماه اعتبار",
+            ["Plans_FeatureLocations"] = "{0} موقعیت سرور",
+            ["Plans_FeatureDevices"] = "تا {0} دستگاه",
+            ["Plans_BuyWithCoins"] = "خرید با {0} سکه",
             ["Plans_NotEnoughTitle"] = "سکه کافی نیست",
             ["Plans_NotEnoughBody"] = "پلن {0} قیمتش {1} سکه‌ست، اما موجودی تو {2} سکه‌ست. از صفحه‌ی سکه‌ها سکه‌ی بیشتری بخر.",
             ["Plans_BuyTitle"] = "خرید پلن {0}",
@@ -425,6 +464,12 @@ namespace Lithiumvpn.Localization
 
             // ── Notifications ──
             ["Notif_Title"] = "اعلان‌ها",
+            ["Notif_Empty"] = "هنوز اعلانی نداری.",
+
+            // ── Splash ──
+            ["Splash_ErrorTitle"] = "مشکل در اتصال",
+            ["Splash_ErrorBody"] = "نتونستیم به سرور وصل بشیم. لطفاً اتصال اینترنتت رو بررسی کن و دوباره تلاش کن.",
+            ["Splash_Retry"] = "تلاش دوباره",
 
             // ── Help ──
             ["Help_Title"] = "راهنما و تور",
@@ -435,6 +480,14 @@ namespace Lithiumvpn.Localization
             ["Help_AccountDesc"] = "جزئیات حساب و اشتراکت رو ببین و مدیریت کن.",
             ["Help_CoinsDesc"] = "موجودی سکه‌ت رو ببین و با معرفی دوستان بیشتر به‌دست بیار.",
             ["Help_PlansDesc"] = "پلن‌های اشتراک رو ببین و خریداری کن.",
+            ["Help_SupportTitle"] = "تیکت‌های پشتیبانی",
+            ["Help_SupportSubtitle"] = "مشکلی داری؟ یک تیکت باز کن و با تیم ما گفتگو کن.",
+            ["Help_NewTicket"] = "تیکت جدید",
+            ["Help_NoTickets"] = "هنوز تیکتی نداری.",
+            ["Help_TicketSubjectPlaceholder"] = "مشکلت رو کوتاه توضیح بده",
+            ["Help_Create"] = "ایجاد",
+            ["Help_TypeMessage"] = "یک پیام بنویس…",
+            ["Help_ActionFailed"] = "یه مشکلی پیش اومد. لطفاً دوباره تلاش کن.",
 
             // ── Login ──
             ["Login_WelcomeBack"] = "خوش اومدی",
@@ -474,6 +527,9 @@ namespace Lithiumvpn.Localization
             ["Login_PasswordsNoMatch"] = "رمزهای عبور یکی نیستن.",
             ["Login_CodeResent"] = "یک کد تأیید جدید به ایمیلت ارسال شد.",
             ["Login_InvalidCode"] = "کد نادرسته. (راهنما: {0})",
+            ["Login_GenericError"] = "یه مشکلی پیش اومد. لطفاً دوباره تلاش کن.",
+            ["Login_LoadDataFailed"] = "وارد شدی، اما نتونستیم داده‌هات رو بارگذاری کنیم. لطفاً دوباره تلاش کن.",
+            ["Login_EnterFullCode"] = "لطفاً کد ۶ رقمی رو کامل وارد کن.",
 
             // ── Config selection dialog ──
             ["Dialog_SelectConfig"] = "انتخاب کانفیگ",
