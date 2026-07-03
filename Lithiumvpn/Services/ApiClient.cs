@@ -69,7 +69,14 @@ namespace Lithiumvpn.Services
         {
             try
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, "api/schema/");
+                using var request = new HttpRequestMessage(HttpMethod.Get, "health/windows/");
+
+                // Send the bearer token when we have one so this probe doubles as
+                // the first "client online" registration instead of a 401.
+                if (!string.IsNullOrWhiteSpace(_tokens.AccessToken))
+                    request.Headers.Authorization =
+                        new AuthenticationHeaderValue("Bearer", _tokens.AccessToken);
+
                 using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                 return true;
             }

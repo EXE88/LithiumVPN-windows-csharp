@@ -97,10 +97,10 @@ namespace Lithiumvpn.Pages
             _morphTimer?.Stop();
             ErrorBody.Text = Localization.LocalizationManager.Instance.Get(bodyKey);
 
-            // Fade the loading content out, then the error panel in.
+            // Fade the loading content (logo included) out, then the error panel in.
             var tcs = new TaskCompletionSource<object?>();
             var sbOut = new Storyboard();
-            foreach (var target in new UIElement[] { MorphText, LoadingBar })
+            foreach (var target in new UIElement[] { SplashLogo, MorphText, LoadingBar })
             {
                 var fade = new DoubleAnimation { To = 0, Duration = new Duration(TimeSpan.FromMilliseconds(200)) };
                 Storyboard.SetTarget(fade, target);
@@ -111,6 +111,7 @@ namespace Lithiumvpn.Pages
             sbOut.Begin();
             await tcs.Task;
 
+            SplashLogo.Visibility = Visibility.Collapsed;
             LoadingBar.Visibility = Visibility.Collapsed;
             MorphText.Visibility = Visibility.Collapsed;
             ErrorPanel.Opacity = 0;
@@ -129,6 +130,8 @@ namespace Lithiumvpn.Pages
             // Reset back to the loading state and re-run validation.
             RetryButton.IsEnabled = false;
             ErrorPanel.Visibility = Visibility.Collapsed;
+            SplashLogo.Visibility = Visibility.Visible;
+            SplashLogo.Opacity = 1;
             MorphText.Visibility = Visibility.Visible;
             MorphText.Opacity = 1;
             LoadingBar.Visibility = Visibility.Visible;

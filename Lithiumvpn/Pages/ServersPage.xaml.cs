@@ -26,6 +26,9 @@ namespace Lithiumvpn.Pages
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
+
+            // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
+            this.ActualThemeChanged += (s, e) => RenderPurchases();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -98,7 +101,7 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",   // info
                 FontSize = 13,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"]
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush")
             };
 
             var infoTip = BuildInfoTip(index, infoBtn, leftData, totalData, daysLeft, totalDays);
@@ -113,7 +116,7 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",
                 FontSize = 18,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 VerticalAlignment = VerticalAlignment.Center
             };
             Grid.SetColumn(pIcon, 0);
@@ -147,7 +150,7 @@ namespace Lithiumvpn.Pages
                 Width = 2,
                 RadiusX = 1,
                 RadiusY = 1,
-                Fill = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Fill = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 Opacity = 0.35,
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Margin = new Thickness(3, 2, 0, 2)
@@ -171,14 +174,23 @@ namespace Lithiumvpn.Pages
                 IsExpanded = false,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"],
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
-                BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush"),
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(12),
                 Header = headerGrid,
                 Content = contentGrid
             };
+
+            // Lightweight styling: the default expander header/content brushes are
+            // translucent and let the particle backdrop bleed through — pin them to
+            // the same card brush the Help page cards use.
+            var cardBg = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush");
+            expander.Resources["ExpanderHeaderBackground"] = cardBg;
+            expander.Resources["ExpanderContentBackground"] = cardBg;
+            expander.Resources["ExpanderContentBorderBrush"] =
+                ThemeRes.Brush(this, "CardStrokeColorDefaultBrush");
 
             return (expander, infoTip);
         }
@@ -201,7 +213,7 @@ namespace Lithiumvpn.Pages
                 Text = loc.Get("Servers_SharedQuota"),
                 FontSize = 11,
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
             });
 
             return new TeachingTip
@@ -224,14 +236,14 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = glyph,
                 FontSize = 14,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"]
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush")
             });
             left.Children.Add(new TextBlock
             {
                 Text = label,
                 FontSize = 13,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
 
             var tagBorder = new Border
@@ -256,8 +268,8 @@ namespace Lithiumvpn.Pages
                 Maximum = 100,
                 Height = 6,
                 CornerRadius = new CornerRadius(3),
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
-                Background = (Brush)Application.Current.Resources["ControlAltFillColorQuarternaryBrush"]
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
+                Background = ThemeRes.Brush(this, "ControlAltFillColorQuarternaryBrush")
             };
 
             stack.Children.Add(grid);
@@ -299,13 +311,13 @@ namespace Lithiumvpn.Pages
                 FontSize = 14,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 TextTrimming = TextTrimming.CharacterEllipsis,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             nameStack.Children.Add(new TextBlock
             {
                 Text = cfg.Name ?? "",
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
             });
             Grid.SetColumn(nameStack, 1);
 
@@ -340,8 +352,8 @@ namespace Lithiumvpn.Pages
             var pingBtn = new Button
             {
                 Tag = pingTag,
-                Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"],
-                BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "SubtleFillColorSecondaryBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(12, 6, 12, 6)
@@ -353,13 +365,13 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",
                 FontSize = 13,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             pingContent.Children.Add(new TextBlock
             {
                 Text = loc.Get("Common_Ping"),
                 FontSize = 12,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             pingBtn.Content = pingContent;
             Grid.SetColumn(pingBtn, 0);
@@ -450,7 +462,7 @@ namespace Lithiumvpn.Pages
             if (sender is Border card)
             {
                 AnimateScale(card, 1.02);
-                card.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
+                card.Background = ThemeRes.Brush(this, "SubtleFillColorSecondaryBrush");
             }
         }
 
@@ -459,7 +471,7 @@ namespace Lithiumvpn.Pages
             if (sender is Border card)
             {
                 AnimateScale(card, 1.0);
-                card.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"];
+                card.Background = ThemeRes.Brush(this, "CardBackgroundFillColorSecondaryBrush");
             }
         }
 

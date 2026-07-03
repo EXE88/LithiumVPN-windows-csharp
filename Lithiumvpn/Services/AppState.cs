@@ -35,6 +35,7 @@ namespace Lithiumvpn.Services
 
         public void Clear()
         {
+            HeartbeatService.Instance.Stop();
             Status = null;
             Plans = Array.Empty<PlanDto>();
             Events = Array.Empty<EventDto>();
@@ -74,6 +75,9 @@ namespace Lithiumvpn.Services
             Tickets = tickets.Data?.Tickets ?? (IReadOnlyList<TicketDto>)Array.Empty<TicketDto>();
 
             Changed?.Invoke();
+
+            // Session is live — start the once-a-minute online heartbeat.
+            HeartbeatService.Instance.Start();
             return LoadOutcome.Success;
         }
 

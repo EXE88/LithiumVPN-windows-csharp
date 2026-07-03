@@ -105,6 +105,14 @@
     </Content>
   </ItemGroup>
 
+  <!-- Backend configuration (API_BASE_URL, …) — copied next to the exe so it can
+       be edited without recompiling. AppConfig reads it from AppContext.BaseDirectory. -->
+  <ItemGroup>
+    <Content Include=".env">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <Page Update="Pages\LoginPage.xaml">
       <Generator>MSBuild:Compile</Generator>

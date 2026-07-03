@@ -17,6 +17,14 @@ namespace Lithiumvpn.Pages
         public HelpPage()
         {
             this.InitializeComponent();
+
+            // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
+            this.ActualThemeChanged += (s, e) =>
+            {
+                RenderTickets();
+                if (ChatOverlay.Visibility == Visibility.Visible && _openTicketId >= 0)
+                    _ = LoadMessagesAsync();
+            };
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -70,8 +78,8 @@ namespace Lithiumvpn.Pages
         {
             var card = new Border
             {
-                Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"],
-                BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(12),
                 Padding = new Thickness(14, 12, 14, 12),
@@ -88,7 +96,7 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",
                 FontSize = 18,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 VerticalAlignment = VerticalAlignment.Center
             };
             Grid.SetColumn(icon, 0);
@@ -100,13 +108,13 @@ namespace Lithiumvpn.Pages
                 FontSize = 14,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 TextTrimming = TextTrimming.CharacterEllipsis,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             info.Children.Add(new TextBlock
             {
                 Text = $"#{ticket.Id} · {FormatDate(ticket.CreatedAt)}",
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
             });
             Grid.SetColumn(info, 1);
 
@@ -115,7 +123,7 @@ namespace Lithiumvpn.Pages
             {
                 right.Children.Add(new Border
                 {
-                    Background = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                    Background = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                     CornerRadius = new CornerRadius(10),
                     MinWidth = 20,
                     Height = 20,
@@ -136,7 +144,7 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",   // chevron
                 FontSize = 12,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush"),
                 VerticalAlignment = VerticalAlignment.Center
             });
             Grid.SetColumn(right, 2);
@@ -206,7 +214,7 @@ namespace Lithiumvpn.Pages
             ChatMeta.Text = $"#{ticket.Id} · {FormatDate(ticket.CreatedAt)}";
             MessagesList.Children.Clear();
             MessageInput.Text = "";
-            ChatOverlay.Visibility = Visibility.Visible;
+            ShowChatOverlay();
 
             await LoadMessagesAsync();
 
@@ -235,17 +243,29 @@ namespace Lithiumvpn.Pages
             ChatScroll.ChangeView(null, ChatScroll.ScrollableHeight, null, true);
         }
 
-        private static Border BuildBubble(TicketMessageDto msg)
+        private Border BuildBubble(TicketMessageDto msg)
         {
             bool mine = msg.IsClient;
+            bool dark = ActualTheme == ElementTheme.Dark;
+
+            // Admin bubbles use solid, theme-matched colors — the translucent card
+            // brushes disappear against the chat background in both themes.
+            var adminBg = new SolidColorBrush(dark
+                ? Windows.UI.Color.FromArgb(0xFF, 0x3A, 0x3A, 0x3C)
+                : Windows.UI.Color.FromArgb(0xFF, 0xE9, 0xE9, 0xEB));
+            var adminFg = new SolidColorBrush(dark
+                ? Windows.UI.Color.FromArgb(0xFF, 0xF2, 0xF2, 0xF7)
+                : Windows.UI.Color.FromArgb(0xFF, 0x1C, 0x1C, 0x1E));
+            var adminTime = new SolidColorBrush(dark
+                ? Windows.UI.Color.FromArgb(0x99, 0xF2, 0xF2, 0xF7)
+                : Windows.UI.Color.FromArgb(0x99, 0x1C, 0x1C, 0x1E));
 
             var bubble = new Border
             {
                 Background = mine
-                    ? (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"]
-                    : (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"],
-                BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
-                BorderThickness = new Thickness(mine ? 0 : 1),
+                    ? ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush")
+                    : adminBg,
+                BorderThickness = new Thickness(0),
                 CornerRadius = new CornerRadius(12),
                 Padding = new Thickness(12, 8, 12, 8),
                 MaxWidth = 340,
@@ -260,7 +280,7 @@ namespace Lithiumvpn.Pages
                 FontSize = 13,
                 Foreground = mine
                     ? new SolidColorBrush(Microsoft.UI.Colors.White)
-                    : (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                    : adminFg
             });
             stack.Children.Add(new TextBlock
             {
@@ -269,7 +289,7 @@ namespace Lithiumvpn.Pages
                 HorizontalAlignment = HorizontalAlignment.Right,
                 Foreground = mine
                     ? new SolidColorBrush(Windows.UI.Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF))
-                    : (Brush)Application.Current.Resources["TextFillColorTertiaryBrush"]
+                    : adminTime
             });
             bubble.Child = stack;
             return bubble;
@@ -294,9 +314,89 @@ namespace Lithiumvpn.Pages
             await LoadMessagesAsync();
         }
 
+        // ─── Overlay open/close animation ─────────────────────────────
+        private void ShowChatOverlay()
+        {
+            if (ChatOverlay.RenderTransform is not Microsoft.UI.Xaml.Media.TranslateTransform)
+                ChatOverlay.RenderTransform = new Microsoft.UI.Xaml.Media.TranslateTransform();
+
+            ChatOverlay.Opacity = 0;
+            ChatOverlay.Visibility = Visibility.Visible;
+
+            var sb = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            var ease = new Microsoft.UI.Xaml.Media.Animation.CubicEase
+            {
+                EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut
+            };
+
+            var fade = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 0, To = 1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(220)),
+                EasingFunction = ease
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fade, ChatOverlay);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fade, "Opacity");
+
+            var slide = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 36, To = 0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(260)),
+                EasingFunction = ease
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slide, ChatOverlay.RenderTransform);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slide, "Y");
+
+            sb.Children.Add(fade);
+            sb.Children.Add(slide);
+            sb.Begin();
+        }
+
+        private Task HideChatOverlayAsync()
+        {
+            var tcs = new TaskCompletionSource<object?>();
+            var sb = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            var ease = new Microsoft.UI.Xaml.Media.Animation.CubicEase
+            {
+                EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn
+            };
+
+            var fade = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 1, To = 0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(160)),
+                EasingFunction = ease
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fade, ChatOverlay);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fade, "Opacity");
+
+            if (ChatOverlay.RenderTransform is Microsoft.UI.Xaml.Media.TranslateTransform)
+            {
+                var slide = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    From = 0, To = 24,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(160)),
+                    EasingFunction = ease
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slide, ChatOverlay.RenderTransform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slide, "Y");
+                sb.Children.Add(slide);
+            }
+
+            sb.Children.Add(fade);
+            sb.Completed += (s, e) =>
+            {
+                ChatOverlay.Visibility = Visibility.Collapsed;
+                ChatOverlay.Opacity = 1;
+                tcs.TrySetResult(null);
+            };
+            sb.Begin();
+            return tcs.Task;
+        }
+
         private async void ChatBack_Click(object sender, RoutedEventArgs e)
         {
-            ChatOverlay.Visibility = Visibility.Collapsed;
+            await HideChatOverlayAsync();
             _openTicketId = -1;
 
             // Refresh the list so the unread badge reflects the seen state.

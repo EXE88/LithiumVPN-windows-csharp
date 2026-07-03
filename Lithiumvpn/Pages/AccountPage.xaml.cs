@@ -15,6 +15,9 @@ namespace Lithiumvpn.Pages
         public AccountPage()
         {
             this.InitializeComponent();
+
+            // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
+            this.ActualThemeChanged += (s, e) => RenderSubscriptions();
         }
 
         protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -81,8 +84,8 @@ namespace Lithiumvpn.Pages
 
             var card = new Border
             {
-                Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"],
-                BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(12),
                 Padding = new Thickness(16, 14, 16, 14)
@@ -98,7 +101,7 @@ namespace Lithiumvpn.Pages
 
             var badge = new Border
             {
-                Background = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 CornerRadius = new CornerRadius(6),
                 Padding = new Thickness(8, 3, 8, 3),
                 Child = new TextBlock
@@ -113,8 +116,8 @@ namespace Lithiumvpn.Pages
 
             var daysChip = new Border
             {
-                Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"],
-                BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "SubtleFillColorSecondaryBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(6),
                 Padding = new Thickness(8, 3, 8, 3)
@@ -124,14 +127,14 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush"),
                 VerticalAlignment = VerticalAlignment.Center
             });
             chipStack.Children.Add(new TextBlock
             {
                 Text = $"{daysLeft} {loc.Get("Account_DaysLeftSuffix")}",
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush"),
                 VerticalAlignment = VerticalAlignment.Center
             });
             daysChip.Child = chipStack;
@@ -144,7 +147,7 @@ namespace Lithiumvpn.Pages
             root.Children.Add(new Microsoft.UI.Xaml.Shapes.Rectangle
             {
                 Height = 1,
-                Fill = (Brush)Application.Current.Resources["DividerStrokeColorDefaultBrush"]
+                Fill = ThemeRes.Brush(this, "DividerStrokeColorDefaultBrush")
             });
 
             // Stats: data left / expiry / locations
@@ -163,14 +166,14 @@ namespace Lithiumvpn.Pages
             {
                 Text = loc.Get("Account_DataUsage"),
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
             });
             usageHeader.Children.Add(new TextBlock
             {
                 Text = $"{usedPct:0}%",
                 HorizontalAlignment = HorizontalAlignment.Right,
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
             });
             usageStack.Children.Add(usageHeader);
             usageStack.Children.Add(new ProgressBar
@@ -179,8 +182,8 @@ namespace Lithiumvpn.Pages
                 Maximum = 100,
                 Height = 5,
                 CornerRadius = new CornerRadius(3),
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
-                Background = (Brush)Application.Current.Resources["ControlAltFillColorQuarternaryBrush"]
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
+                Background = ThemeRes.Brush(this, "ControlAltFillColorQuarternaryBrush")
             });
             root.Children.Add(usageStack);
 
@@ -188,7 +191,7 @@ namespace Lithiumvpn.Pages
             return card;
         }
 
-        private static StackPanel StatColumn(int column, string glyph, string value, string label)
+        private StackPanel StatColumn(int column, string glyph, string value, string label)
         {
             var panel = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, Spacing = 2 };
             Grid.SetColumn(panel, column);
@@ -196,7 +199,7 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = glyph,
                 FontSize = 16,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 HorizontalAlignment = HorizontalAlignment.Center
             });
             panel.Children.Add(new TextBlock
@@ -205,14 +208,14 @@ namespace Lithiumvpn.Pages
                 FontSize = 13,
                 FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             panel.Children.Add(new TextBlock
             {
                 Text = label,
                 FontSize = 10,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
             });
             return panel;
         }

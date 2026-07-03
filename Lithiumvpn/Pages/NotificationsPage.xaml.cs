@@ -14,6 +14,9 @@ namespace Lithiumvpn.Pages
         public NotificationsPage()
         {
             InitializeComponent();
+
+            // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
+            this.ActualThemeChanged += (s, e) => Render();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -41,12 +44,12 @@ namespace Lithiumvpn.Pages
                 NotificationsList.Children.Add(BuildCard(ev));
         }
 
-        private static Border BuildCard(EventDto ev)
+        private Border BuildCard(EventDto ev)
         {
             var card = new Border
             {
-                Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"],
-                BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(12),
                 Padding = new Thickness(15, 12, 15, 12)
@@ -60,7 +63,7 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",
                 FontSize = 20,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0, 2, 14, 0)
             };
@@ -75,7 +78,7 @@ namespace Lithiumvpn.Pages
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 FontSize = 14,
                 TextWrapping = TextWrapping.Wrap,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
 
             if (!string.IsNullOrWhiteSpace(ev.Description))
@@ -84,7 +87,7 @@ namespace Lithiumvpn.Pages
                     Text = ev.Description,
                     FontSize = 12,
                     TextWrapping = TextWrapping.Wrap,
-                    Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                    Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
                 });
 
             var when = FormatDate(ev.CreatedAt);
@@ -94,7 +97,7 @@ namespace Lithiumvpn.Pages
                     Text = when,
                     FontSize = 11,
                     Margin = new Thickness(0, 2, 0, 0),
-                    Foreground = (Brush)Application.Current.Resources["TextFillColorTertiaryBrush"]
+                    Foreground = ThemeRes.Brush(this, "TextFillColorTertiaryBrush")
                 });
 
             grid.Children.Add(icon);

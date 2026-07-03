@@ -18,6 +18,9 @@ namespace Lithiumvpn.Pages
         {
             InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
+
+            // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
+            this.ActualThemeChanged += (s, e) => RenderPlans();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -79,10 +82,10 @@ namespace Lithiumvpn.Pages
 
             var card = new Border
             {
-                Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"],
+                Background = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush"),
                 BorderBrush = highlight
-                    ? (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"]
-                    : (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                    ? ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush")
+                    : ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(highlight ? 1.5 : 1),
                 CornerRadius = new CornerRadius(14),
                 Padding = new Thickness(18, 16, 18, 16),
@@ -106,15 +109,15 @@ namespace Lithiumvpn.Pages
                 Height = 38,
                 CornerRadius = new CornerRadius(10),
                 Background = highlight
-                    ? (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"]
-                    : (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"],
+                    ? ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush")
+                    : ThemeRes.Brush(this, "SubtleFillColorSecondaryBrush"),
                 Child = new FontIcon
                 {
                     Glyph = highlight ? "" : "",
                     FontSize = 17,
                     Foreground = highlight
                         ? new SolidColorBrush(Microsoft.UI.Colors.White)
-                        : (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                        : ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 }
@@ -125,13 +128,13 @@ namespace Lithiumvpn.Pages
                 Text = LocalizePlanName(plan.PlanName),
                 FontSize = 16,
                 FontWeight = Microsoft.UI.Text.FontWeights.Bold,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             titleStack.Children.Add(new TextBlock
             {
                 Text = string.Format(loc.Get("Plans_CardSubtitle"), plan.Usage, plan.Time),
                 FontSize = 11,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
             });
             headerLeft.Children.Add(iconBox);
             headerLeft.Children.Add(titleStack);
@@ -142,7 +145,7 @@ namespace Lithiumvpn.Pages
             {
                 var badge = new Border
                 {
-                    Background = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                    Background = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                     CornerRadius = new CornerRadius(7),
                     Padding = new Thickness(9, 4, 9, 4),
                     VerticalAlignment = VerticalAlignment.Top,
@@ -165,7 +168,7 @@ namespace Lithiumvpn.Pages
             {
                 Glyph = "",
                 FontSize = 18,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 VerticalAlignment = VerticalAlignment.Center
             });
             priceRow.Children.Add(new TextBlock
@@ -173,13 +176,13 @@ namespace Lithiumvpn.Pages
                 Text = plan.Price.ToString("N0", CultureInfo.InvariantCulture),
                 FontSize = 28,
                 FontWeight = Microsoft.UI.Text.FontWeights.Bold,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             priceRow.Children.Add(new TextBlock
             {
                 Text = loc.Get("Plans_CoinsUnit"),
                 FontSize = 13,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush"),
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Margin = new Thickness(0, 0, 0, 5)
             });
@@ -187,7 +190,7 @@ namespace Lithiumvpn.Pages
             {
                 Text = string.Format(loc.Get("Plans_PricePerMonths"), plan.Time),
                 FontSize = 12,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush"),
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Margin = new Thickness(4, 0, 0, 5)
             });
@@ -196,7 +199,7 @@ namespace Lithiumvpn.Pages
             root.Children.Add(new Microsoft.UI.Xaml.Shapes.Rectangle
             {
                 Height = 1,
-                Fill = (Brush)Application.Current.Resources["DividerStrokeColorDefaultBrush"]
+                Fill = ThemeRes.Brush(this, "DividerStrokeColorDefaultBrush")
             });
 
             // ── Features ──
@@ -224,7 +227,7 @@ namespace Lithiumvpn.Pages
                 Glyph = "",
                 FontSize = 14,
                 Foreground = highlight ? new SolidColorBrush(Microsoft.UI.Colors.White)
-                                       : (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                                       : ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             buyContent.Children.Add(new TextBlock
             {
@@ -232,7 +235,7 @@ namespace Lithiumvpn.Pages
                 FontSize = 13,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 Foreground = highlight ? new SolidColorBrush(Microsoft.UI.Colors.White)
-                                       : (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                                       : ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             buyBtn.Content = buyContent;
 
@@ -242,8 +245,8 @@ namespace Lithiumvpn.Pages
             }
             else
             {
-                buyBtn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
-                buyBtn.BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
+                buyBtn.Background = ThemeRes.Brush(this, "SubtleFillColorSecondaryBrush");
+                buyBtn.BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush");
                 buyBtn.BorderThickness = new Thickness(1);
             }
             root.Children.Add(buyBtn);
@@ -252,14 +255,14 @@ namespace Lithiumvpn.Pages
             return card;
         }
 
-        private static StackPanel FeatureRow(string glyph, string text)
+        private StackPanel FeatureRow(string glyph, string text)
         {
             var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
             row.Children.Add(new FontIcon
             {
                 Glyph = glyph,
                 FontSize = 14,
-                Foreground = (Brush)Application.Current.Resources["AccentAAFillColorDefaultBrush"],
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
                 VerticalAlignment = VerticalAlignment.Center
             });
             row.Children.Add(new TextBlock
@@ -267,7 +270,7 @@ namespace Lithiumvpn.Pages
                 Text = text,
                 FontSize = 13,
                 VerticalAlignment = VerticalAlignment.Center,
-                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
             });
             return row;
         }
