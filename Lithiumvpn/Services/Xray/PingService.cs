@@ -21,7 +21,8 @@ namespace Lithiumvpn.Services.Xray
         private static readonly Lazy<PingService> _lazy = new(() => new PingService());
         public static PingService Instance => _lazy.Value;
 
-        private const string ProbeUrl = "https://www.google.com/generate_204";
+        /// <summary>Configurable via .env (PING_URL); expects a 204/2xx response.</summary>
+        private static string ProbeUrl => AppConfig.PingUrl;
         private static readonly TimeSpan ProbeTimeout = TimeSpan.FromSeconds(12);
 
         private readonly SemaphoreSlim _gate = new(1, 1);

@@ -31,6 +31,11 @@ namespace Lithiumvpn.Localization
             ["Common_Pinging"] = "Pinging…",
             ["Common_Open"] = "Open",
 
+            // ── System tray ──
+            ["Tray_Open"] = "Open LithiumVPN",
+            ["Tray_Disconnect"] = "Disconnect",
+            ["Tray_Exit"] = "Exit",
+
             // ── Countries ──
             ["Country_Netherlands"] = "Netherlands",
             ["Country_Germany"] = "Germany",
@@ -315,6 +320,11 @@ namespace Lithiumvpn.Localization
             ["Common_TestPing"] = "تست پینگ",
             ["Common_Pinging"] = "در حال پینگ…",
             ["Common_Open"] = "باز کردن",
+
+            // ── System tray ──
+            ["Tray_Open"] = "باز کردن LithiumVPN",
+            ["Tray_Disconnect"] = "قطع اتصال",
+            ["Tray_Exit"] = "خروج",
 
             // ── Countries ──
             ["Country_Netherlands"] = "هلند",

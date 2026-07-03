@@ -18,8 +18,6 @@ namespace Lithiumvpn.Services
         private static readonly Lazy<HeartbeatService> _lazy = new(() => new HeartbeatService());
         public static HeartbeatService Instance => _lazy.Value;
 
-        private static readonly TimeSpan Interval = TimeSpan.FromSeconds(20);
-
         private Timer? _timer;
         private int _ticking;   // guards against overlapping ticks on a slow network
 
@@ -28,7 +26,8 @@ namespace Lithiumvpn.Services
         public void Start()
         {
             if (_timer is not null) return;
-            _timer = new Timer(_ => _ = TickAsync(), null, Interval, Interval);
+            var interval = AppConfig.HeartbeatInterval;   // .env: HEARTBEAT_SECONDS
+            _timer = new Timer(_ => _ = TickAsync(), null, interval, interval);
         }
 
         public void Stop()

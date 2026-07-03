@@ -19,7 +19,8 @@ namespace Lithiumvpn.Services.Xray
     /// </summary>
     public static class NetworkTestService
     {
-        private const string LatencyProbeUrl = "http://cp.cloudflare.com/generate_204";
+        /// <summary>Configurable via .env (TUNNEL_CHECK_URL).</summary>
+        private static string LatencyProbeUrl => AppConfig.TunnelCheckUrl;
         private const string DownloadUrl = "https://speed.cloudflare.com/__down?bytes=25000000";
         private const string UploadUrl = "https://speed.cloudflare.com/__up";
 

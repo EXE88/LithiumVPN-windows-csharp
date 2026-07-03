@@ -25,6 +25,9 @@ namespace Lithiumvpn.Services
         // ─── Defaults (used only if the key is absent everywhere) ───
         private const string DefaultBaseUrl = "http://127.0.0.1:8000";
         private const int DefaultTimeoutSeconds = 30;
+        private const int DefaultHeartbeatSeconds = 20;
+        private const string DefaultPingUrl = "https://www.google.com/generate_204";
+        private const string DefaultTunnelCheckUrl = "http://cp.cloudflare.com/generate_204";
 
         /// <summary>Base URL of the API backend, without a trailing slash.</summary>
         public static string ApiBaseUrl
@@ -49,6 +52,47 @@ namespace Lithiumvpn.Services
                 return int.TryParse(raw, out var secs) && secs > 0
                     ? TimeSpan.FromSeconds(secs)
                     : TimeSpan.FromSeconds(DefaultTimeoutSeconds);
+            }
+        }
+
+        /// <summary>
+        /// How often the app polls the backend for fresh data (status, events,
+        /// tickets) and reports the client online. Clamped to ≥ 5 seconds.
+        /// </summary>
+        public static TimeSpan HeartbeatInterval
+        {
+            get
+            {
+                EnsureLoaded();
+                var raw = Get("HEARTBEAT_SECONDS", DefaultHeartbeatSeconds.ToString());
+                return int.TryParse(raw, out var secs) && secs >= 5
+                    ? TimeSpan.FromSeconds(secs)
+                    : TimeSpan.FromSeconds(DefaultHeartbeatSeconds);
+            }
+        }
+
+        /// <summary>URL used by the per-config ping probe (expects a 204/2xx response).</summary>
+        public static string PingUrl
+        {
+            get
+            {
+                EnsureLoaded();
+                var raw = Get("PING_URL", DefaultPingUrl).Trim();
+                return string.IsNullOrWhiteSpace(raw) ? DefaultPingUrl : raw;
+            }
+        }
+
+        /// <summary>
+        /// URL used to verify the tunnel passes traffic right after connecting and
+        /// for the dashboard's live latency while connected.
+        /// </summary>
+        public static string TunnelCheckUrl
+        {
+            get
+            {
+                EnsureLoaded();
+                var raw = Get("TUNNEL_CHECK_URL", DefaultTunnelCheckUrl).Trim();
+                return string.IsNullOrWhiteSpace(raw) ? DefaultTunnelCheckUrl : raw;
             }
         }
 
