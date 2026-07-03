@@ -35,6 +35,8 @@ namespace Lithiumvpn.Services
 
         public void Clear()
         {
+            // Logging out — drop the VPN tunnel along with the session.
+            _ = Xray.ConnectionService.Instance.DisconnectAsync();
             HeartbeatService.Instance.Stop();
             Status = null;
             Plans = Array.Empty<PlanDto>();

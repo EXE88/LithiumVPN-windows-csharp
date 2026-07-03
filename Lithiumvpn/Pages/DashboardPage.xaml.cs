@@ -1,12 +1,14 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Windows.UI;
 using Lithiumvpn.Localization;
+using Lithiumvpn.Services.Xray;
 
 namespace Lithiumvpn.Pages
 {
@@ -38,23 +40,24 @@ namespace Lithiumvpn.Pages
             TourTip1.IsOpen = true;
         }
 
-        private enum ConnectionState { Disconnected, Connecting, Connected }
-        private ConnectionState currentState = ConnectionState.Disconnected;
-        private DispatcherTimer connectionTimer;
-
         // Remember the active config so we can re-render its labels when the language changes.
         private Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo? _selectedConfig;
+
+        private readonly ConnectionService _vpn = ConnectionService.Instance;
+        private readonly DispatcherTimer _pingTimer;
+        private bool _speedTestRunning;
 
         public DashboardPage()
         {
             this.InitializeComponent();
             this.NavigationCacheMode = Microsoft.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
 
-            connectionTimer = new DispatcherTimer();
-            connectionTimer.Interval = TimeSpan.FromSeconds(2.5);
-            connectionTimer.Tick += ConnectionTimer_Tick;
+            // Live ping refresh while the tunnel is up.
+            _pingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(15) };
+            _pingTimer.Tick += async (s, e) => await RefreshPingAsync();
 
-            UpdateVisualState();
+            _vpn.StateChanged += OnVpnStateChanged;
+            ApplyVpnState(_vpn.State);
 
             // ✅ تغییر ۱: حالت اولیه — هیچ config انتخاب نشده
             SetEmptyState();
@@ -95,44 +98,154 @@ namespace Lithiumvpn.Pages
             PingValue.Text = "—";
             ExpiryValue.Text = "—";
             DataValue.Text = "0";
+            UploadValue.Text = "—";
+            DownloadValue.Text = "—";
 
             // ProgressRing صفر
             AnimateProgressRing(0);
         }
 
-        // ─── Connection logic ──────────────────────────────────────────
-        private void MainConnectButton_Click(object sender, RoutedEventArgs e)
+        // ─── Connection logic (real Xray tunnel) ───────────────────────
+        private async void MainConnectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (currentState == ConnectionState.Disconnected)
+            switch (_vpn.State)
             {
-                currentState = ConnectionState.Connecting;
-                connectionTimer.Start();
-                UpdateVisualState();
-            }
-            else if (currentState == ConnectionState.Connected)
-            {
-                currentState = ConnectionState.Disconnected;
-                UpdateVisualState();
+                case VpnState.Disconnected:
+                    if (_selectedConfig is not { } cfg || string.IsNullOrWhiteSpace(cfg.ConfigCode))
+                    {
+                        ShowInfo(LocalizationManager.Instance.Get("Dash_SelectConfigFirst"),
+                            InfoBarSeverity.Warning);
+                        return;
+                    }
+                    await ConnectAsync(cfg.ConfigCode);
+                    break;
+
+                case VpnState.Connected:
+                    await _vpn.DisconnectAsync();
+                    break;
+
+                // Connecting: ignore clicks while the attempt is in flight.
             }
         }
 
-        private void ConnectionTimer_Tick(object? sender, object e)
+        private async Task ConnectAsync(string configCode)
         {
-            connectionTimer.Stop();
-            currentState = ConnectionState.Connected;
-            UpdateVisualState();
+            ConnectionInfoBar.IsOpen = false;
+            try
+            {
+                await _vpn.ConnectAsync(configCode);
+            }
+            catch (Exception ex)
+            {
+                ShowInfo(string.Format(
+                    LocalizationManager.Instance.Get("Dash_ConnectFailed"), FirstLine(ex.Message)),
+                    InfoBarSeverity.Error);
+            }
         }
 
-        private void UpdateVisualState()
+        private static string FirstLine(string text)
         {
-            string stateName = currentState switch
+            var nl = text.IndexOf('\n');
+            return (nl > 0 ? text[..nl] : text).Trim();
+        }
+
+        private void OnVpnStateChanged(VpnState state)
+        {
+            DispatcherQueue.TryEnqueue(() => ApplyVpnState(state));
+        }
+
+        private void ApplyVpnState(VpnState state)
+        {
+            string stateName = state switch
             {
-                ConnectionState.Disconnected => "Disconnected",
-                ConnectionState.Connecting => "Connecting",
-                ConnectionState.Connected => "Connected",
+                VpnState.Connecting => "Connecting",
+                VpnState.Connected => "Connected",
                 _ => "Disconnected"
             };
             VisualStateManager.GoToState(MainConnectButton, stateName, true);
+
+            if (state == VpnState.Connected)
+            {
+                _pingTimer.Start();
+                _ = RefreshPingAsync();
+            }
+            else
+            {
+                _pingTimer.Stop();
+                if (state == VpnState.Disconnected)
+                {
+                    UploadValue.Text = "—";
+                    DownloadValue.Text = "—";
+                    // fall back to a direct TCP ping of the selected endpoint
+                    _ = RefreshPingAsync();
+                }
+            }
+        }
+
+        /// <summary>Connected → latency through the tunnel; otherwise TCP ping to the endpoint.</summary>
+        private async Task RefreshPingAsync()
+        {
+            int ping = -1;
+
+            if (_vpn.State == VpnState.Connected)
+            {
+                ping = await NetworkTestService.ProxiedLatencyAsync(_vpn.HttpPort);
+            }
+            else if (_selectedConfig is { } cfg &&
+                     XrayLinkParser.TryGetEndpoint(cfg.ConfigCode, out var host, out var port))
+            {
+                ping = await NetworkTestService.TcpPingAsync(host, port);
+            }
+
+            PingValue.Text = ping > 0 ? ping.ToString() : "—";
+        }
+
+        // ─── Speed test ────────────────────────────────────────────────
+        private async void SpeedTestButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_speedTestRunning) return;
+
+            if (_vpn.State != VpnState.Connected)
+            {
+                ShowInfo(LocalizationManager.Instance.Get("Dash_SpeedTestNeedsConnection"),
+                    InfoBarSeverity.Warning);
+                return;
+            }
+
+            _speedTestRunning = true;
+            SpeedTestButton.IsEnabled = false;
+            SpeedTestIcon.Glyph = ""; // sync (running)
+            ShowInfo(LocalizationManager.Instance.Get("Dash_SpeedTestUsesData"),
+                InfoBarSeverity.Informational);
+
+            try
+            {
+                int port = _vpn.HttpPort;
+
+                var downProgress = new Progress<double>(mbps =>
+                    DownloadValue.Text = mbps.ToString("0.0"));
+                double down = await NetworkTestService.MeasureDownloadAsync(port, downProgress, maxSeconds: 6);
+                DownloadValue.Text = down > 0 ? down.ToString("0.0") : "—";
+
+                var upProgress = new Progress<double>(mbps =>
+                    UploadValue.Text = mbps.ToString("0.0"));
+                double up = await NetworkTestService.MeasureUploadAsync(port, upProgress, maxSeconds: 6);
+                UploadValue.Text = up > 0 ? up.ToString("0.0") : "—";
+            }
+            finally
+            {
+                _speedTestRunning = false;
+                SpeedTestButton.IsEnabled = true;
+                SpeedTestIcon.Glyph = ""; // speedometer
+                ConnectionInfoBar.IsOpen = false;
+            }
+        }
+
+        private void ShowInfo(string message, InfoBarSeverity severity)
+        {
+            ConnectionInfoBar.Severity = severity;
+            ConnectionInfoBar.Message = message;
+            ConnectionInfoBar.IsOpen = true;
         }
 
         // ─── Config selector ───────────────────────────────────────────
@@ -146,7 +259,16 @@ namespace Lithiumvpn.Pages
             await dialog.ShowAsync();
 
             if (dialog.SelectedConfig is { } cfg)
+            {
+                bool changed = _selectedConfig?.ConfigCode != cfg.ConfigCode;
                 ApplySelectedConfig(cfg);
+
+                // Switching configs while connected → reconnect through the new server.
+                if (changed && _vpn.State == VpnState.Connected)
+                    await ConnectAsync(cfg.ConfigCode);
+                else
+                    _ = RefreshPingAsync();
+            }
         }
 
         private void ApplySelectedConfig(Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo cfg)
@@ -182,7 +304,6 @@ namespace Lithiumvpn.Pages
             ConfigName.Text = cfg.ConfigName;
 
             // ── data cards ────────────────────────────────────────────
-            PingValue.Text = cfg.PingMs > 0 ? cfg.PingMs.ToString() : "—";
             ExpiryValue.Text = cfg.DaysLeft.ToString();
 
             // ── ✅ تغییر ۲: محاسبه درصد GB left و ProgressRing هوشمند ──

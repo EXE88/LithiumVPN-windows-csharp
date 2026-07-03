@@ -26,8 +26,18 @@ namespace Lithiumvpn
         {
             _themeService = new ThemeService();
 
+            // Undo anything a crashed previous session left behind (orphaned xray.exe,
+            // system proxy still pointing at a dead local port).
+            Services.Xray.ConnectionService.CleanupFromPreviousRun();
+
             // Create single main window and start with pages inside its Frame (SplashPage -> DashboardPage)
             _window = new MainWindow();
+
+            // Tear the tunnel down (and restore the system proxy) when the app closes.
+            _window.Closed += (_, _) =>
+                Services.Xray.ConnectionService.Instance.ShutdownBlocking();
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+                Services.Xray.ConnectionService.Instance.ShutdownBlocking();
             RootWindow = (MainWindow)_window;
 
             _themeService

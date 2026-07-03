@@ -69,6 +69,12 @@ namespace Lithiumvpn.Localization
             ["Dash_Tour2Sub"] = "Tap this button to connect or disconnect from your VPN. It turns green when connected.",
             ["Dash_Tour3Title"] = "Connection Stats",
             ["Dash_Tour3Sub"] = "These cards show your remaining data, days until expiry, current ping, and upload/download speeds.",
+            ["Dash_SelectConfigFirst"] = "Select a config first, then connect.",
+            ["Dash_ConnectFailed"] = "Connection failed: {0}",
+            ["Dash_ConnectionLost"] = "The connection was lost.",
+            ["Dash_SpeedTest"] = "Run speed test",
+            ["Dash_SpeedTestNeedsConnection"] = "Connect to the VPN first to run a speed test.",
+            ["Dash_SpeedTestUsesData"] = "Note: the speed test consumes some of your data quota.",
 
             // ── Servers / Configs ──
             ["Servers_Subscriptions"] = "Subscriptions",
@@ -334,6 +340,12 @@ namespace Lithiumvpn.Localization
             ["Dash_Tour2Sub"] = "برای اتصال یا قطع اتصال VPN روی این دکمه بزن. وقتی متصل بشی سبز می‌شه.",
             ["Dash_Tour3Title"] = "آمار اتصال",
             ["Dash_Tour3Sub"] = "این کارت‌ها حجم باقی‌مانده، روزهای مونده تا انقضا، پینگ فعلی و سرعت آپلود/دانلود رو نشون می‌دن.",
+            ["Dash_SelectConfigFirst"] = "اول یک کانفیگ انتخاب کن، بعد وصل شو.",
+            ["Dash_ConnectFailed"] = "اتصال ناموفق بود: {0}",
+            ["Dash_ConnectionLost"] = "اتصال قطع شد.",
+            ["Dash_SpeedTest"] = "تست سرعت",
+            ["Dash_SpeedTestNeedsConnection"] = "برای تست سرعت اول به VPN وصل شو.",
+            ["Dash_SpeedTestUsesData"] = "توجه: تست سرعت بخشی از حجم اشتراکت رو مصرف می‌کنه.",
 
             // ── Servers / Configs ──
             ["Servers_Subscriptions"] = "اشتراک‌ها",

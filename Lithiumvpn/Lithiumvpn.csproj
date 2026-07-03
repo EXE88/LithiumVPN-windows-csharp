@@ -105,6 +105,20 @@
     </Content>
   </ItemGroup>
 
+  <!-- Xray core binary + geo assets — copied to <output>\Xray so the app can spawn
+       the tunnel process. XrayProcess resolves them from AppContext.BaseDirectory. -->
+  <ItemGroup>
+    <Content Include="Xray\xray.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Xray\geoip.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Xray\geosite.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <!-- Backend configuration (API_BASE_URL, …) — copied next to the exe so it can
        be edited without recompiling. AppConfig reads it from AppContext.BaseDirectory. -->
   <ItemGroup>

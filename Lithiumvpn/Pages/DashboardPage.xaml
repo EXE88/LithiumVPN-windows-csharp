@@ -223,10 +223,19 @@
         </Border>
 
         <!-- دکمه اتصال -->
-        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid Grid.Row="1">
             <Button x:Name="MainConnectButton"
                     Style="{StaticResource MainConnectionButtonStyle}"
-                    Click="MainConnectButton_Click"/>
+                    Click="MainConnectButton_Click"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <!-- پیام خطا / وضعیت اتصال -->
+            <InfoBar x:Name="ConnectionInfoBar"
+                     IsOpen="False"
+                     Severity="Error"
+                     IsClosable="True"
+                     VerticalAlignment="Top"
+                     Margin="0,8,0,0"/>
         </Grid>
 
         <!-- کارت‌های اطلاعاتی پایین -->
@@ -277,6 +286,7 @@
             <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -287,11 +297,11 @@
                                    FontSize="13" Margin="0,0,0,5"
                                    HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="12.4"
+                            <TextBlock x:Name="UploadValue" Text="—"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                        FontWeight="Bold" FontSize="22"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text=" MB/s"
+                            <TextBlock Text=" Mbps"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"
                                        HorizontalAlignment="Center"/>
@@ -299,18 +309,34 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,0">
+                <!-- دکمه تست سرعت -->
+                <Button x:Name="SpeedTestButton"
+                        Grid.Column="1"
+                        Width="44" Height="44"
+                        Padding="0"
+                        CornerRadius="22"
+                        VerticalAlignment="Center"
+                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        ToolTipService.ToolTip="{Binding [Dash_SpeedTest], Source={StaticResource Loc}}"
+                        Click="SpeedTestButton_Click">
+                    <FontIcon x:Name="SpeedTestIcon" Glyph="&#xEC4A;" FontSize="16"
+                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                </Button>
+
+                <Border Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,0">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="{Binding [Dash_Download], Source={StaticResource Loc}}"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                    FontSize="13" Margin="0,0,0,5"
                                    HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="45.8"
+                            <TextBlock x:Name="DownloadValue" Text="—"
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                        FontWeight="Bold" FontSize="22"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text=" MB/s"
+                            <TextBlock Text=" Mbps"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"
                                        HorizontalAlignment="Center"/>

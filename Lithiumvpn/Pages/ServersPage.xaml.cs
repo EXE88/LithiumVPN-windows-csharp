@@ -17,8 +17,6 @@ namespace Lithiumvpn.Pages
 {
     public sealed partial class ServersPage : Page
     {
-        private static readonly Random _rng = new();
-
         private Expander? _firstExpander;
         private Border? _firstConfigCard;
 
@@ -351,7 +349,7 @@ namespace Lithiumvpn.Pages
 
             var pingBtn = new Button
             {
-                Tag = pingTag,
+                Tag = (pingTag, cfg.ConfigCode ?? ""),
                 Background = ThemeRes.Brush(this, "SubtleFillColorSecondaryBrush"),
                 BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
                 BorderThickness = new Thickness(1),
@@ -497,18 +495,31 @@ namespace Lithiumvpn.Pages
             sb.Begin();
         }
 
-        // ─── Ping button: random value shown in the tag (ping stays fake) ─
-        private void Ping_Click(object sender, RoutedEventArgs e)
+        // ─── Ping button: real TCP handshake time to the config endpoint ─
+        private async void Ping_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not Button btn) return;
-            if (btn.Tag is not Border tag) return;
+            if (btn.Tag is not (Border tag, string configCode)) return;
 
-            int ping = _rng.Next(18, 140);
+            if (!Services.Xray.XrayLinkParser.TryGetEndpoint(configCode, out var host, out var port))
+                return;
+
+            btn.IsEnabled = false;
+            if (tag.Child is TextBlock loading)
+            {
+                loading.Text = "…";
+                tag.Background = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
+                tag.Visibility = Visibility.Visible;
+            }
+
+            int ping = await Services.Xray.NetworkTestService.TcpPingAsync(host, port);
+            btn.IsEnabled = true;
 
             if (tag.Child is TextBlock tb)
-                tb.Text = $"{ping} ms";
+                tb.Text = ping > 0 ? $"{ping} ms" : "—";
 
-            tag.Background = new SolidColorBrush(PingColor(ping));
+            tag.Background = new SolidColorBrush(
+                ping > 0 ? PingColor(ping) : Color.FromArgb(255, 229, 57, 53));
 
             bool firstTime = tag.Visibility == Visibility.Collapsed;
             tag.Visibility = Visibility.Visible;
