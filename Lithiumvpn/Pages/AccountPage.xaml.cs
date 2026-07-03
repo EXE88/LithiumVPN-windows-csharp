@@ -18,6 +18,10 @@ namespace Lithiumvpn.Pages
 
             // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
             this.ActualThemeChanged += (s, e) => RenderSubscriptions();
+
+            // Live backend data: refresh profile + subscriptions on any status change.
+            AppState.Instance.Changed += () =>
+                DispatcherQueue.TryEnqueue(PopulateProfile);
         }
 
         protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)

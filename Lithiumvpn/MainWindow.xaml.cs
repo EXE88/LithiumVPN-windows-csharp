@@ -115,6 +115,30 @@ namespace Lithiumvpn
             });
         }
 
+        /// <summary>
+        /// Navigates the main frame to a page (optionally with a parameter) while
+        /// syncing the left-nav selection to the given tag. Used by in-page actions
+        /// like the ServersPage "Connect" button jumping to the dashboard.
+        /// </summary>
+        public void NavigateToPageWith(Type pageType, string navTag, object? parameter)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                foreach (var child in NavItemsPanel.Children)
+                {
+                    if (child is Button btn && btn.Tag?.ToString() == navTag)
+                    {
+                        if (_activeNavButton != null && _activeNavButton != SettingsIconButton && _activeNavButton != BellIconButton)
+                            _activeNavButton.Style = (Style)RootGrid.Resources["NavButtonStyle"];
+                        btn.Style = (Style)RootGrid.Resources["SelectedNavButtonStyle"];
+                        _activeNavButton = btn;
+                        break;
+                    }
+                }
+                MainFrame.Navigate(pageType, parameter);
+            });
+        }
+
         private Button? _activeNavButton;
         private void SettingsIconButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {

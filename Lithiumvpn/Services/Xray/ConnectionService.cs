@@ -32,6 +32,7 @@ namespace Lithiumvpn.Services.Xray
         public VpnState State { get; private set; } = VpnState.Disconnected;
         public int SocksPort { get; private set; }
         public int HttpPort { get; private set; }
+        public int MetricsPort { get; private set; }
         public string? ActiveConfigCode { get; private set; }
         public string? ActiveAddress { get; private set; }
         public int ActivePort { get; private set; }
@@ -64,8 +65,9 @@ namespace Lithiumvpn.Services.Xray
                 {
                     SocksPort = XrayProcess.GetFreePort();
                     HttpPort = XrayProcess.GetFreePort();
+                    MetricsPort = XrayProcess.GetFreePort();
 
-                    var json = XrayConfigBuilder.Build(parsed.Outbound, SocksPort, HttpPort);
+                    var json = XrayConfigBuilder.Build(parsed.Outbound, SocksPort, HttpPort, MetricsPort);
                     await _xray.StartAsync(json, SocksPort, ct);
 
                     // Prove the tunnel passes real traffic before flipping the system proxy.
@@ -127,6 +129,7 @@ namespace Lithiumvpn.Services.Xray
             ActiveConfigCode = null;
             ActiveAddress = null;
             ActivePort = 0;
+            MetricsPort = 0;
         }
 
         private void OnCoreDied()
@@ -153,5 +156,42 @@ namespace Lithiumvpn.Services.Xray
             Proxy = new WebProxy($"http://127.0.0.1:{HttpPort}"),
             UseProxy = true
         };
+
+        /// <summary>
+        /// Re-applies the system proxy so a changed bypass/exception list takes
+        /// effect immediately while connected. No-op when disconnected.
+        /// </summary>
+        public void ReapplyProxyIfConnected()
+        {
+            if (State == VpnState.Connected)
+            {
+                try { SystemProxyService.Enable(HttpPort); } catch { }
+            }
+        }
+
+        // ─── Traffic counters (Xray stats via the metrics endpoint) ───
+        private static readonly HttpClient _statsHttp = new(new HttpClientHandler { UseProxy = false })
+        {
+            Timeout = TimeSpan.FromSeconds(3)
+        };
+
+        /// <summary>
+        /// Cumulative bytes moved through the proxy outbound since the tunnel
+        /// started, or <c>null</c> when unavailable.
+        /// </summary>
+        public async Task<(long Uplink, long Downlink)?> GetTrafficAsync()
+        {
+            if (State != VpnState.Connected || MetricsPort == 0) return null;
+            try
+            {
+                var raw = await _statsHttp.GetStringAsync($"http://127.0.0.1:{MetricsPort}/debug/vars");
+                using var doc = System.Text.Json.JsonDocument.Parse(raw);
+                var proxy = doc.RootElement
+                    .GetProperty("stats").GetProperty("outbound").GetProperty("proxy");
+                return (proxy.GetProperty("uplink").GetInt64(),
+                        proxy.GetProperty("downlink").GetInt64());
+            }
+            catch { return null; }
+        }
     }
 }

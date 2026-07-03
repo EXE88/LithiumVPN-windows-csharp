@@ -10,7 +10,12 @@ namespace Lithiumvpn.Services.Xray
     /// </summary>
     public static class XrayConfigBuilder
     {
-        public static string Build(JsonObject proxyOutbound, int socksPort, int httpPort)
+        /// <param name="metricsPort">
+        /// When set, enables the traffic-stats pipeline: the core counts per-outbound
+        /// uplink/downlink bytes and exposes them over HTTP at
+        /// <c>http://127.0.0.1:{metricsPort}/debug/vars</c>.
+        /// </param>
+        public static string Build(JsonObject proxyOutbound, int socksPort, int httpPort, int? metricsPort = null)
         {
             var config = new JsonObject
             {
@@ -72,6 +77,24 @@ namespace Lithiumvpn.Services.Xray
                         })
                 }
             };
+
+            if (metricsPort is int mp)
+            {
+                config["stats"] = new JsonObject();
+                config["policy"] = new JsonObject
+                {
+                    ["system"] = new JsonObject
+                    {
+                        ["statsOutboundUplink"] = true,
+                        ["statsOutboundDownlink"] = true
+                    }
+                };
+                config["metrics"] = new JsonObject
+                {
+                    ["tag"] = "metrics",
+                    ["listen"] = $"127.0.0.1:{mp}"
+                };
+            }
 
             return config.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
         }

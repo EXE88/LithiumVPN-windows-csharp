@@ -124,6 +124,57 @@
                 </Grid>
             </Border>
 
+            <!-- ── Proxy Exceptions ── -->
+            <TextBlock Text="{Binding [Settings_ProxySection], Source={StaticResource Loc}}"
+                       FontSize="20" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                       Margin="0,12,0,8"/>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="16,14">
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="{Binding [Settings_ProxyExceptions], Source={StaticResource Loc}}"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                               FontWeight="SemiBold" FontSize="14"/>
+                    <TextBlock Text="{Binding [Settings_ProxyExceptionsDesc], Source={StaticResource Loc}}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               FontSize="12" TextWrapping="Wrap"/>
+
+                    <!-- Add row -->
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="ProxyEntryBox" Grid.Column="0"
+                                 PlaceholderText="{Binding [Settings_ProxyAddPlaceholder], Source={StaticResource Loc}}"
+                                 KeyDown="ProxyEntryBox_KeyDown"/>
+                        <Button x:Name="ProxyAddButton" Grid.Column="1"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Content="{Binding [Settings_ProxyAdd], Source={StaticResource Loc}}"
+                                Click="ProxyAdd_Click"/>
+                    </Grid>
+
+                    <InfoBar x:Name="ProxyInfoBar" IsOpen="False" Severity="Warning" IsClosable="True"/>
+
+                    <!-- Entries -->
+                    <TextBlock x:Name="ProxyEmptyText"
+                               Text="{Binding [Settings_ProxyEmpty], Source={StaticResource Loc}}"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               FontSize="12" Visibility="Collapsed"/>
+                    <ItemsControl x:Name="ProxyList">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="6"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </ScrollViewer>
 </Page>

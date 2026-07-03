@@ -27,6 +27,10 @@ namespace Lithiumvpn.Pages
 
             // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
             this.ActualThemeChanged += (s, e) => RenderPurchases();
+
+            // Live backend data: re-render whenever the cached account data changes.
+            AppState.Instance.Changed += () =>
+                DispatcherQueue.TryEnqueue(RenderPurchases);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -157,9 +161,10 @@ namespace Lithiumvpn.Pages
 
             var cardsStack = new StackPanel { Spacing = 8 };
             Grid.SetColumn(cardsStack, 1);
+            string volume = planUsage > 0 ? $"{planUsage} GB" : "";
             foreach (var cfg in configs)
             {
-                var card = BuildConfigCard(cfg);
+                var card = BuildConfigCard(cfg, purchase, volume);
                 cardsStack.Children.Add(card);
                 _firstConfigCard ??= card;
             }
@@ -275,7 +280,7 @@ namespace Lithiumvpn.Pages
             return stack;
         }
 
-        private Border BuildConfigCard(ConfigDto cfg)
+        private Border BuildConfigCard(ConfigDto cfg, PurchaseDto purchase, string volume)
         {
             var loc = LocalizationManager.Instance;
             string code = (cfg.Country ?? "").ToUpperInvariant();
@@ -386,6 +391,8 @@ namespace Lithiumvpn.Pages
             connContent.Children.Add(new FontIcon { Glyph = "", FontSize = 13, Foreground = new SolidColorBrush(Microsoft.UI.Colors.White) });
             connContent.Children.Add(new TextBlock { Text = loc.Get("Common_Connect"), FontSize = 12, Foreground = new SolidColorBrush(Microsoft.UI.Colors.White) });
             connectBtn.Content = connContent;
+            connectBtn.Tag = BuildConfigInfo(cfg, purchase, volume);
+            connectBtn.Click += Connect_Click;
             Grid.SetColumn(connectBtn, 1);
 
             row1.Children.Add(pingBtn);
@@ -495,28 +502,32 @@ namespace Lithiumvpn.Pages
             sb.Begin();
         }
 
-        // ─── Ping button: real TCP handshake time to the config endpoint ─
+        // ─── Ping button: real latency through a temporary Xray tunnel ─
+        // Single-flight: PingService supersedes any in-progress ping, so only one
+        // probe core is ever alive. While pinging, the button is disabled.
         private async void Ping_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not Button btn) return;
             if (btn.Tag is not (Border tag, string configCode)) return;
-
-            if (!Services.Xray.XrayLinkParser.TryGetEndpoint(configCode, out var host, out var port))
-                return;
+            if (string.IsNullOrWhiteSpace(configCode)) return;
 
             btn.IsEnabled = false;
             if (tag.Child is TextBlock loading)
             {
-                loading.Text = "…";
+                loading.Text = LocalizationManager.Instance.Get("Common_Pinging");
                 tag.Background = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
                 tag.Visibility = Visibility.Visible;
             }
 
-            int ping = await Services.Xray.NetworkTestService.TcpPingAsync(host, port);
+            int? result = await Services.Xray.PingService.Instance.PingConfigAsync(configCode);
             btn.IsEnabled = true;
 
+            // Superseded by a newer ping → leave the tag for that request to fill.
+            if (result is null) return;
+
+            int ping = result.Value;
             if (tag.Child is TextBlock tb)
-                tb.Text = ping > 0 ? $"{ping} ms" : "—";
+                tb.Text = ping >= 0 ? $"{ping} ms" : "-1 ms";
 
             tag.Background = new SolidColorBrush(
                 ping > 0 ? PingColor(ping) : Color.FromArgb(255, 229, 57, 53));
@@ -590,6 +601,39 @@ namespace Lithiumvpn.Pages
             if (ping <= 80) return Color.FromArgb(255, 124, 179, 66);
             if (ping <= 120) return Color.FromArgb(255, 255, 179, 0);
             return Color.FromArgb(255, 229, 57, 53);
+        }
+
+        // ─── Connect: hand the config to the dashboard, which starts the tunnel ─
+        private void Connect_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button btn) return;
+            if (btn.Tag is not Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo cfg) return;
+
+            // Navigate to the dashboard (updating the nav selection) and let it
+            // apply + connect the chosen config via the page parameter.
+            App.RootWindow?.NavigateToPageWith(typeof(DashboardPage), "Dashboard", cfg);
+        }
+
+        private Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo BuildConfigInfo(
+            ConfigDto cfg, PurchaseDto purchase, string volume)
+        {
+            string code = cfg.Country ?? "";
+            return new Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo
+            {
+                PurchaseId = purchase.PurchaseId.ToString(),
+                DataVolume = volume,
+                GbLeft = cfg.GbLeftValue,
+                DaysLeft = cfg.DaysLeft,
+                ExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddDays(cfg.DaysLeft)),
+                Tag = $"{purchase.PurchaseId}_{cfg.Name}",
+                FlagEmoji = "",
+                Country = CodeToCountryName(code),
+                CountryCode = code,
+                ConfigName = cfg.Name ?? "",
+                ConfigCode = cfg.ConfigCode ?? "",
+                PingMs = 0,
+                IsAvailable = true,
+            };
         }
 
         // ─── تور راهنما ─────────────────────────────────────────────────

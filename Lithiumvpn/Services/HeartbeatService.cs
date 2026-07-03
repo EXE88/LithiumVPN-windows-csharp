@@ -18,7 +18,7 @@ namespace Lithiumvpn.Services
         private static readonly Lazy<HeartbeatService> _lazy = new(() => new HeartbeatService());
         public static HeartbeatService Instance => _lazy.Value;
 
-        private static readonly TimeSpan Interval = TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan Interval = TimeSpan.FromSeconds(20);
 
         private Timer? _timer;
         private int _ticking;   // guards against overlapping ticks on a slow network
@@ -44,8 +44,10 @@ namespace Lithiumvpn.Services
 
             try
             {
-                await ApiService.HealthWindowsAsync();          // report "online"
-                await AppState.Instance.RefreshStatusAsync();   // refresh user data
+                await ApiService.HealthWindowsAsync();           // report "online"
+                await AppState.Instance.RefreshStatusAsync();    // coins, purchases, configs
+                await AppState.Instance.RefreshEventsAsync();    // notifications
+                await AppState.Instance.RefreshTicketsAsync();   // support tickets
             }
             catch { /* transient failures are retried on the next tick */ }
             finally

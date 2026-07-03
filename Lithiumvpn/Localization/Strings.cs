@@ -28,6 +28,7 @@ namespace Lithiumvpn.Localization
             ["Common_Connect"] = "Connect",
             ["Common_Ping"] = "Ping",
             ["Common_TestPing"] = "Test ping",
+            ["Common_Pinging"] = "Pinging…",
             ["Common_Open"] = "Open",
 
             // ── Countries ──
@@ -53,6 +54,19 @@ namespace Lithiumvpn.Localization
             ["Settings_LanguageDesc"] = "Choose your preferred display language",
             ["Settings_LanguageEnglish"] = "English",
             ["Settings_LanguagePersian"] = "فارسی",
+
+            // ── Proxy exceptions ──
+            ["Settings_ProxySection"] = "Proxy Exceptions",
+            ["Settings_ProxyExceptions"] = "Bypass list",
+            ["Settings_ProxyExceptionsDesc"] = "Domains or addresses added here are NOT sent through the VPN tunnel (they connect directly). Wildcards like *.example.com are supported. Changes apply immediately while connected.",
+            ["Settings_ProxyAddPlaceholder"] = "e.g. *.mydomain.com or 192.168.1.5",
+            ["Settings_ProxyAdd"] = "Add",
+            ["Settings_ProxyEmpty"] = "No exceptions yet. Everything goes through the tunnel.",
+            ["Settings_ProxyEdit"] = "Edit",
+            ["Settings_ProxyDelete"] = "Delete",
+            ["Settings_ProxySave"] = "Save",
+            ["Settings_ProxyCancel"] = "Cancel",
+            ["Settings_ProxyDuplicate"] = "That entry already exists.",
 
             // ── Dashboard ──
             ["Dash_GbLeft"] = "GB Left",
@@ -299,6 +313,7 @@ namespace Lithiumvpn.Localization
             ["Common_Connect"] = "اتصال",
             ["Common_Ping"] = "پینگ",
             ["Common_TestPing"] = "تست پینگ",
+            ["Common_Pinging"] = "در حال پینگ…",
             ["Common_Open"] = "باز کردن",
 
             // ── Countries ──
@@ -324,6 +339,19 @@ namespace Lithiumvpn.Localization
             ["Settings_LanguageDesc"] = "زبان نمایش دلخواهت رو انتخاب کن",
             ["Settings_LanguageEnglish"] = "English",
             ["Settings_LanguagePersian"] = "فارسی",
+
+            // ── Proxy exceptions ──
+            ["Settings_ProxySection"] = "استثناهای پروکسی",
+            ["Settings_ProxyExceptions"] = "لیست عبور مستقیم",
+            ["Settings_ProxyExceptionsDesc"] = "دامنه‌ها یا آدرس‌هایی که اینجا اضافه می‌کنی از تانل VPN عبور نمی‌کنن و مستقیم وصل می‌شن. الگوهایی مثل *.example.com پشتیبانی می‌شن. تغییرات هنگام اتصال بلافاصله اعمال می‌شن.",
+            ["Settings_ProxyAddPlaceholder"] = "مثلاً *.mydomain.com یا 192.168.1.5",
+            ["Settings_ProxyAdd"] = "افزودن",
+            ["Settings_ProxyEmpty"] = "هنوز استثنایی نیست. همه‌چیز از تانل عبور می‌کنه.",
+            ["Settings_ProxyEdit"] = "ویرایش",
+            ["Settings_ProxyDelete"] = "حذف",
+            ["Settings_ProxySave"] = "ذخیره",
+            ["Settings_ProxyCancel"] = "انصراف",
+            ["Settings_ProxyDuplicate"] = "این مورد از قبل وجود داره.",
 
             // ── Dashboard ──
             ["Dash_GbLeft"] = "گیگ باقی‌مانده",

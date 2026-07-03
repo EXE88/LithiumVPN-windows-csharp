@@ -286,7 +286,6 @@
             <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -301,7 +300,7 @@
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                        FontWeight="Bold" FontSize="22"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text=" Mbps"
+                            <TextBlock x:Name="UploadUnit" Text=" MB"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"
                                        HorizontalAlignment="Center"/>
@@ -309,23 +308,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- دکمه تست سرعت -->
-                <Button x:Name="SpeedTestButton"
-                        Grid.Column="1"
-                        Width="44" Height="44"
-                        Padding="0"
-                        CornerRadius="22"
-                        VerticalAlignment="Center"
-                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1"
-                        ToolTipService.ToolTip="{Binding [Dash_SpeedTest], Source={StaticResource Loc}}"
-                        Click="SpeedTestButton_Click">
-                    <FontIcon x:Name="SpeedTestIcon" Glyph="&#xEC4A;" FontSize="16"
-                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                </Button>
-
-                <Border Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,0">
+                <Border Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,0">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="{Binding [Dash_Download], Source={StaticResource Loc}}"
                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
@@ -336,7 +319,7 @@
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                        FontWeight="Bold" FontSize="22"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text=" Mbps"
+                            <TextBlock x:Name="DownloadUnit" Text=" MB"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,4"
                                        HorizontalAlignment="Center"/>

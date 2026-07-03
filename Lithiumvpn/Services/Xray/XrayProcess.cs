@@ -58,6 +58,13 @@ namespace Lithiumvpn.Services.Xray
 
         public static string ConfigPath => Path.Combine(WorkDirectory, "config.json");
 
+        /// <summary>
+        /// Config file this instance runs with. Defaults to the shared config.json;
+        /// secondary cores (e.g. the ping prober) use their own file so they never
+        /// clobber the main tunnel's config.
+        /// </summary>
+        public string ConfigFileName { get; init; } = "config.json";
+
         /// <summary>Finds a free loopback TCP port.</summary>
         public static int GetFreePort()
         {
@@ -79,12 +86,13 @@ namespace Lithiumvpn.Services.Xray
             if (!File.Exists(XrayExePath))
                 throw new FileNotFoundException($"xray.exe not found at {XrayExePath}");
 
-            File.WriteAllText(ConfigPath, configJson);
+            var configPath = Path.Combine(WorkDirectory, ConfigFileName);
+            File.WriteAllText(configPath, configJson);
 
             var psi = new ProcessStartInfo
             {
                 FileName = XrayExePath,
-                Arguments = $"run -c \"{ConfigPath}\"",
+                Arguments = $"run -c \"{configPath}\"",
                 WorkingDirectory = XrayDirectory,
                 UseShellExecute = false,
                 CreateNoWindow = true,

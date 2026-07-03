@@ -1,13 +1,15 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.UI;
 using Lithiumvpn.Localization;
+using Lithiumvpn.Services;
 using Lithiumvpn.Services.Xray;
 
 namespace Lithiumvpn.Pages
@@ -19,6 +21,15 @@ namespace Lithiumvpn.Pages
         protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            // ServersPage "Connect" hands us the chosen config through the nav parameter.
+            if (e.Parameter is Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo navCfg)
+            {
+                ApplySelectedConfig(navCfg);
+                if (!string.IsNullOrWhiteSpace(navCfg.ConfigCode))
+                    _ = ConnectAsync(navCfg.ConfigCode);
+            }
+
             if (TourManager.IsTourPending)
             {
                 TourManager.IsTourPending = false;
@@ -44,17 +55,17 @@ namespace Lithiumvpn.Pages
         private Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo? _selectedConfig;
 
         private readonly ConnectionService _vpn = ConnectionService.Instance;
-        private readonly DispatcherTimer _pingTimer;
-        private bool _speedTestRunning;
+        private readonly DispatcherTimer _liveTimer;   // traffic + latency while connected
+        private int _liveTick;
 
         public DashboardPage()
         {
             this.InitializeComponent();
             this.NavigationCacheMode = Microsoft.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
 
-            // Live ping refresh while the tunnel is up.
-            _pingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(15) };
-            _pingTimer.Tick += async (s, e) => await RefreshPingAsync();
+            // While connected: refresh traffic counters every tick, latency every 5th tick.
+            _liveTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+            _liveTimer.Tick += LiveTimer_Tick;
 
             _vpn.StateChanged += OnVpnStateChanged;
             ApplyVpnState(_vpn.State);
@@ -63,14 +74,69 @@ namespace Lithiumvpn.Pages
             SetEmptyState();
 
             // Re-apply localized labels when the language is switched at runtime.
-            // The page is cached for the app lifetime, so the subscription persists with it.
             LocalizationManager.Instance.LanguageChanged += OnLanguageChanged;
+
+            // Live backend data: when the cached status refreshes, update the selected
+            // config's figures (data left / days left) without needing a reselect.
+            AppState.Instance.Changed += OnAppStateChanged;
+        }
+
+        private void OnAppStateChanged()
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (_selectedConfig is { } cfg && RefreshSelectedFromState(cfg) is { } updated)
+                {
+                    _selectedConfig = updated;
+                    ApplySelectedConfig(updated, keepPing: true);
+                }
+            });
+        }
+
+        /// <summary>Rebuilds the selected config's view model from the latest AppState data.</summary>
+        private static Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo? RefreshSelectedFromState(
+            Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo current)
+        {
+            foreach (var purchase in AppState.Instance.Purchases)
+            {
+                int totalGb = PlanUsageFor(purchase.Plan);
+                foreach (var c in purchase.Configs ?? new())
+                {
+                    if (string.Equals(c.ConfigCode, current.ConfigCode, StringComparison.Ordinal))
+                        return new Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo
+                        {
+                            PurchaseId = purchase.PurchaseId.ToString(),
+                            DataVolume = totalGb > 0 ? $"{totalGb} GB" : current.DataVolume,
+                            GbLeft = c.GbLeftValue,
+                            DaysLeft = c.DaysLeft,
+                            ExpiryDate = DateOnly.FromDateTime(DateTime.Now.AddDays(c.DaysLeft)),
+                            Tag = current.Tag,
+                            FlagEmoji = current.FlagEmoji,
+                            Country = current.Country,
+                            CountryCode = current.CountryCode,
+                            ConfigName = c.Name ?? current.ConfigName,
+                            ConfigCode = c.ConfigCode ?? current.ConfigCode,
+                            PingMs = current.PingMs,
+                            IsAvailable = current.IsAvailable,
+                        };
+                }
+            }
+            return null;
+        }
+
+        private static int PlanUsageFor(string? planName)
+        {
+            if (string.IsNullOrEmpty(planName)) return 0;
+            foreach (var p in AppState.Instance.Plans)
+                if (string.Equals(p.PlanName, planName, StringComparison.OrdinalIgnoreCase))
+                    return p.Usage;
+            return 0;
         }
 
         private void OnLanguageChanged()
         {
             if (_selectedConfig is { } cfg)
-                ApplySelectedConfig(cfg);
+                ApplySelectedConfig(cfg, keepPing: true);
             else
                 SetEmptyState();
         }
@@ -87,21 +153,18 @@ namespace Lithiumvpn.Pages
         // ─── حالت خالی اولیه ──────────────────────────────────────────
         private void SetEmptyState()
         {
-            // header
             ConfigFlagEllipse.Visibility = Visibility.Collapsed;
             ConfigFlag.Text = "";
             ConfigFlag.Visibility = Visibility.Visible;
             ConfigCountry.Text = LocalizationManager.Instance.Get("Dash_ChooseConfig");
             ConfigName.Text = LocalizationManager.Instance.Get("Dash_NoConfigSelected");
 
-            // data cards — همه صفر
             PingValue.Text = "—";
             ExpiryValue.Text = "—";
             DataValue.Text = "0";
             UploadValue.Text = "—";
             DownloadValue.Text = "—";
 
-            // ProgressRing صفر
             AnimateProgressRing(0);
         }
 
@@ -166,79 +229,53 @@ namespace Lithiumvpn.Pages
 
             if (state == VpnState.Connected)
             {
-                _pingTimer.Start();
-                _ = RefreshPingAsync();
+                _liveTick = 0;
+                UploadValue.Text = "0";
+                DownloadValue.Text = "0";
+                _liveTimer.Start();
+                _ = RefreshLatencyAsync();
+                _ = RefreshTrafficAsync();
             }
             else
             {
-                _pingTimer.Stop();
+                _liveTimer.Stop();
                 if (state == VpnState.Disconnected)
                 {
                     UploadValue.Text = "—";
                     DownloadValue.Text = "—";
-                    // fall back to a direct TCP ping of the selected endpoint
-                    _ = RefreshPingAsync();
                 }
             }
         }
 
-        /// <summary>Connected → latency through the tunnel; otherwise TCP ping to the endpoint.</summary>
-        private async Task RefreshPingAsync()
+        private void LiveTimer_Tick(object? sender, object e)
         {
-            int ping = -1;
-
-            if (_vpn.State == VpnState.Connected)
-            {
-                ping = await NetworkTestService.ProxiedLatencyAsync(_vpn.HttpPort);
-            }
-            else if (_selectedConfig is { } cfg &&
-                     XrayLinkParser.TryGetEndpoint(cfg.ConfigCode, out var host, out var port))
-            {
-                ping = await NetworkTestService.TcpPingAsync(host, port);
-            }
-
-            PingValue.Text = ping > 0 ? ping.ToString() : "—";
+            _ = RefreshTrafficAsync();
+            if (_liveTick++ % 5 == 0)
+                _ = RefreshLatencyAsync();
         }
 
-        // ─── Speed test ────────────────────────────────────────────────
-        private async void SpeedTestButton_Click(object sender, RoutedEventArgs e)
+        /// <summary>Cumulative tunnel traffic → the upload/download cards (MB).</summary>
+        private async Task RefreshTrafficAsync()
         {
-            if (_speedTestRunning) return;
+            var traffic = await _vpn.GetTrafficAsync();
+            if (traffic is not { } t) return;
+            UploadValue.Text = FormatBytes(t.Uplink);
+            DownloadValue.Text = FormatBytes(t.Downlink);
+        }
 
-            if (_vpn.State != VpnState.Connected)
-            {
-                ShowInfo(LocalizationManager.Instance.Get("Dash_SpeedTestNeedsConnection"),
-                    InfoBarSeverity.Warning);
-                return;
-            }
+        private static string FormatBytes(long bytes)
+        {
+            double mb = bytes / 1_048_576.0;
+            return mb >= 1000 ? (mb / 1024.0).ToString("0.00") : mb.ToString("0.00");
+        }
 
-            _speedTestRunning = true;
-            SpeedTestButton.IsEnabled = false;
-            SpeedTestIcon.Glyph = ""; // sync (running)
-            ShowInfo(LocalizationManager.Instance.Get("Dash_SpeedTestUsesData"),
-                InfoBarSeverity.Informational);
-
-            try
-            {
-                int port = _vpn.HttpPort;
-
-                var downProgress = new Progress<double>(mbps =>
-                    DownloadValue.Text = mbps.ToString("0.0"));
-                double down = await NetworkTestService.MeasureDownloadAsync(port, downProgress, maxSeconds: 6);
-                DownloadValue.Text = down > 0 ? down.ToString("0.0") : "—";
-
-                var upProgress = new Progress<double>(mbps =>
-                    UploadValue.Text = mbps.ToString("0.0"));
-                double up = await NetworkTestService.MeasureUploadAsync(port, upProgress, maxSeconds: 6);
-                UploadValue.Text = up > 0 ? up.ToString("0.0") : "—";
-            }
-            finally
-            {
-                _speedTestRunning = false;
-                SpeedTestButton.IsEnabled = true;
-                SpeedTestIcon.Glyph = ""; // speedometer
-                ConnectionInfoBar.IsOpen = false;
-            }
+        /// <summary>Latency through the live tunnel (only meaningful while connected).</summary>
+        private async Task RefreshLatencyAsync()
+        {
+            if (_vpn.State != VpnState.Connected) return;
+            int ping = await NetworkTestService.ProxiedLatencyAsync(_vpn.HttpPort);
+            if (_vpn.State == VpnState.Connected)
+                PingValue.Text = ping > 0 ? ping.ToString() : "—";
         }
 
         private void ShowInfo(string message, InfoBarSeverity severity)
@@ -266,12 +303,11 @@ namespace Lithiumvpn.Pages
                 // Switching configs while connected → reconnect through the new server.
                 if (changed && _vpn.State == VpnState.Connected)
                     await ConnectAsync(cfg.ConfigCode);
-                else
-                    _ = RefreshPingAsync();
             }
         }
 
-        private void ApplySelectedConfig(Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo cfg)
+        private void ApplySelectedConfig(
+            Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo cfg, bool keepPing = false)
         {
             _selectedConfig = cfg;
 
@@ -306,37 +342,46 @@ namespace Lithiumvpn.Pages
             // ── data cards ────────────────────────────────────────────
             ExpiryValue.Text = cfg.DaysLeft.ToString();
 
-            // ── ✅ تغییر ۲: محاسبه درصد GB left و ProgressRing هوشمند ──
-            // DataVolume = حجم کل purchase (مثلاً "100 GB")
-            // GbLeft = حجم باقی‌مانده این config (مثلاً "6.75")
-            // فعلاً GbLeft رو از cfg.GbLeft میگیریم
-
             double totalGb = ParseGb(cfg.DataVolume);
             double leftGb = cfg.GbLeft;
             double percent = totalGb > 0 ? Math.Clamp((leftGb / totalGb) * 100.0, 0, 100) : 0;
 
-            // نمایش عدد
             DataValue.Text = leftGb.ToString("0.##");
-
-            // رنگ بر اساس درصد: سبز ← زرد ← نارنجی ← قرمز
             DataProgressRing.Foreground = new SolidColorBrush(PercentToColor(percent));
-
-            // انیمیشن نرم ProgressRing
             AnimateProgressRing(percent);
+
+            // Auto-ping the freshly selected config (single-flight — supersedes any
+            // in-progress ping from the servers page or a previous selection).
+            // While connected, the live tunnel already drives the ping card.
+            if (!keepPing && _vpn.State != VpnState.Connected)
+                _ = PingSelectedAsync(cfg.ConfigCode);
+        }
+
+        private async Task PingSelectedAsync(string configCode)
+        {
+            if (string.IsNullOrWhiteSpace(configCode)) return;
+            PingValue.Text = "…";
+            int? ping = await PingService.Instance.PingConfigAsync(configCode);
+
+            // null = superseded by a newer ping; leave the card for that one to fill.
+            if (ping is null) return;
+            // Ignore a late result if the user has since selected a different config.
+            if (_selectedConfig?.ConfigCode != configCode) return;
+            if (_vpn.State == VpnState.Connected) return;
+
+            PingValue.Text = ping.Value >= 0 ? ping.Value.ToString() : "-1";
         }
 
         // ─── انیمیشن نرم ProgressRing ─────────────────────────────────
         private DispatcherTimer? _ringTimer;
         private double _ringTarget;
         private double _ringCurrent;
-        private const double RingStep = 1.5; // سرعت انیمیشن — هر tick چند درصد
 
         private void AnimateProgressRing(double targetValue)
         {
             _ringTimer?.Stop();
 
             _ringTarget = Math.Clamp(targetValue, 0, 100);
-            // ✅ به جای _currentRingValue از DataProgressRing.Value استفاده کن
             _ringCurrent = DataProgressRing.Value;
 
             if (Math.Abs(_ringCurrent - _ringTarget) < 0.5)
@@ -353,11 +398,8 @@ namespace Lithiumvpn.Pages
         private void RingTimer_Tick(object? sender, object e)
         {
             double diff = _ringTarget - _ringCurrent;
-
-            // Easing: هر tick کسری از فاصله باقیمانده رو طی میکنه
             double step = diff * 0.12;
 
-            // اگه خیلی نزدیک شدیم، مستقیم برو به target
             if (Math.Abs(diff) < 0.3)
             {
                 _ringCurrent = _ringTarget;
@@ -368,43 +410,34 @@ namespace Lithiumvpn.Pages
 
             _ringCurrent += step;
             DataProgressRing.Value = _ringCurrent;
-
-            // رنگ رو هم همزمان آپدیت کن
             DataProgressRing.Foreground = new SolidColorBrush(PercentToColor(_ringCurrent));
         }
 
         // ─── Helper: تبدیل درصد به رنگ ────────────────────────────────
         private static Color PercentToColor(double percent)
         {
-            // 100% = سبز (#00C853)
-            // 50%  = زرد  (#FFD600)
-            // 20%  = نارنجی (#FF6D00)
-            // 0%   = قرمز (#D50000)
             if (percent >= 60)
             {
-                // سبز به زرد
                 double t = (percent - 60) / 40.0;
                 return InterpolateColor(
-                    Color.FromArgb(255, 255, 214, 0),   // زرد
-                    Color.FromArgb(255, 0, 200, 83),    // سبز
+                    Color.FromArgb(255, 255, 214, 0),
+                    Color.FromArgb(255, 0, 200, 83),
                     t);
             }
             else if (percent >= 25)
             {
-                // زرد به نارنجی
                 double t = (percent - 25) / 35.0;
                 return InterpolateColor(
-                    Color.FromArgb(255, 255, 109, 0),   // نارنجی
-                    Color.FromArgb(255, 255, 214, 0),   // زرد
+                    Color.FromArgb(255, 255, 109, 0),
+                    Color.FromArgb(255, 255, 214, 0),
                     t);
             }
             else
             {
-                // نارنجی به قرمز
                 double t = percent / 25.0;
                 return InterpolateColor(
-                    Color.FromArgb(255, 213, 0, 0),     // قرمز
-                    Color.FromArgb(255, 255, 109, 0),   // نارنجی
+                    Color.FromArgb(255, 213, 0, 0),
+                    Color.FromArgb(255, 255, 109, 0),
                     t);
             }
         }

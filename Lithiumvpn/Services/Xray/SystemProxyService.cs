@@ -18,10 +18,17 @@ namespace Lithiumvpn.Services.Xray
     {
         private const string RegPath = @"Software\Microsoft\Windows\CurrentVersion\Internet Settings";
 
-        private const string Bypass =
+        private const string DefaultBypass =
             "localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;" +
             "172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;" +
             "192.168.*;<local>";
+
+        /// <summary>Built-in LAN bypass plus the user-defined exceptions from Settings.</summary>
+        private static string BuildBypass()
+        {
+            var user = string.Join(';', ProxyBypassStore.Entries);
+            return user.Length == 0 ? DefaultBypass : $"{DefaultBypass};{user}";
+        }
 
         private sealed class Snapshot
         {
@@ -54,7 +61,7 @@ namespace Lithiumvpn.Services.Xray
 
             key.SetValue("ProxyEnable", 1, RegistryValueKind.DWord);
             key.SetValue("ProxyServer", $"127.0.0.1:{httpPort}", RegistryValueKind.String);
-            key.SetValue("ProxyOverride", Bypass, RegistryValueKind.String);
+            key.SetValue("ProxyOverride", BuildBypass(), RegistryValueKind.String);
 
             NotifyWinInet();
         }
