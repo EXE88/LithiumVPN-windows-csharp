@@ -16,6 +16,7 @@ namespace Lithiumvpn.Services
     public sealed class TrayIconService : IDisposable
     {
         private const uint WM_TRAY = 0x8000 + 1;         // WM_APP + 1
+        private const uint WM_LBUTTONUP = 0x0202;
         private const uint WM_LBUTTONDBLCLK = 0x0203;
         private const uint WM_RBUTTONUP = 0x0205;
         private const uint WM_CONTEXTMENU = 0x007B;
@@ -78,6 +79,10 @@ namespace Lithiumvpn.Services
             {
                 switch ((uint)(lParam.ToInt64() & 0xFFFF))
                 {
+                    // Single left-click restores the window (v2rayN-style);
+                    // the double-click case only fires after a click already
+                    // opened it, so handling both is harmless.
+                    case WM_LBUTTONUP:
                     case WM_LBUTTONDBLCLK:
                         OpenRequested?.Invoke();
                         break;
