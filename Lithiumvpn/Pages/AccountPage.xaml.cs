@@ -79,8 +79,12 @@ namespace Lithiumvpn.Pages
             var configs = purchase.Configs ?? new List<ConfigDto>();
 
             int planUsage = PlanUsageFor(purchase.Plan);
-            double leftData = configs.Sum(c => c.GbLeftValue);
-            double totalData = planUsage > 0 ? planUsage * configs.Count : leftData;
+            // The plan's data quota is SHARED across every config in the purchase —
+            // using one config draws down the same pool. So the total is the plan
+            // usage itself (not multiplied by config count) and the remaining is the
+            // shared figure each config reports (identical), not a sum.
+            double leftData = configs.Count > 0 ? configs.Max(c => c.GbLeftValue) : 0;
+            double totalData = planUsage > 0 ? planUsage : leftData;
             int daysLeft = configs.Count > 0 ? configs.Max(c => c.DaysLeft) : 0;
             int locations = configs.Select(c => (c.Country ?? "").ToUpperInvariant())
                                     .Where(c => c.Length > 0).Distinct().Count();

@@ -91,8 +91,12 @@ namespace Lithiumvpn.Pages
 
             // ── Info tip (data / time left) ──
             int planUsage = PlanUsageFor(purchase.Plan);
-            double leftData = configs.Sum(c => c.GbLeftValue);
-            double totalData = planUsage > 0 ? planUsage * configs.Count : leftData;
+            // The plan's data quota is SHARED across every config in the purchase —
+            // using one config draws down the same pool. So the total is the plan
+            // usage itself (not multiplied by config count) and the remaining is the
+            // shared figure each config reports (identical), not a sum.
+            double leftData = configs.Count > 0 ? configs.Max(c => c.GbLeftValue) : 0;
+            double totalData = planUsage > 0 ? planUsage : leftData;
             int planMonths = PlanTimeFor(purchase.Plan);
             int totalDays = planMonths > 0 ? planMonths * 30 : 0;
             int daysLeft = configs.Count > 0 ? configs.Max(c => c.DaysLeft) : 0;
