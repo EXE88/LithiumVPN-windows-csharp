@@ -9,6 +9,8 @@ using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.UI;
 using Lithiumvpn.Localization;
 using Lithiumvpn.Services;
@@ -26,21 +28,74 @@ namespace Lithiumvpn.Pages
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
             // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
-            this.ActualThemeChanged += (s, e) => RenderPurchases();
+            this.ActualThemeChanged += (s, e) => RenderAll();
 
             // Live backend data: re-render whenever the cached account data changes.
-            AppState.Instance.Changed += () =>
-                DispatcherQueue.TryEnqueue(RenderPurchases);
+            AppState.Instance.Changed += () => DispatcherQueue.TryEnqueue(RenderAll);
+
+            // Imported configs + connectivity drive what this page shows.
+            LocalConfigStore.Instance.Changed += () => DispatcherQueue.TryEnqueue(RenderAll);
+            ConnectivityService.Instance.StateChanged += _ => DispatcherQueue.TryEnqueue(RenderAll);
+
+            OfflinePanel.ImportRequested += async (_, _) => await ImportFromClipboardAsync();
+            OfflinePanel.WentOnline += (_, _) => RenderAll();
+            OfflinePanel.NeedLogin += (_, _) => Frame?.Navigate(typeof(LoginPage));
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            RenderPurchases();
+            RenderAll();
             if (TourManager.IsTourPending)
             {
                 TourManager.IsTourPending = false;
                 DispatcherQueue.TryEnqueue(StartTour);
+            }
+        }
+
+        /// <summary>
+        /// Single entry point that decides — from connectivity + imported configs —
+        /// which sections to show, then (re)builds each visible section.
+        /// </summary>
+        private void RenderAll()
+        {
+            bool online = ConnectivityService.Instance.IsOnline;
+            bool hasLocal = LocalConfigStore.Instance.HasAny;
+
+            RenderImported();
+
+            if (online)
+            {
+                ContentScroll.Visibility = Visibility.Visible;
+                OfflinePanel.Visibility = Visibility.Collapsed;
+
+                HeroCard.Visibility = Visibility.Visible;
+                BackendHeader.Visibility = Visibility.Visible;
+                PurchasesContainer.Visibility = Visibility.Visible;
+                ImportedSection.Visibility = Visibility.Visible;
+                RenderPurchases();
+            }
+            else
+            {
+                // Offline: no backend summary/purchases at all.
+                HeroCard.Visibility = Visibility.Collapsed;
+                BackendHeader.Visibility = Visibility.Collapsed;
+                PurchasesContainer.Visibility = Visibility.Collapsed;
+                EmptyState.Visibility = Visibility.Collapsed;
+
+                if (hasLocal)
+                {
+                    ContentScroll.Visibility = Visibility.Visible;
+                    OfflinePanel.Visibility = Visibility.Collapsed;
+                    ImportedSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    // Nothing to show → the reconnect / add placeholder.
+                    ContentScroll.Visibility = Visibility.Collapsed;
+                    ImportedSection.Visibility = Visibility.Collapsed;
+                    OfflinePanel.Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -82,6 +137,317 @@ namespace Lithiumvpn.Pages
 
             TourTip2.Target = _firstExpander;
             TourTip3.Target = _firstConfigCard;
+        }
+
+        // ─── Imported / personal configs ────────────────────────────────
+        private void RenderImported()
+        {
+            ImportedContainer.Children.Clear();
+            var locals = LocalConfigStore.Instance.Configs;
+
+            bool hasLocal = locals.Count > 0;
+            ImportedExpander.Visibility = hasLocal ? Visibility.Visible : Visibility.Collapsed;
+            ImportedEmpty.Visibility = hasLocal ? Visibility.Collapsed : Visibility.Visible;
+
+            if (!hasLocal) return;
+
+            ImportedExpanderHeader.Text =
+                $"{LocalizationManager.Instance.Get("Configs_ImportedTitle")}  ({locals.Count})";
+            foreach (var lc in locals)
+                ImportedContainer.Children.Add(BuildLocalConfigCard(lc));
+        }
+
+        private Border BuildLocalConfigCard(LocalConfig lc)
+        {
+            var loc = LocalizationManager.Instance;
+
+            var card = new Border
+            {
+                Style = (Style)Resources["ConfigCardStyle"],
+                RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5),
+                RenderTransform = new ScaleTransform()
+            };
+            card.PointerEntered += ConfigCard_PointerEntered;
+            card.PointerExited += ConfigCard_PointerExited;
+
+            var outer = new Grid { RowSpacing = 10 };
+            outer.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            outer.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            // Row 0: personal icon + name + (ping tag + options menu)
+            var row0 = new Grid { ColumnSpacing = 10 };
+            row0.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row0.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row0.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var icon = BuildLocalIconCircle();
+            Grid.SetColumn(icon, 0);
+
+            var nameStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Spacing = 2 };
+            nameStack.Children.Add(new TextBlock
+            {
+                Text = lc.Name,
+                FontSize = 14,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+            });
+            nameStack.Children.Add(new TextBlock
+            {
+                Text = loc.Get("Dialog_LocalConfig"),
+                FontSize = 11,
+                Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
+            });
+            Grid.SetColumn(nameStack, 1);
+
+            var pingTagText = new TextBlock
+            {
+                FontSize = 11,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Microsoft.UI.Colors.White)
+            };
+            var pingTag = new Border
+            {
+                Visibility = Visibility.Collapsed,
+                CornerRadius = new CornerRadius(7),
+                Padding = new Thickness(9, 4, 9, 4),
+                VerticalAlignment = VerticalAlignment.Center,
+                RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5),
+                RenderTransform = new ScaleTransform(),
+                Child = pingTagText
+            };
+
+            var menuBtn = new Button
+            {
+                Style = (Style)Resources["InfoButtonStyle"],
+                Content = new FontIcon
+                {
+                    Glyph = "",   // more
+                    FontSize = 13,
+                    Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+                }
+            };
+            var flyout = new MenuFlyout();
+            var renameItem = new MenuFlyoutItem
+            {
+                Text = loc.Get("Configs_Rename"),
+                Icon = new FontIcon { Glyph = "" }
+            };
+            renameItem.Click += (s, e) => _ = RenameLocalAsync(lc);
+            var deleteItem = new MenuFlyoutItem
+            {
+                Text = loc.Get("Configs_Delete"),
+                Icon = new FontIcon { Glyph = "" }
+            };
+            deleteItem.Click += (s, e) => _ = DeleteLocalAsync(lc);
+            flyout.Items.Add(renameItem);
+            flyout.Items.Add(deleteItem);
+            menuBtn.Flyout = flyout;
+
+            var rightStack = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 6,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            rightStack.Children.Add(pingTag);
+            rightStack.Children.Add(menuBtn);
+            Grid.SetColumn(rightStack, 2);
+
+            row0.Children.Add(icon);
+            row0.Children.Add(nameStack);
+            row0.Children.Add(rightStack);
+            Grid.SetRow(row0, 0);
+
+            // Row 1: Ping + Connect (same handlers as backend cards)
+            var row1 = new Grid { ColumnSpacing = 8 };
+            row1.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row1.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var pingBtn = new Button
+            {
+                Tag = (pingTag, lc.Link),
+                Background = ThemeRes.Brush(this, "SubtleFillColorSecondaryBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(12, 6, 12, 6)
+            };
+            ToolTipService.SetToolTip(pingBtn, loc.Get("Common_TestPing"));
+            pingBtn.Click += Ping_Click;
+            var pingContent = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, VerticalAlignment = VerticalAlignment.Center };
+            pingContent.Children.Add(new FontIcon
+            {
+                Glyph = "",
+                FontSize = 13,
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+            });
+            pingContent.Children.Add(new TextBlock
+            {
+                Text = loc.Get("Common_Ping"),
+                FontSize = 12,
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+            });
+            pingBtn.Content = pingContent;
+            Grid.SetColumn(pingBtn, 0);
+
+            var connectBtn = new Button
+            {
+                Style = (Style)Application.Current.Resources["AccentButtonStyle"],
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(12, 6, 12, 6),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Center
+            };
+            var connContent = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, VerticalAlignment = VerticalAlignment.Center };
+            connContent.Children.Add(new FontIcon { Glyph = "", FontSize = 13, Foreground = new SolidColorBrush(Microsoft.UI.Colors.White) });
+            connContent.Children.Add(new TextBlock { Text = loc.Get("Common_Connect"), FontSize = 12, Foreground = new SolidColorBrush(Microsoft.UI.Colors.White) });
+            connectBtn.Content = connContent;
+            connectBtn.Tag = BuildLocalConfigInfo(lc);
+            connectBtn.Click += Connect_Click;
+            Grid.SetColumn(connectBtn, 1);
+
+            row1.Children.Add(pingBtn);
+            row1.Children.Add(connectBtn);
+            Grid.SetRow(row1, 1);
+
+            outer.Children.Add(row0);
+            outer.Children.Add(row1);
+            card.Child = outer;
+            return card;
+        }
+
+        private Grid BuildLocalIconCircle()
+        {
+            var container = new Grid { Width = 40, Height = 40 };
+            container.Children.Add(new Microsoft.UI.Xaml.Shapes.Ellipse
+            {
+                Fill = new SolidColorBrush(Color.FromArgb(0x22, 0x80, 0x80, 0x80))
+            });
+            container.Children.Add(new FontIcon
+            {
+                Glyph = "",   // contact
+                FontSize = 18,
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            });
+            return container;
+        }
+
+        private static Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo BuildLocalConfigInfo(LocalConfig lc) =>
+            new()
+            {
+                IsLocal = true,
+                LocalId = lc.Id,
+                ConfigName = lc.Name,
+                ConfigCode = lc.Link,
+                Country = "",
+                CountryCode = "",
+                IsAvailable = true,
+            };
+
+        // ─── Import from clipboard ───────────────────────────────────────
+        private async void AddConfig_Click(object sender, RoutedEventArgs e) =>
+            await ImportFromClipboardAsync();
+
+        private async Task ImportFromClipboardAsync()
+        {
+            var loc = LocalizationManager.Instance;
+
+            string text = "";
+            try
+            {
+                var content = Clipboard.GetContent();
+                if (content.Contains(StandardDataFormats.Text))
+                    text = await content.GetTextAsync();
+            }
+            catch { /* clipboard access can transiently fail */ }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                // A dialog, not the InfoBar — the bar lives inside the scroll view,
+                // which is hidden in the offline-empty state where this is reachable.
+                await ShowImportFailedAsync(loc.Get("Configs_ImportedNone"));
+                return;
+            }
+
+            var result = await ConfigImporter.ImportFromTextAsync(text);
+            if (!result.AnyAdded)
+            {
+                await ShowImportFailedAsync(loc.Get("Configs_ImportedNone"));
+                return;
+            }
+
+            LocalConfigStore.Instance.AddRange(result.Configs);   // raises Changed → RenderAll
+
+            // After a successful import the content view is visible again, so the
+            // InfoBar there is the right place for the success note.
+            string msg = result.Failed > 0
+                ? string.Format(loc.Get("Configs_ImportedSome"), result.Added, result.Failed)
+                : string.Format(loc.Get("Configs_ImportedOk"), result.Added);
+            ShowImportInfo(msg, InfoBarSeverity.Success);
+        }
+
+        private async Task ShowImportFailedAsync(string message)
+        {
+            var loc = LocalizationManager.Instance;
+            await new ContentDialog
+            {
+                Title = loc.Get("Configs_AddFromClipboard"),
+                Content = message,
+                CloseButtonText = loc.Get("Common_OK"),
+                DefaultButton = ContentDialogButton.Close,
+                FlowDirection = loc.FlowDirection,
+                XamlRoot = this.XamlRoot
+            }.ShowAsync();
+        }
+
+        private void ShowImportInfo(string message, InfoBarSeverity severity)
+        {
+            ImportInfoBar.Severity = severity;
+            ImportInfoBar.Message = message;
+            ImportInfoBar.IsOpen = true;
+        }
+
+        private async Task RenameLocalAsync(LocalConfig lc)
+        {
+            var loc = LocalizationManager.Instance;
+            var input = new TextBox
+            {
+                Text = lc.Name,
+                PlaceholderText = loc.Get("Configs_NamePlaceholder"),
+                MaxLength = 60
+            };
+            var dialog = new ContentDialog
+            {
+                Title = loc.Get("Configs_RenameTitle"),
+                Content = input,
+                PrimaryButtonText = loc.Get("Common_OK"),
+                CloseButtonText = loc.Get("Common_Cancel"),
+                DefaultButton = ContentDialogButton.Primary,
+                FlowDirection = loc.FlowDirection,
+                XamlRoot = this.XamlRoot
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                LocalConfigStore.Instance.Rename(lc.Id, input.Text.Trim());
+        }
+
+        private async Task DeleteLocalAsync(LocalConfig lc)
+        {
+            var loc = LocalizationManager.Instance;
+            var dialog = new ContentDialog
+            {
+                Title = loc.Get("Configs_DeleteTitle"),
+                Content = string.Format(loc.Get("Configs_DeleteBody"), lc.Name),
+                PrimaryButtonText = loc.Get("Configs_Delete"),
+                CloseButtonText = loc.Get("Common_Cancel"),
+                DefaultButton = ContentDialogButton.Close,
+                FlowDirection = loc.FlowDirection,
+                XamlRoot = this.XamlRoot
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                LocalConfigStore.Instance.Remove(lc.Id);
         }
 
         private (Expander Expander, TeachingTip? InfoTip) BuildPurchaseExpander(int index, PurchaseDto purchase)

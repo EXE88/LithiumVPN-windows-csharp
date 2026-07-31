@@ -17,6 +17,10 @@ namespace Lithiumvpn.Services
         /// <summary>Lightweight probe used by the splash screen to confirm the backend is reachable.</summary>
         public static Task<bool> CheckConnectivityAsync() => Api.IsBackendReachableAsync();
 
+        /// <summary>Probe with a short cap so startup falls back to offline instead of hanging.</summary>
+        public static Task<bool> CheckConnectivityAsync(System.TimeSpan timeout) =>
+            Api.IsBackendReachableAsync(timeout);
+
         // ══════════════════════════════════════════════════════════
         //  Authentication
         // ══════════════════════════════════════════════════════════

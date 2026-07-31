@@ -55,37 +55,35 @@ namespace Lithiumvpn.Pages
         }
 
         /// <summary>
-        /// Replaces the old fixed 3s delay: the splash now waits on real backend work.
-        /// It confirms the server is reachable and, if a saved session exists, validates
-        /// it and prefetches all app data. On any failure it shows a blocking error state
-        /// (with retry) instead of continuing with missing data.
+        /// The app must never be held hostage by an unreachable backend. The splash
+        /// probes the server with a short (3s) cap:
+        ///  • reachable + valid session → prefetch data and go straight to the dashboard;
+        ///  • reachable, no/expired session → fall through to the login page;
+        ///  • unreachable (or the prefetch fails) → open the app OFFLINE on the dashboard,
+        ///    where backend-only pages show a "reconnect" placeholder.
         /// </summary>
         private async Task ValidateAndProceedAsync()
         {
             // Keep the branding visible for a short minimum even if the backend is instant.
             var minDisplay = Task.Delay(1400);
 
-            bool reachable = await Services.ApiService.CheckConnectivityAsync();
-            if (!reachable)
-            {
-                await ShowErrorAsync("Splash_ErrorBody");
-                return;
-            }
+            bool reachable = await Services.ApiService.CheckConnectivityAsync(TimeSpan.FromSeconds(3));
 
-            if (Services.TokenStore.Instance.HasSession)
+            if (reachable && Services.TokenStore.Instance.HasSession)
             {
                 var outcome = await Services.AppState.Instance.LoadAllAsync();
-                if (outcome == Services.AppState.LoadOutcome.NetworkError)
-                {
-                    await ShowErrorAsync("Splash_ErrorBody");
-                    return;
-                }
                 if (outcome == Services.AppState.LoadOutcome.Success)
-                {
-                    GoToDashboard = true;   // valid session → skip the login page
-                }
+                    GoToDashboard = true;          // valid session → skip the login page
+                else if (outcome == Services.AppState.LoadOutcome.NetworkError)
+                    GoToDashboard = true;          // backend faltered mid-load → open offline
                 // AuthFailed: the client already cleared the dead session → fall to login.
             }
+            else if (!reachable)
+            {
+                // Backend down: enter the app offline rather than blocking on retry.
+                GoToDashboard = true;
+            }
+            // reachable && no session → GoToDashboard stays false → login page.
 
             await minDisplay;
             await FadeOutAll();

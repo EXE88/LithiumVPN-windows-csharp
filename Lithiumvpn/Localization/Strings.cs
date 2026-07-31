@@ -296,6 +296,32 @@ namespace Lithiumvpn.Localization
             ["Dialog_Unavailable"] = "Unavailable",
             ["Dialog_ExpiryPrefix"] = "Expiry",
             ["Dialog_Purchase"] = "Purchase #{0}",
+            ["Dialog_ImportedConfigs"] = "My Configs",
+            ["Dialog_LocalConfig"] = "Personal config",
+
+            // ── Offline / reconnect ──
+            ["Offline_Title"] = "Can't reach the server",
+            ["Offline_Body"] = "We couldn't connect to the backend. This page needs a connection. Check your internet and try again.",
+            ["Offline_Reconnect"] = "Reconnect",
+            ["Offline_HelpBody"] = "Support tickets need a connection to the server. Reconnect to view and reply to your tickets.",
+            ["Offline_NotifBody"] = "Notifications need a connection to the server. Reconnect to see your latest updates.",
+            ["Offline_ConfigsBody"] = "You have no imported configs yet, and the server can't be reached. Add your own config from the clipboard, or try reconnecting.",
+
+            // ── Imported / local configs (Configs page) ──
+            ["Configs_ImportedTitle"] = "My Configs",
+            ["Configs_ImportedSubtitle"] = "Configs you imported yourself — always available, even offline.",
+            ["Configs_BackendTitle"] = "Purchased Configs",
+            ["Configs_AddFromClipboard"] = "Add from clipboard",
+            ["Configs_ImportEmpty"] = "No imported configs yet. Copy a config link (or subscription) and add it.",
+            ["Configs_ImportedNone"] = "Nothing on the clipboard could be imported. Copy a valid config link and try again.",
+            ["Configs_ImportedOk"] = "Imported {0} config(s).",
+            ["Configs_ImportedSome"] = "Imported {0} config(s); {1} skipped.",
+            ["Configs_Rename"] = "Rename",
+            ["Configs_Delete"] = "Delete",
+            ["Configs_RenameTitle"] = "Rename config",
+            ["Configs_DeleteTitle"] = "Delete config",
+            ["Configs_DeleteBody"] = "Remove \"{0}\" from your imported configs?",
+            ["Configs_NamePlaceholder"] = "Config name",
         };
 
         public static readonly Dictionary<string, string> Fa = new()
@@ -586,6 +612,32 @@ namespace Lithiumvpn.Localization
             ["Dialog_Unavailable"] = "در دسترس نیست",
             ["Dialog_ExpiryPrefix"] = "انقضا",
             ["Dialog_Purchase"] = "خرید {0}#",
+            ["Dialog_ImportedConfigs"] = "کانفیگ‌های من",
+            ["Dialog_LocalConfig"] = "کانفیگ شخصی",
+
+            // ── Offline / reconnect ──
+            ["Offline_Title"] = "اتصال به سرور برقرار نشد",
+            ["Offline_Body"] = "نتونستیم به بک‌اند وصل بشیم. این صفحه به اتصال نیاز داره. اینترنتت رو بررسی کن و دوباره تلاش کن.",
+            ["Offline_Reconnect"] = "اتصال دوباره",
+            ["Offline_HelpBody"] = "تیکت‌های پشتیبانی به اتصال سرور نیاز دارن. برای دیدن و پاسخ به تیکت‌هات دوباره وصل شو.",
+            ["Offline_NotifBody"] = "اعلان‌ها به اتصال سرور نیاز دارن. برای دیدن آخرین به‌روزرسانی‌ها دوباره وصل شو.",
+            ["Offline_ConfigsBody"] = "هنوز کانفیگ ایمپورتی نداری و سرور هم در دسترس نیست. کانفیگ خودت رو از کلیپ‌بورد اضافه کن، یا دوباره تلاش کن وصل بشی.",
+
+            // ── Imported / local configs (Configs page) ──
+            ["Configs_ImportedTitle"] = "کانفیگ‌های من",
+            ["Configs_ImportedSubtitle"] = "کانفیگ‌هایی که خودت اضافه کردی — همیشه در دسترسن، حتی آفلاین.",
+            ["Configs_BackendTitle"] = "کانفیگ‌های خریداری‌شده",
+            ["Configs_AddFromClipboard"] = "افزودن از کلیپ‌بورد",
+            ["Configs_ImportEmpty"] = "هنوز کانفیگ ایمپورتی نداری. یک لینک کانفیگ (یا ساب) کپی کن و اضافه‌ش کن.",
+            ["Configs_ImportedNone"] = "چیزی توی کلیپ‌بورد قابل افزودن نبود. یک لینک کانفیگ معتبر کپی کن و دوباره امتحان کن.",
+            ["Configs_ImportedOk"] = "{0} کانفیگ اضافه شد.",
+            ["Configs_ImportedSome"] = "{0} کانفیگ اضافه شد؛ {1} مورد رد شد.",
+            ["Configs_Rename"] = "تغییر نام",
+            ["Configs_Delete"] = "حذف",
+            ["Configs_RenameTitle"] = "تغییر نام کانفیگ",
+            ["Configs_DeleteTitle"] = "حذف کانفیگ",
+            ["Configs_DeleteBody"] = "«{0}» از کانفیگ‌های ایمپورتیت حذف بشه؟",
+            ["Configs_NamePlaceholder"] = "نام کانفیگ",
         };
     }
 }

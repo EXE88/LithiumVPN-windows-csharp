@@ -42,6 +42,7 @@ namespace Lithiumvpn.Services
             Plans = Array.Empty<PlanDto>();
             Events = Array.Empty<EventDto>();
             Tickets = Array.Empty<TicketDto>();
+            ConnectivityService.Instance.SetOnline(false);
             Changed?.Invoke();
         }
 
@@ -76,6 +77,8 @@ namespace Lithiumvpn.Services
             if (!tickets.IsSuccess) return Classify(tickets);
             Tickets = tickets.Data?.Tickets ?? (IReadOnlyList<TicketDto>)Array.Empty<TicketDto>();
 
+            // Backend reachable and every critical dataset loaded → we are online.
+            ConnectivityService.Instance.SetOnline(true);
             Changed?.Invoke();
 
             // Session is live — start the once-a-minute online heartbeat.

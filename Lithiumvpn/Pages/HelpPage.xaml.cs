@@ -17,6 +17,7 @@ namespace Lithiumvpn.Pages
         public HelpPage()
         {
             this.InitializeComponent();
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
             // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
             this.ActualThemeChanged += (s, e) =>
@@ -25,15 +26,36 @@ namespace Lithiumvpn.Pages
                 if (ChatOverlay.Visibility == Visibility.Visible && _openTicketId >= 0)
                     _ = LoadMessagesAsync();
             };
+
+            ConnectivityService.Instance.StateChanged += _ => DispatcherQueue.TryEnqueue(ApplyConnectivity);
+
+            OfflinePanel.WentOnline += async (_, _) =>
+            {
+                ApplyConnectivity();
+                if (await AppState.Instance.RefreshTicketsAsync())
+                    RenderTickets();
+            };
+            OfflinePanel.NeedLogin += (_, _) => Frame?.Navigate(typeof(LoginPage));
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            ApplyConnectivity();
+            if (!ConnectivityService.Instance.IsOnline) return;
+
             RenderTickets();
             // Pull the latest list in the background.
             if (await AppState.Instance.RefreshTicketsAsync())
                 RenderTickets();
+        }
+
+        private void ApplyConnectivity()
+        {
+            bool online = ConnectivityService.Instance.IsOnline;
+            SupportSection.Visibility = online ? Visibility.Visible : Visibility.Collapsed;
+            OfflinePanel.Visibility = online ? Visibility.Collapsed : Visibility.Visible;
+            if (online) RenderTickets();
         }
 
         private void StartTour_Click(object sender, RoutedEventArgs e)

@@ -14,17 +14,32 @@ namespace Lithiumvpn.Pages
         public CoinsPage()
         {
             InitializeComponent();
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
+
+            Services.ConnectivityService.Instance.StateChanged +=
+                _ => DispatcherQueue.TryEnqueue(ApplyConnectivity);
+
+            OfflinePanel.WentOnline += (_, _) => ApplyConnectivity();
+            OfflinePanel.NeedLogin += (_, _) => Frame?.Navigate(typeof(LoginPage));
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            PopulateBalance();
+            ApplyConnectivity();
             if (TourManager.IsTourPending)
             {
                 TourManager.IsTourPending = false;
                 DispatcherQueue.TryEnqueue(() => StartTour());
             }
+        }
+
+        private void ApplyConnectivity()
+        {
+            bool online = Services.ConnectivityService.Instance.IsOnline;
+            ContentScroll.Visibility = online ? Visibility.Visible : Visibility.Collapsed;
+            OfflinePanel.Visibility = online ? Visibility.Collapsed : Visibility.Visible;
+            if (online) PopulateBalance();
         }
 
         private void PopulateBalance()

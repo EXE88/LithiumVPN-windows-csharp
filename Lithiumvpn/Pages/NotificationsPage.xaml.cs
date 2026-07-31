@@ -14,18 +14,40 @@ namespace Lithiumvpn.Pages
         public NotificationsPage()
         {
             InitializeComponent();
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
             // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
             this.ActualThemeChanged += (s, e) => Render();
+
+            ConnectivityService.Instance.StateChanged += _ => DispatcherQueue.TryEnqueue(ApplyConnectivity);
+
+            OfflinePanel.WentOnline += async (_, _) => { await RefreshAsync(); };
+            OfflinePanel.NeedLogin += (_, _) => Frame?.Navigate(typeof(LoginPage));
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            Render();
+            ApplyConnectivity();
+            if (ConnectivityService.Instance.IsOnline)
+                await RefreshAsync();
+        }
 
+        private async System.Threading.Tasks.Task RefreshAsync()
+        {
+            ApplyConnectivity();
+            if (!ConnectivityService.Instance.IsOnline) return;
+            Render();
             // Mark everything as read on the server; failures are non-fatal.
             try { await ApiService.MarkEventsCheckedAsync(); } catch { }
+        }
+
+        private void ApplyConnectivity()
+        {
+            bool online = ConnectivityService.Instance.IsOnline;
+            ContentScroll.Visibility = online ? Visibility.Visible : Visibility.Collapsed;
+            OfflinePanel.Visibility = online ? Visibility.Collapsed : Visibility.Visible;
+            if (online) Render();
         }
 
         private void Render()

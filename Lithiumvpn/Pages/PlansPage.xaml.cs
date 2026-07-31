@@ -21,17 +21,33 @@ namespace Lithiumvpn.Pages
 
             // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
             this.ActualThemeChanged += (s, e) => RenderPlans();
+
+            ConnectivityService.Instance.StateChanged += _ => DispatcherQueue.TryEnqueue(ApplyConnectivity);
+
+            OfflinePanel.WentOnline += (_, _) => ApplyConnectivity();
+            OfflinePanel.NeedLogin += (_, _) => Frame?.Navigate(typeof(LoginPage));
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            RenderBalance();
-            RenderPlans();
+            ApplyConnectivity();
             if (TourManager.IsTourPending)
             {
                 TourManager.IsTourPending = false;
                 DispatcherQueue.TryEnqueue(StartTour);
+            }
+        }
+
+        private void ApplyConnectivity()
+        {
+            bool online = ConnectivityService.Instance.IsOnline;
+            ContentScroll.Visibility = online ? Visibility.Visible : Visibility.Collapsed;
+            OfflinePanel.Visibility = online ? Visibility.Collapsed : Visibility.Visible;
+            if (online)
+            {
+                RenderBalance();
+                RenderPlans();
             }
         }
 

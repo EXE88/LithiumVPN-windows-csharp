@@ -4,10 +4,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Lithiumvpn"
+    xmlns:controls="using:Lithiumvpn.Controls"
     xmlns:dev="using:DevWinUI">
 
-    <ScrollViewer Padding="16,15,16,15" VerticalScrollBarVisibility="Auto"
-                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
+    <Grid FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
+    <ScrollViewer x:Name="ContentScroll" Padding="16,15,16,15" VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="10">
 
             <!-- ── Profile Card ── -->
@@ -170,4 +171,7 @@
 
         </StackPanel>
     </ScrollViewer>
+
+    <controls:OfflineNotice x:Name="OfflinePanel" Visibility="Collapsed"/>
+    </Grid>
 </Page>

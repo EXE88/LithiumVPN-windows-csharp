@@ -4,34 +4,40 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Lithiumvpn"
+    xmlns:controls="using:Lithiumvpn.Controls"
     xmlns:dev="using:DevWinUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
-        <StackPanel Spacing="12" Padding="20,15">
+    <Grid FlowDirection="{Binding FlowDirection, Source={StaticResource Loc}}">
+        <ScrollViewer x:Name="ContentScroll" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12" Padding="20,15">
 
-            <TextBlock Text="{Binding [Notif_Title], Source={StaticResource Loc}}"
-                       FontSize="22" FontWeight="Bold"
-                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <TextBlock Text="{Binding [Notif_Title], Source={StaticResource Loc}}"
+                           FontSize="22" FontWeight="Bold"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
 
-            <!-- Populated at runtime from the events API -->
-            <StackPanel x:Name="NotificationsList" Spacing="10"/>
+                <!-- Populated at runtime from the events API -->
+                <StackPanel x:Name="NotificationsList" Spacing="10"/>
 
-            <!-- Empty state -->
-            <StackPanel x:Name="EmptyState" Spacing="10"
-                        HorizontalAlignment="Center" Margin="0,60,0,0"
-                        Visibility="Collapsed">
-                <FontIcon Glyph="&#xEA8F;" FontSize="42"
-                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                          HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding [Notif_Empty], Source={StaticResource Loc}}"
-                           FontSize="13" HorizontalAlignment="Center"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <!-- Empty state -->
+                <StackPanel x:Name="EmptyState" Spacing="10"
+                            HorizontalAlignment="Center" Margin="0,60,0,0"
+                            Visibility="Collapsed">
+                    <FontIcon Glyph="&#xEA8F;" FontSize="42"
+                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                              HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding [Notif_Empty], Source={StaticResource Loc}}"
+                               FontSize="13" HorizontalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+
             </StackPanel>
+        </ScrollViewer>
 
-        </StackPanel>
-    </ScrollViewer>
+        <!-- Offline placeholder -->
+        <controls:OfflineNotice x:Name="OfflinePanel" Visibility="Collapsed"
+                                BodyKey="Offline_NotifBody"/>
+    </Grid>
 </Page>

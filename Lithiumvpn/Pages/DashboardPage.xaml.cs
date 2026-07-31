@@ -159,6 +159,8 @@ namespace Lithiumvpn.Pages
             ConfigCountry.Text = LocalizationManager.Instance.Get("Dash_ChooseConfig");
             ConfigName.Text = LocalizationManager.Instance.Get("Dash_NoConfigSelected");
 
+            ApplyStatsLayout(isLocal: false);
+
             PingValue.Text = "—";
             ExpiryValue.Text = "—";
             DataValue.Text = "0";
@@ -166,6 +168,65 @@ namespace Lithiumvpn.Pages
             DownloadValue.Text = "—";
 
             AnimateProgressRing(0);
+        }
+
+        // ─── Stats layout: full (backend) vs. ping-only (personal config) ─────
+        private void ApplyStatsLayout(bool isLocal)
+        {
+            if (isLocal)
+            {
+                FadeCollapse(DataCard);
+                FadeCollapse(ExpiryCard);
+                FadeCollapse(TrafficRow);
+                // Center the lone Ping card across all three columns.
+                Grid.SetColumn(PingCard, 0);
+                Grid.SetColumnSpan(PingCard, 3);
+                PingCard.Margin = new Thickness(0, 0, 0, 5);
+            }
+            else
+            {
+                Grid.SetColumn(PingCard, 2);
+                Grid.SetColumnSpan(PingCard, 1);
+                PingCard.Margin = new Thickness(5, 0, 0, 5);
+                FadeShow(DataCard);
+                FadeShow(ExpiryCard);
+                FadeShow(TrafficRow);
+            }
+        }
+
+        private static void FadeCollapse(FrameworkElement el)
+        {
+            if (el.Visibility == Visibility.Collapsed) return;
+            var sb = new Storyboard();
+            var fade = new DoubleAnimation
+            {
+                To = 0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(220)),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+            Storyboard.SetTarget(fade, el);
+            Storyboard.SetTargetProperty(fade, "Opacity");
+            sb.Children.Add(fade);
+            sb.Completed += (_, _) => el.Visibility = Visibility.Collapsed;
+            sb.Begin();
+        }
+
+        private static void FadeShow(FrameworkElement el)
+        {
+            if (el.Visibility == Visibility.Visible && el.Opacity >= 1) return;
+            el.Opacity = 0;
+            el.Visibility = Visibility.Visible;
+            var sb = new Storyboard();
+            var fade = new DoubleAnimation
+            {
+                To = 1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(260)),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            Storyboard.SetTarget(fade, el);
+            Storyboard.SetTargetProperty(fade, "Opacity");
+            sb.Children.Add(fade);
+            sb.Begin();
         }
 
         // ─── Connection logic (real Xray tunnel) ───────────────────────
@@ -310,6 +371,26 @@ namespace Lithiumvpn.Pages
             Lithiumvpn.Dialogs.ConfigSelectionDialog.ConfigInfo cfg, bool keepPing = false)
         {
             _selectedConfig = cfg;
+
+            // ── Personal / imported config: no backend quota, so the GB-left, expiry
+            //    and upload/download cards fade away and only Ping remains. ──
+            if (cfg.IsLocal)
+            {
+                ConfigFlagEllipse.Visibility = Visibility.Collapsed;
+                ConfigFlag.Visibility = Visibility.Visible;
+                ConfigFlag.Text = "\U0001F464";   // 👤 personal marker
+                ConfigCountry.Text = cfg.ConfigName;
+                ConfigName.Text = LocalizationManager.Instance.Get("Dialog_LocalConfig");
+
+                ApplyStatsLayout(isLocal: true);
+
+                if (!keepPing && _vpn.State != VpnState.Connected)
+                    _ = PingSelectedAsync(cfg.ConfigCode);
+                return;
+            }
+
+            // Backend config → make sure the full stats layout is restored.
+            ApplyStatsLayout(isLocal: false);
 
             // ── هدر ──────────────────────────────────────────────────
             ConfigFlag.Text = cfg.FlagEmoji;

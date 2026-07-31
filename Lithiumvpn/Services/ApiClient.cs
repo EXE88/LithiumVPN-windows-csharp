@@ -65,8 +65,15 @@ namespace Lithiumvpn.Services
         //  Connectivity probe — any HTTP response (even 401/403) proves
         //  the backend is reachable; only a transport failure means "down".
         // ─────────────────────────────────────────────────────────
-        public async Task<bool> IsBackendReachableAsync()
+        public Task<bool> IsBackendReachableAsync() => IsBackendReachableAsync(null);
+
+        /// <param name="timeout">
+        /// Optional short cap so startup / reconnect don't hang on the full request
+        /// timeout when the backend is simply down. Null uses the client's default.
+        /// </param>
+        public async Task<bool> IsBackendReachableAsync(TimeSpan? timeout)
         {
+            using var cts = timeout is { } t ? new CancellationTokenSource(t) : null;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, "health/windows/");
@@ -77,7 +84,9 @@ namespace Lithiumvpn.Services
                     request.Headers.Authorization =
                         new AuthenticationHeaderValue("Bearer", _tokens.AccessToken);
 
-                using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                using var response = await _http.SendAsync(
+                    request, HttpCompletionOption.ResponseHeadersRead,
+                    cts?.Token ?? CancellationToken.None);
                 return true;
             }
             catch

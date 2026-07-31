@@ -250,7 +250,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,5">
+            <Border x:Name="DataCard" Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanelStyle}" Margin="0,0,5,5">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock HorizontalAlignment="Center" Text="{Binding [Dash_GbLeft], Source={StaticResource Loc}}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
                     <Grid HorizontalAlignment="Center">
@@ -265,7 +265,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,5,5">
+            <Border x:Name="ExpiryCard" Grid.Row="0" Grid.Column="1" Style="{StaticResource GlassPanelStyle}" Margin="5,0,5,5">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock HorizontalAlignment="Center" Text="{Binding [Dash_Expiry], Source={StaticResource Loc}}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10"/>
                     <TextBlock x:Name="ExpiryValue" Text="47" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontWeight="Bold" FontSize="26" HorizontalAlignment="Center"/>
@@ -273,7 +273,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,5">
+            <Border x:Name="PingCard" Grid.Row="0" Grid.Column="2" Style="{StaticResource GlassPanelStyle}" Margin="5,0,0,5">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="{Binding [Dash_Ping], Source={StaticResource Loc}}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="13" Margin="0,0,0,10" HorizontalAlignment="Center"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,5,0,0">
@@ -283,7 +283,7 @@
                 </StackPanel>
             </Border>
 
-            <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,0">
+            <Grid x:Name="TrafficRow" Grid.Row="1" Grid.ColumnSpan="3" Margin="0,5,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>

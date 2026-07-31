@@ -32,6 +32,10 @@ namespace Lithiumvpn.Dialogs
             public int PingMs { get; init; }
             public bool IsAvailable { get; init; } = true;
 
+            /// <summary>True for user-imported ("personal") configs — no flag, no plan quota.</summary>
+            public bool IsLocal { get; init; }
+            public string LocalId { get; init; } = "";
+
             public string ExpiryPersian
             {
                 get
@@ -54,11 +58,142 @@ namespace Lithiumvpn.Dialogs
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // Build the sections from the live account data (each purchase = one plan,
-            // each config = one server/location inside that purchase).
+            // The user's own imported configs come first — they always work, even offline.
+            var locals = Services.LocalConfigStore.Instance.Configs;
+            if (locals.Count > 0)
+                PurchasesPanel.Children.Add(BuildLocalSection(locals));
+
+            // Then the backend data (each purchase = one plan, each config = one
+            // server/location inside that purchase).
             int index = 1;
             foreach (var (volume, configs) in BuildPurchasesFromState())
                 PurchasesPanel.Children.Add(BuildPurchaseSection(index++, volume, configs));
+        }
+
+        // ─── Imported / local configs section ──────────────────────────
+        private StackPanel BuildLocalSection(IReadOnlyList<Services.LocalConfig> locals)
+        {
+            var loc = LocalizationManager.Instance;
+
+            var headerGrid = new Grid { ColumnSpacing = 8 };
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var labelBorder = new Border
+            {
+                Style = (Style)Resources["PurchaseLabelStyle"],
+                Child = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Spacing = 6,
+                    Children =
+                    {
+                        new FontIcon { Glyph = "", FontSize = 12, VerticalAlignment = VerticalAlignment.Center },
+                        new TextBlock
+                        {
+                            Text = loc.Get("Dialog_ImportedConfigs"),
+                            FontSize = 12,
+                            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                            VerticalAlignment = VerticalAlignment.Center
+                        }
+                    }
+                }
+            };
+            var divider = new Rectangle
+            {
+                Height = 1,
+                VerticalAlignment = VerticalAlignment.Center,
+                Opacity = 0.15,
+                Fill = new SolidColorBrush(Microsoft.UI.Colors.Gray),
+            };
+            Grid.SetColumn(labelBorder, 0);
+            Grid.SetColumn(divider, 1);
+            headerGrid.Children.Add(labelBorder);
+            headerGrid.Children.Add(divider);
+
+            // Tiles wrapped 3-per-row so any number of imported configs fits the dialog.
+            var rows = new StackPanel { Spacing = 8 };
+            StackPanel? currentRow = null;
+            int i = 0;
+            foreach (var lc in locals)
+            {
+                if (i % 3 == 0)
+                {
+                    currentRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+                    rows.Children.Add(currentRow);
+                }
+                currentRow!.Children.Add(BuildLocalCard(lc));
+                i++;
+            }
+
+            var section = new StackPanel { Spacing = 10 };
+            section.Children.Add(headerGrid);
+            section.Children.Add(rows);
+            return section;
+        }
+
+        private Button BuildLocalCard(Services.LocalConfig lc)
+        {
+            var loc = LocalizationManager.Instance;
+
+            var content = new StackPanel { Spacing = 2 };
+            content.Children.Add(BuildLocalIconCircle());
+            content.Children.Add(new TextBlock
+            {
+                Text = lc.Name,
+                FontSize = 12,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Margin = new Thickness(0, 4, 0, 0),
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                MaxWidth = 96,
+            });
+            content.Children.Add(new TextBlock
+            {
+                Text = loc.Get("Dialog_LocalConfig"),
+                FontSize = 10,
+                Opacity = 0.6,
+            });
+
+            var info = new ConfigInfo
+            {
+                IsLocal = true,
+                LocalId = lc.Id,
+                ConfigName = lc.Name,
+                ConfigCode = lc.Link,
+                Country = "",
+                CountryCode = "",
+                IsAvailable = true,
+            };
+
+            var btn = new Button
+            {
+                Template = (ControlTemplate)Resources["ConfigCardTemplate"],
+                Content = content,
+                Tag = info,
+                UseSystemFocusVisuals = false,
+            };
+            btn.Click += ConfigCard_Click;
+            return btn;
+        }
+
+        // Circular badge with a "person" glyph, marking a personal/imported config.
+        private static Grid BuildLocalIconCircle()
+        {
+            var container = new Grid { Width = 40, Height = 40 };
+            container.Children.Add(new Ellipse
+            {
+                Width = 40,
+                Height = 40,
+                Fill = new SolidColorBrush(Color.FromArgb(40, 128, 128, 128)),
+            });
+            container.Children.Add(new FontIcon
+            {
+                Glyph = "",   // contact / person
+                FontSize = 18,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            });
+            return container;
         }
 
         /// <summary>Maps the cached account purchases into the dialog's view model.</summary>

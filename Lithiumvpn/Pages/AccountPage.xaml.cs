@@ -15,6 +15,7 @@ namespace Lithiumvpn.Pages
         public AccountPage()
         {
             this.InitializeComponent();
+            this.NavigationCacheMode = Microsoft.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
 
             // Dynamic cards resolve brushes against ActualTheme; rebuild on switch.
             this.ActualThemeChanged += (s, e) => RenderSubscriptions();
@@ -22,17 +23,30 @@ namespace Lithiumvpn.Pages
             // Live backend data: refresh profile + subscriptions on any status change.
             AppState.Instance.Changed += () =>
                 DispatcherQueue.TryEnqueue(PopulateProfile);
+
+            ConnectivityService.Instance.StateChanged += _ => DispatcherQueue.TryEnqueue(ApplyConnectivity);
+
+            OfflinePanel.WentOnline += (_, _) => ApplyConnectivity();
+            OfflinePanel.NeedLogin += (_, _) => Frame?.Navigate(typeof(LoginPage));
         }
 
         protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            PopulateProfile();
+            ApplyConnectivity();
             if (TourManager.IsTourPending)
             {
                 TourManager.IsTourPending = false;
                 DispatcherQueue.TryEnqueue(StartTour);
             }
+        }
+
+        private void ApplyConnectivity()
+        {
+            bool online = ConnectivityService.Instance.IsOnline;
+            ContentScroll.Visibility = online ? Visibility.Visible : Visibility.Collapsed;
+            OfflinePanel.Visibility = online ? Visibility.Collapsed : Visibility.Visible;
+            if (online) PopulateProfile();
         }
 
         private void PopulateProfile()
