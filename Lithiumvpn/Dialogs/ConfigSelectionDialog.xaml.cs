@@ -58,10 +58,22 @@ namespace Lithiumvpn.Dialogs
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // The user's own imported configs come first — they always work, even offline.
-            var locals = Services.LocalConfigStore.Instance.Configs;
-            if (locals.Count > 0)
-                PurchasesPanel.Children.Add(BuildLocalSection(locals));
+            var store = Services.LocalConfigStore.Instance;
+
+            // The user's own imported configs come first — they always work, even
+            // offline. Manually pasted configs and each subscription stay separate,
+            // mirroring the groups on the Configs page.
+            var manual = store.ManualConfigs;
+            if (manual.Count > 0)
+                PurchasesPanel.Children.Add(BuildLocalSection(
+                    LocalizationManager.Instance.Get("Configs_SingleTitle"), manual));
+
+            foreach (var sub in store.Subscriptions)
+            {
+                var subConfigs = store.ConfigsFor(sub.Id);
+                if (subConfigs.Count > 0)
+                    PurchasesPanel.Children.Add(BuildLocalSection(sub.Name, subConfigs));
+            }
 
             // Then the backend data (each purchase = one plan, each config = one
             // server/location inside that purchase).
@@ -71,10 +83,9 @@ namespace Lithiumvpn.Dialogs
         }
 
         // ─── Imported / local configs section ──────────────────────────
-        private StackPanel BuildLocalSection(IReadOnlyList<Services.LocalConfig> locals)
+        private StackPanel BuildLocalSection(
+            string title, IReadOnlyList<Services.LocalConfig> locals)
         {
-            var loc = LocalizationManager.Instance;
-
             var headerGrid = new Grid { ColumnSpacing = 8 };
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -91,10 +102,12 @@ namespace Lithiumvpn.Dialogs
                         new FontIcon { Glyph = "", FontSize = 12, VerticalAlignment = VerticalAlignment.Center },
                         new TextBlock
                         {
-                            Text = loc.Get("Dialog_ImportedConfigs"),
+                            Text = title,
                             FontSize = 12,
                             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                            VerticalAlignment = VerticalAlignment.Center
+                            VerticalAlignment = VerticalAlignment.Center,
+                            TextTrimming = TextTrimming.CharacterEllipsis,
+                            MaxWidth = 220,
                         }
                     }
                 }

@@ -322,6 +322,26 @@ namespace Lithiumvpn.Localization
             ["Configs_DeleteTitle"] = "Delete config",
             ["Configs_DeleteBody"] = "Remove \"{0}\" from your imported configs?",
             ["Configs_NamePlaceholder"] = "Config name",
+
+            // ── Config groups (single vs. subscription) ──
+            ["Configs_SingleTitle"] = "Single Configs",
+            ["Configs_GroupEmpty"] = "This group has no configs.",
+            ["Configs_UpdatedAt"] = "Updated {0}",
+            ["Configs_Update"] = "Update",
+            ["Configs_MoreActions"] = "More actions",
+            ["Configs_UpdateSub"] = "Update subscription (direct, not through the proxy)",
+            ["Configs_SubAdded"] = "Subscription \"{0}\" added with {1} config(s).",
+            ["Configs_SubUpdated"] = "Subscription \"{0}\" updated — {1} config(s).",
+            ["Configs_SubUpdateFailed"] = "Couldn't reach subscription \"{0}\". Check your connection and try again.",
+            ["Configs_SubUpdateEmpty"] = "Subscription \"{0}\" returned no usable configs; the old ones were kept.",
+            ["Configs_RenameSubTitle"] = "Rename subscription",
+            ["Configs_DeleteSubTitle"] = "Delete subscription",
+            ["Configs_DeleteSubBody"] = "Remove \"{0}\" and its {1} config(s)?",
+
+            // ── Group ping ──
+            ["Configs_PingAll"] = "Ping all",
+            ["Configs_PingAllTooltip"] = "Ping every config in this group, one after another",
+            ["Configs_PingAllFailed"] = "Group ping failed: {0}",
         };
 
         public static readonly Dictionary<string, string> Fa = new()
@@ -638,6 +658,26 @@ namespace Lithiumvpn.Localization
             ["Configs_DeleteTitle"] = "حذف کانفیگ",
             ["Configs_DeleteBody"] = "«{0}» از کانفیگ‌های ایمپورتیت حذف بشه؟",
             ["Configs_NamePlaceholder"] = "نام کانفیگ",
+
+            // ── Config groups (single vs. subscription) ──
+            ["Configs_SingleTitle"] = "کانفیگ‌های تکی",
+            ["Configs_GroupEmpty"] = "این گروه کانفیگی نداره.",
+            ["Configs_UpdatedAt"] = "به‌روزرسانی {0}",
+            ["Configs_Update"] = "به‌روزرسانی",
+            ["Configs_MoreActions"] = "عملیات بیشتر",
+            ["Configs_UpdateSub"] = "به‌روزرسانی ساب (مستقیم، بدون عبور از پروکسی)",
+            ["Configs_SubAdded"] = "ساب «{0}» با {1} کانفیگ اضافه شد.",
+            ["Configs_SubUpdated"] = "ساب «{0}» به‌روزرسانی شد — {1} کانفیگ.",
+            ["Configs_SubUpdateFailed"] = "به ساب «{0}» نتونستیم وصل بشیم. اتصالت رو بررسی کن و دوباره تلاش کن.",
+            ["Configs_SubUpdateEmpty"] = "ساب «{0}» کانفیگ قابل استفاده‌ای برنگردوند؛ کانفیگ‌های قبلی حفظ شدن.",
+            ["Configs_RenameSubTitle"] = "تغییر نام ساب",
+            ["Configs_DeleteSubTitle"] = "حذف ساب",
+            ["Configs_DeleteSubBody"] = "«{0}» و {1} کانفیگش حذف بشن؟",
+
+            // ── Group ping ──
+            ["Configs_PingAll"] = "پینگ همه",
+            ["Configs_PingAllTooltip"] = "پینگ گرفتن از همه‌ی کانفیگ‌های این گروه، یکی پس از دیگری",
+            ["Configs_PingAllFailed"] = "پینگ گروهی ناموفق بود: {0}",
         };
     }
 }

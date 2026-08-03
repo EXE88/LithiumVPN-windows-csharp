@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -9,11 +9,13 @@ using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI;
 using Lithiumvpn.Localization;
 using Lithiumvpn.Services;
+using Lithiumvpn.Services.Xray;
 
 namespace Lithiumvpn.Pages
 {
@@ -21,6 +23,40 @@ namespace Lithiumvpn.Pages
     {
         private Expander? _firstExpander;
         private Border? _firstConfigCard;
+
+        /// <summary>One config card's live visuals, so a group ping can fill its tag.</summary>
+        private sealed class ConfigCardVisual
+        {
+            public required Border Card { get; init; }
+            public required Border PingTag { get; init; }
+            public required string Link { get; init; }
+        }
+
+        // ─── Group ("ping all") state ───────────────────────────────────
+        // Only one batch may run at a time; starting another supersedes it, and the
+        // page cancels it when navigating away so no probe core outlives the view.
+        private CancellationTokenSource? _batchCts;
+        private bool _renderPending;
+
+        /// <summary>
+        /// Every "ping all" button currently on screen. They are disabled together
+        /// while a batch runs so a second group can't be started mid-flight (which
+        /// would strand the first group's tags on "Pinging…").
+        /// </summary>
+        private readonly List<Button> _pingAllButtons = new();
+
+        private bool IsBatchRunning => _batchCts is not null;
+
+        private void SetPingAllButtonsEnabled(bool enabled)
+        {
+            foreach (var b in _pingAllButtons)
+                b.IsEnabled = enabled && b.Tag is int count && count > 0;
+        }
+
+        private void CancelBatchPing()
+        {
+            try { _batchCts?.Cancel(); } catch (ObjectDisposedException) { }
+        }
 
         public ServersPage()
         {
@@ -53,12 +89,34 @@ namespace Lithiumvpn.Pages
             }
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            // Never let a group ping keep probing (and spawning cores) for a page
+            // the user has left.
+            CancelBatchPing();
+            base.OnNavigatedFrom(e);
+        }
+
         /// <summary>
         /// Single entry point that decides — from connectivity + imported configs —
         /// which sections to show, then (re)builds each visible section.
         /// </summary>
         private void RenderAll()
         {
+            // A group ping is filling tags on the cards currently on screen; rebuilding
+            // now would orphan them (the 20s heartbeat alone would kill every batch).
+            // Defer until the batch finishes instead.
+            if (IsBatchRunning)
+            {
+                _renderPending = true;
+                return;
+            }
+            _renderPending = false;
+
+            // Both sections are rebuilt below — drop the previous generation's buttons
+            // so the registry can't grow unbounded or hold detached elements.
+            _pingAllButtons.Clear();
+
             bool online = ConnectivityService.Instance.IsOnline;
             bool hasLocal = LocalConfigStore.Instance.HasAny;
 
@@ -140,24 +198,224 @@ namespace Lithiumvpn.Pages
         }
 
         // ─── Imported / personal configs ────────────────────────────────
+        /// <summary>
+        /// Builds one expander per group: the manually pasted configs first, then one
+        /// per subscription. Subscriptions are never merged — each keeps its own
+        /// dropdown, its own "update" action and its own configs.
+        /// </summary>
         private void RenderImported()
         {
             ImportedContainer.Children.Clear();
-            var locals = LocalConfigStore.Instance.Configs;
 
-            bool hasLocal = locals.Count > 0;
-            ImportedExpander.Visibility = hasLocal ? Visibility.Visible : Visibility.Collapsed;
-            ImportedEmpty.Visibility = hasLocal ? Visibility.Collapsed : Visibility.Visible;
+            var store = LocalConfigStore.Instance;
+            var loc = LocalizationManager.Instance;
 
-            if (!hasLocal) return;
+            var manual = store.ManualConfigs;
+            var subs = store.Subscriptions;
 
-            ImportedExpanderHeader.Text =
-                $"{LocalizationManager.Instance.Get("Configs_ImportedTitle")}  ({locals.Count})";
-            foreach (var lc in locals)
-                ImportedContainer.Children.Add(BuildLocalConfigCard(lc));
+            ImportedEmpty.Visibility = store.HasAny ? Visibility.Collapsed : Visibility.Visible;
+
+            // ── Single (manually pasted) configs ──
+            if (manual.Count > 0)
+            {
+                ImportedContainer.Children.Add(BuildGroupExpander(
+                    glyph: "",                      // contact
+                    title: loc.Get("Configs_SingleTitle"),
+                    meta: null,
+                    configs: manual,
+                    subscription: null));
+            }
+
+            // ── One expander per subscription ──
+            foreach (var sub in subs)
+            {
+                var configs = store.ConfigsFor(sub.Id);
+                ImportedContainer.Children.Add(BuildGroupExpander(
+                    glyph: "",                      // cloud / subscription
+                    title: sub.Name,
+                    meta: FormatUpdatedAt(sub.UpdatedAt),
+                    configs: configs,
+                    subscription: sub));
+            }
         }
 
-        private Border BuildLocalConfigCard(LocalConfig lc)
+        private static string? FormatUpdatedAt(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return null;
+            if (!DateTimeOffset.TryParse(raw, System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.AssumeUniversal, out var dt))
+                return null;
+            return string.Format(
+                LocalizationManager.Instance.Get("Configs_UpdatedAt"),
+                dt.LocalDateTime.ToString("yyyy/MM/dd HH:mm",
+                    System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        /// <summary>
+        /// One group dropdown: header (icon, title, count, meta, actions) + config cards.
+        /// <paramref name="subscription"/> is null for the manual group, which has no
+        /// update/rename/delete-group actions.
+        /// </summary>
+        private Expander BuildGroupExpander(
+            string glyph,
+            string title,
+            string? meta,
+            IReadOnlyList<LocalConfig> configs,
+            LocalSubscription? subscription)
+        {
+            var loc = LocalizationManager.Instance;
+
+            // ── Cards + the ping targets they expose ──
+            var cardsStack = new StackPanel { Spacing = 8, Padding = new Thickness(0, 4, 0, 4) };
+            var targets = new List<ConfigCardVisual>();
+            foreach (var cfg in configs)
+            {
+                var visual = BuildLocalConfigCard(cfg);
+                cardsStack.Children.Add(visual.Card);
+                targets.Add(visual);
+            }
+
+            if (configs.Count == 0)
+            {
+                cardsStack.Children.Add(new TextBlock
+                {
+                    Text = loc.Get("Configs_GroupEmpty"),
+                    FontSize = 12,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(2, 4, 2, 4),
+                    Foreground = ThemeRes.Brush(this, "TextFillColorTertiaryBrush")
+                });
+            }
+
+            // ── Header ──
+            // The content column is only ~400px wide (the nav rail is a fixed 230 of
+            // the 635px window), so a subscription's three labelled actions get their
+            // own row rather than squeezing the name down to an ellipsis.
+            bool actionsOnOwnRow = subscription is not null;
+
+            var headerGrid = new Grid
+            {
+                ColumnSpacing = 8,
+                RowSpacing = 8,
+                Padding = new Thickness(0, 8, 0, 8)
+            };
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            headerGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            if (actionsOnOwnRow)
+                headerGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            var icon = new FontIcon
+            {
+                Glyph = glyph,
+                FontSize = 16,
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush"),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(icon, 0);
+
+            var titleStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Spacing = 1 };
+            titleStack.Children.Add(new TextBlock
+            {
+                Text = $"{title}  ({configs.Count})",
+                FontSize = 14,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+            });
+            if (!string.IsNullOrEmpty(meta))
+                titleStack.Children.Add(new TextBlock
+                {
+                    Text = meta,
+                    FontSize = 11,
+                    Foreground = ThemeRes.Brush(this, "TextFillColorSecondaryBrush")
+                });
+            Grid.SetColumn(titleStack, 1);
+
+            var actions = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 6,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            // "Ping all" — available on every group.
+            actions.Children.Add(BuildPingAllButton(targets));
+
+            if (subscription is not null)
+            {
+                // "Update" — re-fetch this subscription (directly, never via the proxy).
+                actions.Children.Add(BuildUpdateSubButton(subscription));
+
+                // Overflow: rename / delete the whole subscription.
+                var menuBtn = new Button
+                {
+                    Style = (Style)Resources["InfoButtonStyle"],
+                    Content = new FontIcon
+                    {
+                        Glyph = "",   // more
+                        FontSize = 13,
+                        Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+                    }
+                };
+                ToolTipService.SetToolTip(menuBtn, loc.Get("Configs_MoreActions"));
+
+                var flyout = BuildThemedMenuFlyout();
+                var renameItem = BuildMenuItem("Configs_Rename", "\uE70F");
+                renameItem.Click += (s, e) => _ = RenameSubscriptionAsync(subscription);
+                var deleteItem = BuildMenuItem("Configs_Delete", "\uE74D", destructive: true);
+                deleteItem.Click += (s, e) => _ = DeleteSubscriptionAsync(subscription);
+                flyout.Items.Add(renameItem);
+                flyout.Items.Add(deleteItem);
+                menuBtn.Flyout = flyout;
+                actions.Children.Add(menuBtn);
+            }
+
+            if (actionsOnOwnRow)
+            {
+                // Full-width second row, starting under the icon (flips with RTL).
+                Grid.SetRow(actions, 1);
+                Grid.SetColumn(actions, 0);
+                Grid.SetColumnSpan(actions, 3);
+                actions.HorizontalAlignment = HorizontalAlignment.Left;
+            }
+            else
+            {
+                Grid.SetColumn(actions, 2);
+            }
+
+            headerGrid.Children.Add(icon);
+            headerGrid.Children.Add(titleStack);
+            headerGrid.Children.Add(actions);
+
+            var expander = new Expander
+            {
+                // Collapsed by default, like the purchase expanders — the page should
+                // open as a compact list of groups, not a wall of cards.
+                IsExpanded = false,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                Background = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush"),
+                BorderBrush = ThemeRes.Brush(this, "CardStrokeColorDefaultBrush"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(12),
+                Header = headerGrid,
+                Content = cardsStack
+            };
+
+            // Match the purchase expanders: pin the translucent default brushes to the
+            // card brush so the particle backdrop doesn't bleed through.
+            var cardBg = ThemeRes.Brush(this, "CardBackgroundFillColorDefaultBrush");
+            expander.Resources["ExpanderHeaderBackground"] = cardBg;
+            expander.Resources["ExpanderContentBackground"] = cardBg;
+            expander.Resources["ExpanderContentBorderBrush"] =
+                ThemeRes.Brush(this, "CardStrokeColorDefaultBrush");
+
+            return expander;
+        }
+
+        private ConfigCardVisual BuildLocalConfigCard(LocalConfig lc)
         {
             var loc = LocalizationManager.Instance;
 
@@ -227,18 +485,12 @@ namespace Lithiumvpn.Pages
                     Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
                 }
             };
-            var flyout = new MenuFlyout();
-            var renameItem = new MenuFlyoutItem
-            {
-                Text = loc.Get("Configs_Rename"),
-                Icon = new FontIcon { Glyph = "" }
-            };
+            ToolTipService.SetToolTip(menuBtn, loc.Get("Configs_MoreActions"));
+
+            var flyout = BuildThemedMenuFlyout();
+            var renameItem = BuildMenuItem("Configs_Rename", "\uE70F");
             renameItem.Click += (s, e) => _ = RenameLocalAsync(lc);
-            var deleteItem = new MenuFlyoutItem
-            {
-                Text = loc.Get("Configs_Delete"),
-                Icon = new FontIcon { Glyph = "" }
-            };
+            var deleteItem = BuildMenuItem("Configs_Delete", "\uE74D", destructive: true);
             deleteItem.Click += (s, e) => _ = DeleteLocalAsync(lc);
             flyout.Items.Add(renameItem);
             flyout.Items.Add(deleteItem);
@@ -314,7 +566,382 @@ namespace Lithiumvpn.Pages
             outer.Children.Add(row0);
             outer.Children.Add(row1);
             card.Child = outer;
-            return card;
+
+            return new ConfigCardVisual { Card = card, PingTag = pingTag, Link = lc.Link };
+        }
+
+        // ─── Themed menus + labelled action buttons ─────────────────────
+
+        /// <summary>
+        /// A MenuFlyout whose popup is pinned to the window's actual theme.
+        /// Flyouts render in a separate popup tree that resolves {ThemeResource}
+        /// against the OS theme rather than the per-window theme DevWinUI applies
+        /// (the same reason code-behind must use <see cref="ThemeRes"/>), which
+        /// otherwise leaves item text invisible — e.g. white-on-light.
+        /// </summary>
+        private MenuFlyout BuildThemedMenuFlyout()
+        {
+            var flyout = new MenuFlyout();
+            var presenterStyle = new Style(typeof(MenuFlyoutPresenter));
+            presenterStyle.Setters.Add(new Setter(
+                FrameworkElement.RequestedThemeProperty, this.ActualTheme));
+            flyout.MenuFlyoutPresenterStyle = presenterStyle;
+            return flyout;
+        }
+
+        /// <summary>Menu row with an explicit label + icon colour, so text always shows.</summary>
+        private MenuFlyoutItem BuildMenuItem(string textKey, string glyph, bool destructive = false)
+        {
+            var fg = destructive
+                ? new SolidColorBrush(Color.FromArgb(255, 229, 57, 53))
+                : ThemeRes.Brush(this, "TextFillColorPrimaryBrush");
+
+            return new MenuFlyoutItem
+            {
+                Text = LocalizationManager.Instance.Get(textKey),
+                RequestedTheme = this.ActualTheme,
+                Foreground = fg,
+                Icon = new FontIcon { Glyph = glyph, Foreground = fg },
+            };
+        }
+
+        /// <summary>
+        /// "Update" for a subscription — icon + label + inline spinner, matching the
+        /// "ping all" button so the group header reads as one set of actions.
+        /// </summary>
+        private Button BuildUpdateSubButton(LocalSubscription sub)
+        {
+            var loc = LocalizationManager.Instance;
+            var accent = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush");
+
+            var ring = new ProgressRing
+            {
+                Width = 13,
+                Height = 13,
+                IsActive = false,
+                Visibility = Visibility.Collapsed,
+                Foreground = accent
+            };
+            var glyph = new FontIcon { Glyph = "", FontSize = 13, Foreground = accent };
+            var label = new TextBlock
+            {
+                Text = loc.Get("Configs_Update"),
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+            };
+
+            var content = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 6,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            content.Children.Add(ring);
+            content.Children.Add(glyph);
+            content.Children.Add(label);
+
+            var btn = new Button
+            {
+                Style = (Style)Resources["InfoButtonStyle"],
+                Content = content
+            };
+            ToolTipService.SetToolTip(btn, loc.Get("Configs_UpdateSub"));
+            btn.Click += (s, e) => _ = UpdateSubscriptionAsync(sub, btn, ring, glyph);
+            return btn;
+        }
+
+        // ─── Group ping ("ping all") ────────────────────────────────────
+
+        /// <summary>
+        /// Builds a group's "ping all" button, wired to a sequential batch over that
+        /// group's configs only.
+        /// </summary>
+        private Button BuildPingAllButton(IReadOnlyList<ConfigCardVisual> targets)
+        {
+            var loc = LocalizationManager.Instance;
+
+            var label = new TextBlock
+            {
+                Text = loc.Get("Configs_PingAll"),
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+            };
+            var glyph = new FontIcon
+            {
+                Glyph = "",   // speed / stopwatch
+                FontSize = 13,
+                Foreground = ThemeRes.Brush(this, "TextFillColorPrimaryBrush")
+            };
+            var ring = new ProgressRing
+            {
+                Width = 13,
+                Height = 13,
+                IsActive = false,
+                Visibility = Visibility.Collapsed,
+                Foreground = ThemeRes.Brush(this, "AccentAAFillColorDefaultBrush")
+            };
+
+            var content = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 6,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            content.Children.Add(ring);
+            content.Children.Add(glyph);
+            content.Children.Add(label);
+
+            var btn = new Button
+            {
+                Style = (Style)Resources["InfoButtonStyle"],
+                Content = content,
+                IsEnabled = targets.Count > 0,
+                Tag = targets.Count,          // read back by SetPingAllButtonsEnabled
+            };
+            ToolTipService.SetToolTip(btn, loc.Get("Configs_PingAllTooltip"));
+            btn.Click += (s, e) => _ = RunGroupPingAsync(btn, ring, glyph, label, targets);
+
+            _pingAllButtons.Add(btn);
+            return btn;
+        }
+
+        /// <summary>
+        /// Pings every config in one group, sequentially, updating each card's tag as
+        /// results arrive. Starting another group's batch (or an individual ping)
+        /// supersedes this one; the button is always restored on the way out.
+        /// </summary>
+        private async Task RunGroupPingAsync(
+            Button button, ProgressRing ring, FontIcon glyph, TextBlock label,
+            IReadOnlyList<ConfigCardVisual> targets)
+        {
+            if (targets.Count == 0 || IsBatchRunning) return;
+
+            var loc = LocalizationManager.Instance;
+            string idleText = loc.Get("Configs_PingAll");
+
+            var cts = new CancellationTokenSource();
+            _batchCts = cts;
+
+            SetPingAllButtonsEnabled(false);
+            ring.IsActive = true;
+            ring.Visibility = Visibility.Visible;
+            glyph.Visibility = Visibility.Collapsed;
+            label.Text = $"0/{targets.Count}";
+
+            // Snapshot each tag so a cancelled batch can put back whatever it showed
+            // before, instead of leaving cards stuck on "Pinging…".
+            var snapshot = new (string Text, Brush? Background, Visibility Visibility)[targets.Count];
+            for (int i = 0; i < targets.Count; i++)
+            {
+                var tag = targets[i].PingTag;
+                snapshot[i] = ((tag.Child as TextBlock)?.Text ?? "", tag.Background, tag.Visibility);
+                SetTagPending(tag);
+            }
+
+            // Written by the batch callback (background thread) before it enqueues the
+            // UI update. PingBatchAsync only returns once every callback has run, so
+            // by the time the finally executes this array is fully published.
+            var completed = new bool[targets.Count];
+
+            try
+            {
+                var links = targets.Select(t => t.Link).ToList();
+                int done = 0;
+
+                await PingService.Instance.PingBatchAsync(links, (index, ping) =>
+                {
+                    if (index < 0 || index >= targets.Count) return;
+                    completed[index] = true;
+
+                    // Callback arrives on a background thread → marshal to the UI.
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        ApplyPingToTag(targets[index].PingTag, ping);
+                        done++;
+                        label.Text = $"{done}/{targets.Count}";
+                    });
+                }, cts.Token);
+            }
+            catch (OperationCanceledException) { /* superseded / navigated away */ }
+            catch (Exception ex)
+            {
+                ShowImportInfo(
+                    string.Format(loc.Get("Configs_PingAllFailed"), FirstLine(ex.Message)),
+                    InfoBarSeverity.Error);
+            }
+            finally
+            {
+                // Only clear the shared slot if we still own it — a newer batch may
+                // have already replaced it.
+                if (ReferenceEquals(_batchCts, cts)) _batchCts = null;
+                cts.Dispose();
+
+                // Restore tags that never got a result (batch stopped early). Completed
+                // ones are left to their queued UI update.
+                for (int i = 0; i < targets.Count; i++)
+                {
+                    if (completed[i]) continue;
+                    var tag = targets[i].PingTag;
+                    if (tag.Child is TextBlock tb) tb.Text = snapshot[i].Text;
+                    tag.Background = snapshot[i].Background;
+                    tag.Visibility = snapshot[i].Visibility;
+                }
+
+                SetPingAllButtonsEnabled(true);
+                ring.IsActive = false;
+                ring.Visibility = Visibility.Collapsed;
+                glyph.Visibility = Visibility.Visible;
+                label.Text = idleText;
+
+                // Any re-render we suppressed while the batch ran now gets to run.
+                if (_renderPending && !IsBatchRunning)
+                    RenderAll();
+            }
+        }
+
+        private static string FirstLine(string text)
+        {
+            var nl = text.IndexOf('\n');
+            return (nl > 0 ? text[..nl] : text).Trim();
+        }
+
+        // ─── Shared ping-tag rendering (single + group) ─────────────────
+        private static void SetTagPending(Border tag)
+        {
+            if (tag.Child is TextBlock tb)
+                tb.Text = LocalizationManager.Instance.Get("Common_Pinging");
+            tag.Background = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
+            tag.Visibility = Visibility.Visible;
+        }
+
+        private static void ApplyPingToTag(Border tag, int ping)
+        {
+            bool firstTime = tag.Visibility == Visibility.Collapsed;
+
+            if (tag.Child is TextBlock tb)
+                tb.Text = ping >= 0 ? $"{ping} ms" : "-1 ms";
+
+            tag.Background = new SolidColorBrush(
+                ping > 0 ? PingColor(ping) : Color.FromArgb(255, 229, 57, 53));
+            tag.Visibility = Visibility.Visible;
+
+            if (tag.RenderTransform is not ScaleTransform st) return;
+
+            var sb = new Storyboard();
+            foreach (var prop in new[] { "ScaleX", "ScaleY" })
+            {
+                var anim = new DoubleAnimationUsingKeyFrames();
+                anim.KeyFrames.Add(new EasingDoubleKeyFrame
+                {
+                    KeyTime = KeyTime.FromTimeSpan(TimeSpan.Zero),
+                    Value = firstTime ? 0.6 : 0.85
+                });
+                anim.KeyFrames.Add(new EasingDoubleKeyFrame
+                {
+                    KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(260)),
+                    Value = 1,
+                    EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.4 }
+                });
+                Storyboard.SetTarget(anim, st);
+                Storyboard.SetTargetProperty(anim, prop);
+                sb.Children.Add(anim);
+            }
+            sb.Begin();
+        }
+
+        // ─── Subscription actions ───────────────────────────────────────
+
+        /// <summary>
+        /// Re-fetches a subscription DIRECTLY (never through the proxy) and swaps in
+        /// the new configs, replacing only that subscription's own entries.
+        /// </summary>
+        private async Task UpdateSubscriptionAsync(
+            LocalSubscription sub, Button button, ProgressRing ring, FontIcon glyph)
+        {
+            var loc = LocalizationManager.Instance;
+
+            button.IsEnabled = false;
+            ring.IsActive = true;
+            ring.Visibility = Visibility.Visible;
+            glyph.Visibility = Visibility.Collapsed;
+            try
+            {
+                var result = await ConfigImporter.FetchSubscriptionAsync(sub.Url);
+
+                if (result.FetchFailed)
+                {
+                    ShowImportInfo(
+                        string.Format(loc.Get("Configs_SubUpdateFailed"), sub.Name),
+                        InfoBarSeverity.Error);
+                    return;
+                }
+                if (!result.AnyAdded)
+                {
+                    ShowImportInfo(
+                        string.Format(loc.Get("Configs_SubUpdateEmpty"), sub.Name),
+                        InfoBarSeverity.Warning);
+                    return;
+                }
+
+                // Rebuilds the cards for this group only (Changed → RenderAll).
+                LocalConfigStore.Instance.ReplaceSubscriptionConfigs(sub.Id, result.Configs);
+
+                ShowImportInfo(
+                    string.Format(loc.Get("Configs_SubUpdated"), sub.Name, result.Added),
+                    InfoBarSeverity.Success);
+            }
+            finally
+            {
+                // The card tree is usually rebuilt underneath us; restoring is still
+                // correct for the case where nothing changed.
+                button.IsEnabled = true;
+                ring.IsActive = false;
+                ring.Visibility = Visibility.Collapsed;
+                glyph.Visibility = Visibility.Visible;
+            }
+        }
+
+        private async Task RenameSubscriptionAsync(LocalSubscription sub)
+        {
+            var loc = LocalizationManager.Instance;
+            var input = new TextBox
+            {
+                Text = sub.Name,
+                PlaceholderText = loc.Get("Configs_NamePlaceholder"),
+                MaxLength = 60
+            };
+            var dialog = new ContentDialog
+            {
+                Title = loc.Get("Configs_RenameSubTitle"),
+                Content = input,
+                PrimaryButtonText = loc.Get("Common_OK"),
+                CloseButtonText = loc.Get("Common_Cancel"),
+                DefaultButton = ContentDialogButton.Primary,
+                FlowDirection = loc.FlowDirection,
+                XamlRoot = this.XamlRoot
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                LocalConfigStore.Instance.RenameSubscription(sub.Id, input.Text.Trim());
+        }
+
+        private async Task DeleteSubscriptionAsync(LocalSubscription sub)
+        {
+            var loc = LocalizationManager.Instance;
+            int count = LocalConfigStore.Instance.ConfigsFor(sub.Id).Count;
+            var dialog = new ContentDialog
+            {
+                Title = loc.Get("Configs_DeleteSubTitle"),
+                Content = string.Format(loc.Get("Configs_DeleteSubBody"), sub.Name, count),
+                PrimaryButtonText = loc.Get("Configs_Delete"),
+                CloseButtonText = loc.Get("Common_Cancel"),
+                DefaultButton = ContentDialogButton.Close,
+                FlowDirection = loc.FlowDirection,
+                XamlRoot = this.XamlRoot
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                LocalConfigStore.Instance.RemoveSubscription(sub.Id);
         }
 
         private Grid BuildLocalIconCircle()
@@ -379,13 +1006,35 @@ namespace Lithiumvpn.Pages
                 return;
             }
 
-            LocalConfigStore.Instance.AddRange(result.Configs);   // raises Changed → RenderAll
+            var store = LocalConfigStore.Instance;
+            string msg;
+
+            if (result.SubscriptionUrl is { } subUrl)
+            {
+                // A subscription gets its own group. Re-importing the same URL refreshes
+                // that group in place instead of creating a duplicate dropdown.
+                var existing = store.FindSubscriptionByUrl(subUrl);
+                if (existing is not null)
+                {
+                    store.ReplaceSubscriptionConfigs(existing.Id, result.Configs);
+                    msg = string.Format(loc.Get("Configs_SubUpdated"), existing.Name, result.Added);
+                }
+                else
+                {
+                    var sub = store.AddSubscription(subUrl, null, result.Configs);
+                    msg = string.Format(loc.Get("Configs_SubAdded"), sub.Name, result.Added);
+                }
+            }
+            else
+            {
+                store.AddManual(result.Configs);   // raises Changed → RenderAll
+                msg = result.Failed > 0
+                    ? string.Format(loc.Get("Configs_ImportedSome"), result.Added, result.Failed)
+                    : string.Format(loc.Get("Configs_ImportedOk"), result.Added);
+            }
 
             // After a successful import the content view is visible again, so the
             // InfoBar there is the right place for the success note.
-            string msg = result.Failed > 0
-                ? string.Format(loc.Get("Configs_ImportedSome"), result.Added, result.Failed)
-                : string.Format(loc.Get("Configs_ImportedOk"), result.Added);
             ShowImportInfo(msg, InfoBarSeverity.Success);
         }
 
@@ -532,12 +1181,17 @@ namespace Lithiumvpn.Pages
             var cardsStack = new StackPanel { Spacing = 8 };
             Grid.SetColumn(cardsStack, 1);
             string volume = planUsage > 0 ? $"{planUsage} GB" : "";
+            var targets = new List<ConfigCardVisual>();
             foreach (var cfg in configs)
             {
-                var card = BuildConfigCard(cfg, purchase, volume);
-                cardsStack.Children.Add(card);
-                _firstConfigCard ??= card;
+                var visual = BuildConfigCard(cfg, purchase, volume);
+                cardsStack.Children.Add(visual.Card);
+                targets.Add(visual);
+                _firstConfigCard ??= visual.Card;
             }
+
+            // "Ping all" for this purchase, same as the imported groups.
+            headerStack.Children.Add(BuildPingAllButton(targets));
 
             contentGrid.Children.Add(line);
             contentGrid.Children.Add(cardsStack);
@@ -650,7 +1304,7 @@ namespace Lithiumvpn.Pages
             return stack;
         }
 
-        private Border BuildConfigCard(ConfigDto cfg, PurchaseDto purchase, string volume)
+        private ConfigCardVisual BuildConfigCard(ConfigDto cfg, PurchaseDto purchase, string volume)
         {
             var loc = LocalizationManager.Instance;
             string code = (cfg.Country ?? "").ToUpperInvariant();
@@ -772,7 +1426,8 @@ namespace Lithiumvpn.Pages
             outer.Children.Add(row0);
             outer.Children.Add(row1);
             card.Child = outer;
-            return card;
+
+            return new ConfigCardVisual { Card = card, PingTag = pingTag, Link = cfg.ConfigCode ?? "" };
         }
 
         // Circular SVG flag with a subtle background, falling back to an empty circle.
@@ -882,12 +1537,7 @@ namespace Lithiumvpn.Pages
             if (string.IsNullOrWhiteSpace(configCode)) return;
 
             btn.IsEnabled = false;
-            if (tag.Child is TextBlock loading)
-            {
-                loading.Text = LocalizationManager.Instance.Get("Common_Pinging");
-                tag.Background = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
-                tag.Visibility = Visibility.Visible;
-            }
+            SetTagPending(tag);
 
             int? result = await Services.Xray.PingService.Instance.PingConfigAsync(configCode);
             btn.IsEnabled = true;
@@ -895,41 +1545,8 @@ namespace Lithiumvpn.Pages
             // Superseded by a newer ping → leave the tag for that request to fill.
             if (result is null) return;
 
-            int ping = result.Value;
-            if (tag.Child is TextBlock tb)
-                tb.Text = ping >= 0 ? $"{ping} ms" : "-1 ms";
-
-            tag.Background = new SolidColorBrush(
-                ping > 0 ? PingColor(ping) : Color.FromArgb(255, 229, 57, 53));
-
-            bool firstTime = tag.Visibility == Visibility.Collapsed;
-            tag.Visibility = Visibility.Visible;
-
+            ApplyPingToTag(tag, result.Value);
             PulseButton(btn);
-
-            if (tag.RenderTransform is ScaleTransform st)
-            {
-                var sb = new Storyboard();
-                foreach (var prop in new[] { "ScaleX", "ScaleY" })
-                {
-                    var anim = new DoubleAnimationUsingKeyFrames();
-                    anim.KeyFrames.Add(new EasingDoubleKeyFrame
-                    {
-                        KeyTime = KeyTime.FromTimeSpan(TimeSpan.Zero),
-                        Value = firstTime ? 0.6 : 0.85
-                    });
-                    anim.KeyFrames.Add(new EasingDoubleKeyFrame
-                    {
-                        KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(260)),
-                        Value = 1,
-                        EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.4 }
-                    });
-                    Storyboard.SetTarget(anim, st);
-                    Storyboard.SetTargetProperty(anim, prop);
-                    sb.Children.Add(anim);
-                }
-                sb.Begin();
-            }
         }
 
         private static void PulseButton(Button btn)
@@ -965,12 +1582,16 @@ namespace Lithiumvpn.Pages
             sb.Begin();
         }
 
+        /// <summary>
+        /// Latency rating tuned for this app's audience, where traffic leaves the
+        /// country before it reaches a server: green ≤ 400 ms, amber 400–900 ms,
+        /// red above 900 ms.
+        /// </summary>
         private static Color PingColor(int ping)
         {
-            if (ping <= 40) return Color.FromArgb(255, 0, 200, 83);
-            if (ping <= 80) return Color.FromArgb(255, 124, 179, 66);
-            if (ping <= 120) return Color.FromArgb(255, 255, 179, 0);
-            return Color.FromArgb(255, 229, 57, 53);
+            if (ping <= 400) return Color.FromArgb(255, 0, 200, 83);    // green
+            if (ping <= 900) return Color.FromArgb(255, 255, 179, 0);   // amber
+            return Color.FromArgb(255, 229, 57, 53);                    // red
         }
 
         // ─── Connect: hand the config to the dashboard, which starts the tunnel ─

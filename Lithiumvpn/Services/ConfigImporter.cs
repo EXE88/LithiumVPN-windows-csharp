@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Lithiumvpn.Services.Xray;
 
@@ -25,12 +26,26 @@ namespace Lithiumvpn.Services
             public int Added => Configs.Count;
             public int Failed { get; set; }
             public bool AnyAdded => Configs.Count > 0;
+
+            /// <summary>
+            /// Set when the input was a subscription URL that we successfully fetched,
+            /// so the caller can store it as its own updatable group.
+            /// </summary>
+            public string? SubscriptionUrl { get; set; }
+
+            /// <summary>True when the fetch itself failed (network/HTTP), not just parsing.</summary>
+            public bool FetchFailed { get; set; }
         }
 
-        // Direct (never proxied) client for fetching subscription URLs.
-        private static readonly HttpClient _http = new(new HttpClientHandler { UseProxy = false })
+        /// <summary>
+        /// Dedicated client with <c>UseProxy = false</c>: subscription updates must go
+        /// out DIRECTLY, never through the app's own tunnel/system proxy. Routing them
+        /// through the proxy would break refreshing while connected (and can hairpin
+        /// through the very server the subscription is trying to replace).
+        /// </summary>
+        private static readonly HttpClient _directHttp = new(new HttpClientHandler { UseProxy = false })
         {
-            Timeout = TimeSpan.FromSeconds(15)
+            Timeout = TimeSpan.FromSeconds(20)
         };
 
         /// <summary>
@@ -50,16 +65,35 @@ namespace Lithiumvpn.Services
             // a direct config (an http:// forward-proxy link is still valid).
             if (lines.Count == 1 && IsHttpUrl(lines[0]))
             {
-                try
-                {
-                    var body = await _http.GetStringAsync(lines[0]);
-                    ParseBlockInto(body, result);
-                    if (result.AnyAdded) return result;
-                }
-                catch { /* fall through to direct parsing */ }
+                var fetched = await FetchSubscriptionAsync(lines[0]);
+                if (fetched.AnyAdded) return fetched;
             }
 
             ParseBlockInto(text, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Downloads a subscription URL (never through the proxy) and parses its
+        /// configs. Used both for the first import and for "update subscription".
+        /// </summary>
+        public static async Task<ImportResult> FetchSubscriptionAsync(
+            string url, CancellationToken ct = default)
+        {
+            var result = new ImportResult();
+            string body;
+            try
+            {
+                body = await _directHttp.GetStringAsync(url, ct);
+            }
+            catch
+            {
+                result.FetchFailed = true;
+                return result;
+            }
+
+            ParseBlockInto(body, result);
+            if (result.AnyAdded) result.SubscriptionUrl = url.Trim();
             return result;
         }
 

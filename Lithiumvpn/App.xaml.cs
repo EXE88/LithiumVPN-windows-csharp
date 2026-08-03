@@ -39,10 +39,14 @@ namespace Lithiumvpn
             _window.Closed += (_, _) =>
             {
                 _tray?.Dispose();
+                Services.Xray.PingService.Instance.ShutdownBlocking();
                 Services.Xray.ConnectionService.Instance.ShutdownBlocking();
             };
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                Services.Xray.PingService.Instance.ShutdownBlocking();
                 Services.Xray.ConnectionService.Instance.ShutdownBlocking();
+            };
 
             SetupTrayIcon(_window);
             RootWindow = (MainWindow)_window;
